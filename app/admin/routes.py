@@ -7,7 +7,7 @@ from app.decorators import permission_required
 from app.models import Role, Permission, User, TemporaryAccessCode
 from .forms import RoleForm, EditUserForm, ChangePasswordForm, GenerateTempCodeForm
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 @admin.route('/')
 @login_required
@@ -123,7 +123,7 @@ def change_user_password(user_id):
 def manage_temp_codes():
     form = GenerateTempCodeForm()
     if form.validate_on_submit():
-        expiry = datetime.utcnow() + timedelta(minutes=form.duration.data)
+        expiry = datetime.now(UTC) + timedelta(minutes=form.duration.data)
         code_str = f"LHCSL-{secrets.token_hex(4).upper()}{secrets.token_hex(4).upper()}"
 
         new_code = TemporaryAccessCode(

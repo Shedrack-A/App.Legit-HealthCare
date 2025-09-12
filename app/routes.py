@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, session, request, redirect, url_for, flash
-from flask_login import current_user
-from datetime import date, datetime
+from flask_login import current_user, login_required
+from datetime import date, datetime, UTC
 from app.models import TemporaryAccessCode
 from app import db
+from app.decorators import permission_required
 
 main = Blueprint('main', __name__)
 
@@ -26,6 +27,12 @@ def set_filters():
     session['year'] = request.form.get('year', date.today().year, type=int)
     # Redirect back to the page the user was on
     return redirect(request.referrer or url_for('main.index'))
+
+@main.route('/sensitive_data')
+@login_required
+@permission_required('view_sensitive_data')
+def sensitive_data():
+    return "This is sensitive data."
 
 @main.route('/activate_code', methods=['POST'])
 def activate_code():

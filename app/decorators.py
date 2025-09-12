@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import abort, session
 from flask_login import current_user
-from datetime import datetime
+from datetime import datetime, UTC
 
 def permission_required(permission_name):
     """

@@ -22,7 +22,7 @@
                 {% for role in roles %}
                 <tr>
                     <td>{{ role.name }}</td>
-                    <td>{{ role.permissions.count() }}</td>
+                    <td>{{ role.permissions|length }}</td>
                     <td class="actions-cell">
                         <a href="{{ url_for('admin.edit_role', role_id=role.id) }}" class="btn-action btn-edit"><i class="fas fa-edit"></i> Edit</a>
                         {% if role.name not in ['Admin', 'New User'] %}

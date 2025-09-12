@@ -1,9 +1,9 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
-import os
+from config import config
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -11,14 +11,10 @@ login_manager = LoginManager()
 login_manager.login_view = 'auth.login' # Redirect to login page if user is not authenticated
 bcrypt = Bcrypt()
 
-def create_app():
+def create_app(config_name='default'):
     app = Flask(__name__)
-
-    # Configuration
-    # I will set up a proper configuration later
-    app.config['SECRET_KEY'] = 'a_very_secret_key' # This will be changed
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db' # Using SQLite for now
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config.from_object(config[config_name])
+    config[config_name].init_app(app)
 
     # Initialize extensions
     db.init_app(app)

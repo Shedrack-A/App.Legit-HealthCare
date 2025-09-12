@@ -24,7 +24,7 @@
                 <li><a href="{{ url_for('data_view.view_all_patients') }}"><i class="fas fa-users"></i> View Patients</a></li>
                 <li><a href="{{ url_for('data_view.view_yearly_records') }}"><i class="fas fa-folder-open"></i> View Records</a></li>
                 <hr>
-                {% if current_user.has_permission('manage_roles') %}
+                {% if current_user.is_authenticated and current_user.has_permission('manage_roles') %}
                 <li><a href="{{ url_for('admin.index') }}"><i class="fas fa-cogs"></i> Control Panel</a></li>
                 {% endif %}
                 <li><a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>

@@ -75,7 +75,7 @@ class TemporaryAccessCode(db.Model):
     def __repr__(self):
         return f"<TempCode {self.code}>"
 
-from datetime import datetime
+from datetime import datetime, UTC
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -96,7 +96,7 @@ class Patient(db.Model):
     email_address = db.Column(db.String(120))
     race = db.Column(db.String(50), nullable=False)
     nationality = db.Column(db.String(50), nullable=False)
-    date_registered = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_registered = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
 
     # For data isolation
     company = db.Column(db.String(10), nullable=False) # e.g., 'DCP' or 'DCT'
@@ -143,7 +143,7 @@ class Consultation(db.Model):
     other_remarks = db.Column(db.Text)
     overall_assessment = db.Column(db.Text)
 
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
 
     patient = db.relationship('Patient', backref=db.backref('consultation', lazy=True, uselist=False))
 
@@ -173,7 +173,7 @@ class FullBloodCount(db.Model):
     hgb = db.Column(db.String(50))
     fbc_remark = db.Column(db.Text)
     other_remarks = db.Column(db.Text)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     patient = db.relationship('Patient', backref=db.backref('full_blood_count', lazy=True, uselist=False))
 
 class KidneyFunctionTest(db.Model):
@@ -188,7 +188,7 @@ class KidneyFunctionTest(db.Model):
     cre = db.Column(db.Float)
     kft_remark = db.Column(db.Text)
     other_remarks = db.Column(db.Text)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     patient = db.relationship('Patient', backref=db.backref('kidney_function_test', lazy=True, uselist=False))
 
 class LipidProfile(db.Model):
@@ -200,7 +200,7 @@ class LipidProfile(db.Model):
     ldl = db.Column(db.Float) # Calculated
     lp_remark = db.Column(db.Text)
     other_remarks = db.Column(db.Text)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     patient = db.relationship('Patient', backref=db.backref('lipid_profile', lazy=True, uselist=False))
 
 class LiverFunctionTest(db.Model):
@@ -213,7 +213,7 @@ class LiverFunctionTest(db.Model):
     cb = db.Column(db.String(50))
     lft_remark = db.Column(db.Text)
     other_remarks = db.Column(db.Text)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     patient = db.relationship('Patient', backref=db.backref('liver_function_test', lazy=True, uselist=False))
 
 class ECG(db.Model):
@@ -221,7 +221,7 @@ class ECG(db.Model):
     patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=False, unique=True)
     ecg_result = db.Column(db.Text)
     remark = db.Column(db.Text)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     patient = db.relationship('Patient', backref=db.backref('ecg', lazy=True, uselist=False))
 
 class Spirometry(db.Model):
@@ -229,7 +229,7 @@ class Spirometry(db.Model):
     patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=False, unique=True)
     spirometry_result = db.Column(db.Text)
     remark = db.Column(db.Text)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     patient = db.relationship('Patient', backref=db.backref('spirometry', lazy=True, uselist=False))
 
 class Audiometry(db.Model):
@@ -237,5 +237,5 @@ class Audiometry(db.Model):
     patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=False, unique=True)
     audiometry_result = db.Column(db.Text)
     remark = db.Column(db.Text)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     patient = db.relationship('Patient', backref=db.backref('audiometry', lazy=True, uselist=False))
