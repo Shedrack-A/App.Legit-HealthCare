@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="edit-user-page">
+    <h2>Edit User: {{ user.first_name }} {{ user.last_name }}</h2>
+
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset>
+            <legend>User Details</legend>
+            <div class="form-group">
+                {{ form.first_name.label }}
+                {{ form.first_name(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.last_name.label }}
+                {{ form.last_name(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.roles.label }}
+                <div class="permission-checkboxes">
+                    {{ form.roles(class="form-control", size=5) }}
+                </div>
+            </div>
+        </fieldset>
+        <div class="form-actions">
+            {{ form.submit(class="btn-submit") }}
+        </div>
+    </form>
+
+    <div class="page-section">
+        <h3>Change Password</h3>
+        <p>
+            <a href="{{ url_for('admin.change_user_password', user_id=user.id) }}" class="btn-action btn-delete">Reset User's Password</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

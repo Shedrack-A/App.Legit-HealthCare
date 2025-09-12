@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Legit HealthCare Services</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        {% block navigation %}
+        <nav id="side-nav">
+            <div class="nav-header">
+                <!-- Logo will go here -->
+                <h3>LHS Ltd.</h3>
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('main.index') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="{{ url_for('patient.register') }}"><i class="fas fa-user-plus"></i> Register Patient</a></li>
+                <li><a href="{{ url_for('consultation.index') }}"><i class="fas fa-stethoscope"></i> Consultation</a></li>
+                <li><a href="{{ url_for('results.index') }}"><i class="fas fa-vial"></i> Results</a></li>
+                <li><a href="#"><i class="fas fa-file-pdf"></i> Patient Report</a></li>
+                <li><a href="{{ url_for('data_view.view_all_patients') }}"><i class="fas fa-users"></i> View Patients</a></li>
+                <li><a href="{{ url_for('data_view.view_yearly_records') }}"><i class="fas fa-folder-open"></i> View Records</a></li>
+                <hr>
+                {% if current_user.has_permission('manage_roles') %}
+                <li><a href="{{ url_for('admin.index') }}"><i class="fas fa-cogs"></i> Control Panel</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+        {% endblock %}
+
+        <div class="main-content">
+            <header>
+                <div class="header-left">
+                    <h1>{{ title }}</h1>
+                </div>
+                <div class="header-right">
+                    <form action="{{ url_for('main.set_filters') }}" method="POST" class="header-filters">
+                        <select name="company" onchange="this.form.submit()">
+                            <option value="DCP" {% if session.company == 'DCP' %}selected{% endif %}>Dangote Cement - DCP</option>
+                            <option value="DCT" {% if session.company == 'DCT' %}selected{% endif %}>Dangote Transport - DCT</option>
+                        </select>
+                        <select name="year" onchange="this.form.submit()">
+                            {% for year in range(2020, 2036) %}
+                                <option value="{{ year }}" {% if session.year == year %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                    <button id="theme-switcher">Toggle Theme</button>
+                </div>
+            </header>
+
+            <main>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

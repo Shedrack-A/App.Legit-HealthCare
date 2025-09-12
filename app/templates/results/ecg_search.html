@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="results-search-page">
+    <h2>ECG - Search Patient</h2>
+    <p>Enter a patient's Staff ID to add or view their ECG results.</p>
+
+    <form method="POST" class="search-form">
+        <input type="text" name="search_term" placeholder="Enter Staff ID..." value="{{ search_term or '' }}">
+        <button type="submit" class="btn-submit">Search</button>
+    </form>
+
+    {% if patients is defined %}
+        <div class="search-results">
+            <h3>Search Results</h3>
+            {% if patients %}
+                <ul class="patient-list">
+                    {% for patient in patients %}
+                        <li>
+                            <a href="{{ url_for('results.ecg_form', patient_id=patient.id) }}">
+                                <span>{{ patient.first_name }} {{ patient.last_name }}</span>
+                                <small>Staff ID: {{ patient.staff_id }}</small>
+                                <small>Dept: {{ patient.department }}</small>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No patients found matching your search term.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

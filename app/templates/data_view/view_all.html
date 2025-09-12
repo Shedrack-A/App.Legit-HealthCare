@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="view-all-page">
+    <h2>All Registered Patients</h2>
+    <p>This page shows a comprehensive list of all patients in the system, across all years.</p>
+
+    <div class="table-container">
+        <table class="patient-table">
+            <thead>
+                <tr>
+                    <th>Staff ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Screening Year</th>
+                    <th>Company</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in patients.items %}
+                <tr>
+                    <td>{{ patient.staff_id }}</td>
+                    <td>{{ patient.first_name }}</td>
+                    <td>{{ patient.last_name }}</td>
+                    <td>{{ patient.screening_year }}</td>
+                    <td>{{ patient.company }}</td>
+                    <td class="actions-cell">
+                        <a href="{{ url_for('data_view.edit_patient', patient_id=patient.id) }}" class="btn-action btn-edit"><i class="fas fa-edit"></i> Edit</a>
+                        <form action="{{ url_for('data_view.delete_patient', patient_id=patient.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this patient?');">
+                            <button type="submit" class="btn-action btn-delete"><i class="fas fa-trash-alt"></i> Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Links -->
+    <div class="pagination">
+        {% if patients.has_prev %}
+            <a href="{{ url_for('data_view.view_all_patients', page=patients.prev_num) }}">&laquo; Previous</a>
+        {% endif %}
+        <span>Page {{ patients.page }} of {{ patients.pages }}.</span>
+        {% if patients.has_next %}
+            <a href="{{ url_for('data_view.view_all_patients', page=patients.next_num) }}">Next &raquo;</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

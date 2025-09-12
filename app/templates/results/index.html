@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="results-landing-page">
+    <h2>Select a Test</h2>
+    <p>Choose a medical test below to enter or view results for a patient.</p>
+
+    <div class="test-selection-grid">
+        {% for test in tests %}
+            <a href="{{ url_for(test.endpoint) }}" class="btn-action test-card">
+                <i class="fas fa-vial"></i>
+                <span>{{ test.name }}</span>
+            </a>
+        {% endfor %}
+        <!-- Other test links will be populated here -->
+    </div>
+</div>
+{% endblock %}

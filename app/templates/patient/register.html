@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="register-patient-page">
+    <!-- Top Section: Stats and Search -->
+    <div class="page-header-section">
+        <div class="stats-container">
+            <div class="stat-card"><span>Total Registered:</span> {{ stats.total }}</div>
+            <div class="stat-card"><span>Registered Today:</span> {{ stats.today }}</div>
+            <div class="stat-card"><span>Males:</span> {{ stats.male }}</div>
+            <div class="stat-card"><span>Females:</span> {{ stats.female }}</div>
+            <div class="stat-card"><span>Age &ge; 40:</span> {{ stats.over_40 }}</div>
+            <div class="stat-card"><span>Age &lt; 40:</span> {{ stats.under_40 }}</div>
+        </div>
+        <div class="search-container">
+            <input type="search" id="patient-search" placeholder="Search by Staff ID...">
+        </div>
+    </div>
+
+    <!-- Registration Form -->
+    <form method="POST" action="" class="patient-form">
+        {{ form.hidden_tag() }}
+        <fieldset>
+            <legend>Patient Bio-Data</legend>
+            <div class="form-grid">
+                <div class="form-group span-2">
+                    {{ form.staff_id.label }}
+                    {{ form.staff_id(class="form-control") }}
+                </div>
+                <div class="form-group span-2">
+                    {{ form.patient_id.label }}
+                    {{ form.patient_id(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.first_name.label }}
+                    {{ form.first_name(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.middle_name.label }}
+                    {{ form.middle_name(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.last_name.label }}
+                    {{ form.last_name(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.department.label }}
+                    {{ form.department(class="form-control") }}
+                </div>
+                 <div class="form-group">
+                    {{ form.gender.label }}
+                    {{ form.gender(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.date_of_birth.label }}
+                    {{ form.date_of_birth(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.contact_phone.label }}
+                    {{ form.contact_phone(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.email_address.label }}
+                    {{ form.email_address(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.race.label }}
+                    {{ form.race(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.nationality.label }}
+                    {{ form.nationality(class="form-control") }}
+                </div>
+            </div>
+        </fieldset>
+        <div class="form-actions">
+            {{ form.submit(class="btn-submit") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

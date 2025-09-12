@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block navigation %}
+<!-- Hide side navigation on landing page -->
+{% endblock %}
+
+{% block content %}
+<div class="landing-page">
+    <h1>Welcome to Legit HealthCare Services Ltd</h1>
+    <p>Your trusted partner in healthcare management. Please log in to access the portal or register for a new account.</p>
+    <div class="landing-actions">
+        <a href="{{ url_for('auth.login') }}" class="btn-action">Login</a>
+        <a href="{{ url_for('auth.register') }}" class="btn-action">Register</a>
+    </div>
+</div>
+{% endblock %}

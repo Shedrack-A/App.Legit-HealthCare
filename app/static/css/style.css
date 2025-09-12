@@ -1,0 +1,436 @@
+/* --- THEME AND COLOR VARIABLES --- */
+:root {
+    --font-color: #333;
+    --bg-color: #f4f4f9;
+    --panel-bg-color: #ffffff;
+    --border-color: #ddd;
+
+    /* Custom Theme Colors */
+    --main-color-blue: #0000FF;
+    --accent-color-red: #FF0000;
+    --highlight-color-green: #00FF00;
+
+    --link-color: var(--main-color-blue);
+    --button-bg-color: var(--main-color-blue);
+    --button-text-color: #fff;
+    --danger-color: var(--accent-color-red);
+}
+
+[data-theme='dark'] {
+    --font-color: #f4f4f9;
+    --bg-color: #222;
+    --panel-bg-color: #333;
+    --border-color: #555;
+}
+
+/* --- GENERAL STYLES --- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--font-color);
+    margin: 0;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.app-container {
+    display: flex;
+}
+
+/* --- LAYOUT --- */
+#side-nav {
+    width: 250px;
+    background-color: var(--panel-bg-color);
+    border-right: 1px solid var(--border-color);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: var(--panel-bg-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+main {
+    padding: 20px;
+}
+
+/* --- FORMS --- */
+form div {
+    margin-bottom: 1rem;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="tel"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--font-color);
+    border-radius: 5px;
+}
+
+input[type="submit"], button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+#theme-switcher {
+    background-color: var(--highlight-color-green);
+    color: #000;
+}
+
+/* --- NAVIGATION --- */
+#side-nav {
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-header {
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-links li a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: var(--font-color);
+    border-radius: 5px;
+}
+
+.nav-links li a:hover {
+    background-color: var(--bg-color);
+}
+
+.nav-links li a i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* --- DASHBOARD --- */
+.dashboard-section {
+    background-color: var(--panel-bg-color);
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.btn-action {
+    background-color: var(--main-color-blue);
+    color: var(--button-text-color);
+    padding: 15px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-action:hover {
+    opacity: 0.9;
+}
+
+/* --- PATIENT REGISTRATION PAGE --- */
+.page-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    flex-grow: 1;
+}
+
+.stat-card {
+    background-color: var(--panel-bg-color);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.stat-card span {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.search-container {
+    min-width: 300px;
+}
+
+#patient-search {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.patient-form fieldset {
+    border: 1px solid var(--border-color);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.patient-form legend {
+    padding: 0 0.5rem;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    grid-column: span 1;
+}
+
+.form-group.span-2 {
+    grid-column: span 2;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--font-color);
+    border-radius: 5px;
+}
+
+.form-actions {
+    text-align: right;
+}
+
+/* --- CONSULTATION PAGE --- */
+.patient-header {
+    background-color: var(--panel-bg-color);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.patient-details {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.form-grid-consultation {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.consultation-search-page .search-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.consultation-search-page .search-form input {
+    flex-grow: 1;
+}
+
+.patient-list {
+    list-style: none;
+    padding: 0;
+}
+
+.patient-list li a {
+    display: block;
+    background-color: var(--panel-bg-color);
+    padding: 1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    color: var(--font-color);
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.patient-list li a:hover {
+    background-color: var(--bg-color);
+}
+
+.patient-list li a span {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.patient-list li a small {
+    margin-right: 1rem;
+    color: #888;
+}
+
+/* --- RESULTS PAGE --- */
+.test-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.test-card {
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.form-grid-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+/* --- DATA VIEWING PAGES --- */
+.table-container {
+    background-color: var(--panel-bg-color);
+    padding: 1.5rem;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.patient-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.patient-table th, .patient-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.patient-table thead {
+    background-color: var(--bg-color);
+}
+
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-edit {
+    background-color: var(--highlight-color-green);
+    color: #000;
+}
+
+.btn-delete {
+    background-color: var(--accent-color-red);
+}
+
+.pagination {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.pagination a {
+    margin: 0 0.5rem;
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+/* --- ADMIN PAGES --- */
+.top-actions {
+    margin-bottom: 1.5rem;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.role-badge {
+    background-color: var(--main-color-blue);
+    color: var(--button-text-color);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-right: 0.25rem;
+    display: inline-block;
+}
+
+.permission-checkboxes {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+.page-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* --- ALERTS --- */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+.alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}

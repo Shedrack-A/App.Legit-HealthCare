@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="results-form-page">
+    <!-- Patient Info Header -->
+    <div class="patient-header">
+        <h3>Kidney Function Test for: {{ patient.first_name }} {{ patient.last_name }}</h3>
+        <div class="patient-details">
+            <span><strong>Staff ID:</strong> {{ patient.staff_id }}</span>
+            <span><strong>Age:</strong> {{ patient.age }}</span>
+            <span><strong>Department:</strong> {{ patient.department }}</span>
+        </div>
+    </div>
+
+    <!-- KFT Form -->
+    <form method="POST" action="" class="results-form">
+        {{ form.hidden_tag() }}
+        <fieldset>
+            <legend>Enter KFT Results</legend>
+            <div class="form-grid-results">
+                {% for field in form if field.widget.input_type != 'hidden' and field.widget.input_type != 'submit' %}
+                    <div class="form-group">
+                        {{ field.label }}
+                        {{ field(class="form-control") }}
+                        {% for error in field.errors %}
+                            <span class="error-text">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </fieldset>
+        <div class="form-actions">
+            {{ form.submit(class="btn-submit") }}
+        </div>
+    </form>
+</div>
+{% endblock %}
