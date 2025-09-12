@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="error-page">
+    <h2>403 - Access Forbidden</h2>
+    <p>You do not have the necessary permissions to access this page.</p>
+
+    <div class="page-section">
+        <h3>Use a Temporary Access Code</h3>
+        <p>If you have been given a temporary access code by an administrator, please enter it below to gain access.</p>
+        <form action="{{ url_for('main.activate_code') }}" method="POST" class="activate-code-form">
+            <input type="text" name="temp_code" placeholder="Enter code..." required>
+            <input type="hidden" name="next_url" value="{{ request.path }}">
+            <button type="submit" class="btn-submit">Activate Code</button>
+        </form>
+    </div>
+
+    <p><a href="{{ url_for('main.index') }}">Go back to the Dashboard</a></p>
+</div>
+{% endblock %}

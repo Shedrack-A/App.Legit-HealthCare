@@ -2,9 +2,12 @@ from flask import render_template, redirect, url_for, flash
 from flask_login import login_required
 from app import db
 from app.admin import admin
+from flask import render_template, redirect, url_for, flash, request
 from app.decorators import permission_required
-from app.models import Role, Permission, User
-from .forms import RoleForm, EditUserForm, ChangePasswordForm
+from app.models import Role, Permission, User, TemporaryAccessCode
+from .forms import RoleForm, EditUserForm, ChangePasswordForm, GenerateTempCodeForm
+import secrets
+from datetime import datetime, timedelta
 
 @admin.route('/')
 @login_required
@@ -113,3 +116,37 @@ def change_user_password(user_id):
         flash(f'Password for {user.first_name} {user.last_name} has been updated.', 'success')
         return redirect(url_for('admin.list_users'))
     return render_template('admin/change_password.html', form=form, title='Change Password', user=user)
+
+@admin.route('/temp_codes', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_temp_codes')
+def manage_temp_codes():
+    form = GenerateTempCodeForm()
+    if form.validate_on_submit():
+        expiry = datetime.utcnow() + timedelta(minutes=form.duration.data)
+        code_str = f"LHCSL-{secrets.token_hex(4).upper()}{secrets.token_hex(4).upper()}"
+
+        new_code = TemporaryAccessCode(
+            code=code_str,
+            user_id=form.user.data,
+            permission_id=form.permission.data,
+            expiry_time=expiry,
+            is_single_use=form.is_single_use.data
+        )
+        db.session.add(new_code)
+        db.session.commit()
+        flash(f'New temporary access code generated: {code_str}', 'success')
+        return redirect(url_for('admin.manage_temp_codes'))
+
+    codes = TemporaryAccessCode.query.order_by(TemporaryAccessCode.id.desc()).all()
+    return render_template('admin/temp_codes.html', title='Temporary Access Codes', form=form, codes=codes, now=datetime.utcnow)
+
+@admin.route('/temp_codes/revoke/<int:code_id>', methods=['POST'])
+@login_required
+@permission_required('manage_temp_codes')
+def revoke_temp_code(code_id):
+    code = TemporaryAccessCode.query.get_or_404(code_id)
+    code.is_active = False
+    db.session.commit()
+    flash(f'Code {code.code} has been revoked.', 'success')
+    return redirect(url_for('admin.manage_temp_codes'))

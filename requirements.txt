@@ -6,3 +6,4 @@ Flask-Bcrypt
 Flask-WTF
 email_validator
 python-dotenv
+alembic

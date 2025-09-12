@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, jsonify
+from flask import render_template, redirect, url_for, flash, jsonify, session, request
 from flask_login import login_required
 from app import db
 from app.patient import patient
@@ -31,8 +31,8 @@ def register():
             email_address=form.email_address.data,
             race=form.race.data,
             nationality=form.nationality.data,
-            company='DCP',
-            screening_year=date.today().year
+            company=session.get('company', 'DCP'),
+            screening_year=session.get('year', date.today().year)
         )
         db.session.add(new_patient)
         db.session.commit()
@@ -40,29 +40,28 @@ def register():
         return redirect(url_for('patient.register'))
 
     # --- Statistics Calculation ---
-    # Assuming we are filtering for the current year and a default company for now
-    current_year = date.today().year
-    company = 'DCP' # This will be dynamic later
+    year = session.get('year', date.today().year)
+    company = session.get('company', 'DCP')
 
     today_start = datetime.combine(date.today(), time.min)
     today_end = datetime.combine(date.today(), time.max)
 
     stats = {
-        'total': Patient.query.filter_by(screening_year=current_year, company=company).count(),
+        'total': Patient.query.filter_by(screening_year=year, company=company).count(),
         'today': Patient.query.filter(
-            Patient.screening_year == current_year,
+            Patient.screening_year == year,
             Patient.company == company,
             Patient.date_registered.between(today_start, today_end)
         ).count(),
-        'male': Patient.query.filter_by(screening_year=current_year, company=company, gender='Male').count(),
-        'female': Patient.query.filter_by(screening_year=current_year, company=company, gender='Female').count(),
+        'male': Patient.query.filter_by(screening_year=year, company=company, gender='Male').count(),
+        'female': Patient.query.filter_by(screening_year=year, company=company, gender='Female').count(),
         'over_40': Patient.query.filter(
-            Patient.screening_year == current_year,
+            Patient.screening_year == year,
             Patient.company == company,
             Patient.age >= 40
         ).count(),
         'under_40': Patient.query.filter(
-            Patient.screening_year == current_year,
+            Patient.screening_year == year,
             Patient.company == company,
             Patient.age < 40
         ).count()
@@ -77,11 +76,10 @@ def search_patient():
     if not staff_id:
         return jsonify({'error': 'Staff ID is required'}), 400
 
-    # Assuming current year and company for now
-    current_year = date.today().year
-    company = 'DCP'
+    year = session.get('year', date.today().year)
+    company = session.get('company', 'DCP')
 
-    patient = Patient.query.filter_by(staff_id=staff_id, screening_year=current_year, company=company).first()
+    patient = Patient.query.filter_by(staff_id=staff_id, screening_year=year, company=company).first()
 
     if patient:
         patient_data = {

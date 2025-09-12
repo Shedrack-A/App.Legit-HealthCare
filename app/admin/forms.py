@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectMultipleField, PasswordField
-from wtforms.validators import DataRequired, EqualTo
-from app.models import Permission, Role
+from wtforms import StringField, SubmitField, SelectMultipleField, PasswordField, IntegerField, BooleanField, SelectField
+from wtforms.validators import DataRequired, EqualTo, NumberRange
+from app.models import Permission, Role, User
 
 class RoleForm(FlaskForm):
     name = StringField('Role Name', validators=[DataRequired()])
@@ -26,3 +26,15 @@ class ChangePasswordForm(FlaskForm):
     password = PasswordField('New Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Change Password')
+
+class GenerateTempCodeForm(FlaskForm):
+    user = SelectField('User', coerce=int, validators=[DataRequired()])
+    permission = SelectField('Permission', coerce=int, validators=[DataRequired()])
+    duration = IntegerField('Duration (minutes)', default=60, validators=[DataRequired(), NumberRange(min=1)])
+    is_single_use = BooleanField('Single Use Only', default=True)
+    submit = SubmitField('Generate Code')
+
+    def __init__(self, *args, **kwargs):
+        super(GenerateTempCodeForm, self).__init__(*args, **kwargs)
+        self.user.choices = [(u.id, f"{u.first_name} {u.last_name} ({u.phone_number})") for u in User.query.order_by('last_name')]
+        self.permission.choices = [(p.id, p.name) for p in Permission.query.order_by('name')]

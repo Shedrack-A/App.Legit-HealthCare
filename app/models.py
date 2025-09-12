@@ -59,6 +59,22 @@ class Permission(db.Model):
     def __repr__(self):
         return f"Permission('{self.name}')"
 
+class TemporaryAccessCode(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(100), unique=True, nullable=False)
+    permission_id = db.Column(db.Integer, db.ForeignKey('permission.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    expiry_time = db.Column(db.DateTime, nullable=False)
+    is_single_use = db.Column(db.Boolean, default=True)
+    times_used = db.Column(db.Integer, default=0)
+    is_active = db.Column(db.Boolean, default=True)
+
+    permission = db.relationship('Permission')
+    user = db.relationship('User')
+
+    def __repr__(self):
+        return f"<TempCode {self.code}>"
+
 from datetime import datetime
 
 @login_manager.user_loader

@@ -110,7 +110,7 @@ def lipid_profile_form(patient_id):
         tcho = form.tcho.data
         tg = form.tg.data
         hdl = tcho * 0.35
-        ldl = tcho - hdl - (tg / 5)
+        ldl = tcho + (tg / 5) + hdl # Using user's specified formula
 
         if lp_record:
             form.populate_obj(lp_record)

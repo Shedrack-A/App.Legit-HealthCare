@@ -42,7 +42,8 @@ def init_permissions():
         'edit_patient',
         'delete_patient',
         'enter_consultation',
-        'enter_lab_results'
+        'enter_lab_results',
+        'manage_temp_codes'
     ]
 
     for perm_name in permissions:
