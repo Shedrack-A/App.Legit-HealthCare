@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block navigation %}
+<!-- No main navigation for patient portal -->
+{% endblock %}
+
+{% block content %}
+<div class="patient-portal-dashboard">
+    <div class="patient-header">
+        <h2>Welcome, {{ patient.first_name }} {{ patient.last_name }}</h2>
+        <p>This is your personal health portal. You can view and download your annual screening reports here.</p>
+        <a href="{{ url_for('portal.logout') }}">Logout</a>
+    </div>
+
+    <div class="page-section">
+        <h3>Your Details</h3>
+        <ul>
+            <li><strong>Patient ID:</strong> {{ patient.patient_id }}</li>
+            <li><strong>Staff ID:</strong> {{ patient.staff_id }}</li>
+            <li><strong>Department:</strong> {{ patient.department }}</li>
+            <li><strong>Date of Birth:</strong> {{ patient.date_of_birth.strftime('%Y-%m-%d') }}</li>
+        </ul>
+    </div>
+
+    <div class="page-section">
+        <h3>Download Report</h3>
+        <p>Select a screening year to download your comprehensive health report.</p>
+        <form action="#" method="POST" class="report-form">
+             <select name="report_year">
+                <!-- This would be populated with years the patient has records for -->
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+            </select>
+            <button type="submit" class="btn-submit">Download PDF Report</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -39,7 +39,7 @@ def login():
             login_user(user, remember=form.remember.data)
             log_audit('USER_LOGIN', f'User logged in: {user.phone_number}')
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('main.index'))
+            return redirect(next_page) if next_page else redirect(url_for('main.dashboard'))
         else:
             flash('Invalid phone number or password.', 'danger')
     return render_template('auth/login.html', title='Sign In', form=form)

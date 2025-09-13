@@ -412,6 +412,28 @@ input[type="submit"], button {
     border-top: 1px solid var(--border-color);
 }
 
+/* --- LANDING PAGE --- */
+.login-options {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 3rem;
+    flex-wrap: wrap;
+}
+
+.login-box {
+    background-color: var(--panel-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 2rem;
+    width: 300px;
+    text-align: center;
+}
+
+.login-box h3 {
+    margin-top: 0;
+}
+
 /* --- ALERTS --- */
 .alert {
     padding: 15px;

@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import abort, session
+from flask import abort, session, redirect, url_for, flash
 from flask_login import current_user
 from datetime import datetime, UTC
 
@@ -28,3 +28,15 @@ def permission_required(permission_name):
             return f(*args, **kwargs)
         return decorated_function
     return decorator
+
+def patient_login_required(f):
+    """
+    Restricts access to routes to logged-in patients.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'patient_id' not in session:
+            flash('You must be logged in as a patient to view this page.', 'warning')
+            return redirect(url_for('portal.login'))
+        return f(*args, **kwargs)
+    return decorated_function

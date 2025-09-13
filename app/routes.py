@@ -8,11 +8,13 @@ from datetime import datetime, date
 main = Blueprint('main', __name__)
 
 @main.route('/')
-@main.route('/index')
 def index():
-    if current_user.is_authenticated:
-        return render_template('dashboard.html', title='Dashboard')
     return render_template('landing.html', title='Welcome')
+
+@main.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html', title='Dashboard')
 
 @main.route('/set_filters', methods=['POST'])
 def set_filters():

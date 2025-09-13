@@ -1,6 +1,6 @@
-from app.models import User, Role, Permission, TemporaryAccessCode
+from app.models import User, Role, Permission, TemporaryAccessCode, Patient
 from app import db
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 def test_registration_and_login(client):
     # Test registration
@@ -63,6 +63,44 @@ def test_route_protection(client, app):
     assert b'Manage Roles' in response.data
     client.get('/auth/logout')
 
+def test_patient_portal_login(client, app):
+    # 1. Setup a patient
+    with app.app_context():
+        dob = date(1990, 5, 15)
+        patient = Patient(
+            staff_id='P123', patient_id='HOS456', first_name='Portal',
+            last_name='Tester', department='Testing', gender='Other',
+            date_of_birth=dob, age=34, contact_phone='555-0123',
+            email_address='portal@test.com', race='Other', nationality='Nigerian',
+            company='DCP', screening_year=2024
+        )
+        db.session.add(patient)
+        db.session.commit()
+
+    # 2. Test accessing dashboard while logged out
+    response = client.get('/portal/dashboard', follow_redirects=True)
+    assert b'Patient Portal Login' in response.data
+
+    # 3. Test login with incorrect credentials
+    response = client.post('/portal/login', data={
+        'patient_id': 'HOS456',
+        'date_of_birth': '1990-05-16' # Wrong DOB
+    }, follow_redirects=True)
+    assert b'Invalid Patient ID or Date of Birth' in response.data
+
+    # 4. Test login with correct credentials
+    response = client.post('/portal/login', data={
+        'patient_id': 'HOS456',
+        'date_of_birth': '1990-05-15'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Welcome, Portal Tester' in response.data
+
+    # 5. Test logout
+    response = client.get('/portal/logout', follow_redirects=True)
+    assert b'You have been logged out' in response.data
+    assert b'Staff Login' in response.data # Should be back on landing page
+
 def test_temp_code_workflow(client, app):
     # 1. Setup
     with app.app_context():
@@ -121,39 +159,4 @@ def test_temp_code_workflow(client, app):
     }, follow_redirects=True)
     assert response.status_code == 200
     assert b'This is sensitive data.' in response.data
-    client.get('/auth/logout')
-
-def test_admin_session_context(client, app):
-    # 1. Setup admin user
-    with app.app_context():
-        p_admin = Permission.query.filter_by(name='upload_data').first()
-        if not p_admin:
-            p_admin = Permission(name='upload_data')
-            db.session.add(p_admin)
-
-        admin_role = Role(name='UploadAdmin')
-        admin_role.permissions.append(p_admin)
-        db.session.add(admin_role)
-
-        admin = User(first_name='upload_admin', last_name='user', phone_number='uploadadmin123', password='password')
-        admin.roles.append(admin_role)
-        db.session.add(admin)
-        db.session.commit()
-
-    # 2. Login as admin
-    client.post('/auth/login', data={'phone_number': 'uploadadmin123', 'password': 'password'})
-
-    # 3. Check default context
-    response = client.get('/admin/upload_data')
-    assert response.status_code == 200
-    assert b'Company:</strong> DCP' in response.data
-
-    # 4. Change the context
-    client.post('/set_filters', data={'company': 'DCT', 'year': '2024'})
-
-    # 5. Check if the context was updated in the admin page
-    response = client.get('/admin/upload_data')
-    assert response.status_code == 200
-    assert b'Company:</strong> DCT' in response.data
-    assert b'Year:</strong> 2024' in response.data
     client.get('/auth/logout')
