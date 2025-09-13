@@ -5,6 +5,7 @@ from app.models import Patient
 from app import db
 from app.patient.forms import PatientRegistrationForm
 from datetime import date
+from app.utils import log_audit
 
 @data_view.route('/all')
 @login_required
@@ -22,6 +23,7 @@ def delete_patient(patient_id):
     # due to the cascade effect of the database relationships if configured, or it will fail
     # if not. For now, we assume this is the desired behavior.
     # A soft delete (marking as inactive) might be a better approach in a real-world scenario.
+    log_audit('DELETE_PATIENT', f'Patient deleted: {patient.staff_id} (ID: {patient.id})')
     db.session.delete(patient)
     db.session.commit()
     flash(f'Patient {patient.first_name} {patient.last_name} has been deleted.', 'success')
@@ -53,6 +55,7 @@ def edit_patient(patient_id):
         patient.race = form.race.data
         patient.nationality = form.nationality.data
         db.session.commit()
+        log_audit('EDIT_PATIENT', f'Patient edited: {patient.staff_id} (ID: {patient.id})')
         flash('Patient information has been updated.', 'success')
         return redirect(url_for('data_view.view_all_patients'))
 

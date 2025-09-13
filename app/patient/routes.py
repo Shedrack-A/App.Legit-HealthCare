@@ -4,6 +4,7 @@ from app import db
 from app.patient import patient
 from app.models import Patient
 from app.patient.forms import PatientRegistrationForm
+from app.utils import log_audit
 from datetime import date, datetime, time
 from sqlalchemy import func
 
@@ -36,6 +37,7 @@ def register():
         )
         db.session.add(new_patient)
         db.session.commit()
+        log_audit('CREATE_PATIENT', f'Patient created: {new_patient.staff_id} ({new_patient.first_name} {new_patient.last_name})')
         flash(f'Patient {form.first_name.data} {form.last_name.data} has been registered successfully!', 'success')
         return redirect(url_for('patient.register'))
 

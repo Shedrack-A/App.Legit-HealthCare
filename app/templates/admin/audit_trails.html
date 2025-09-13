@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="audit-trails-page">
+    <h2>Audit Trails</h2>
+    <p>A log of all significant actions performed within the application.</p>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs.items %}
+                <tr>
+                    <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }} UTC</td>
+                    <td>
+                        {% if log.user %}
+                            {{ log.user.first_name }} {{ log.user.last_name }} (ID: {{ log.user.id }})
+                        {% else %}
+                            System
+                        {% endif %}
+                    </td>
+                    <td><span class="role-badge" style="background-color: #555;">{{ log.action }}</span></td>
+                    <td>{{ log.details }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Links -->
+    <div class="pagination">
+        {% if logs.has_prev %}
+            <a href="{{ url_for('admin.audit_trails', page=logs.prev_num) }}">&laquo; Previous</a>
+        {% endif %}
+        <span>Page {{ logs.page }} of {{ logs.pages }}.</span>
+        {% if logs.has_next %}
+            <a href="{{ url_for('admin.audit_trails', page=logs.next_num) }}">Next &raquo;</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

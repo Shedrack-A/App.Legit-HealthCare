@@ -4,10 +4,11 @@ from app import db
 from app.admin import admin
 from flask import render_template, redirect, url_for, flash, request
 from app.decorators import permission_required
-from app.models import Role, Permission, User, TemporaryAccessCode
+from app.models import Role, Permission, User, TemporaryAccessCode, AuditLog
 from .forms import RoleForm, EditUserForm, ChangePasswordForm, GenerateTempCodeForm
 import secrets
 from datetime import datetime, timedelta, UTC
+from app.utils import log_audit
 
 @admin.route('/')
 @login_required
@@ -34,6 +35,7 @@ def new_role():
             role.permissions.append(perm)
         db.session.add(role)
         db.session.commit()
+        log_audit('CREATE_ROLE', f'Role created: {role.name} (ID: {role.id})')
         flash('The role has been created.', 'success')
         return redirect(url_for('admin.list_roles'))
     return render_template('admin/role_form.html', form=form, title='New Role')
@@ -53,6 +55,7 @@ def edit_role(role_id):
             perm = Permission.query.get(perm_id)
             role.permissions.append(perm)
         db.session.commit()
+        log_audit('EDIT_ROLE', f'Role edited: {role.name} (ID: {role.id})')
         flash('The role has been updated.', 'success')
         return redirect(url_for('admin.list_roles'))
 
@@ -68,6 +71,7 @@ def delete_role(role_id):
     if role.name in ['Admin', 'New User']:
         flash('You cannot delete this protected role.', 'danger')
         return redirect(url_for('admin.list_roles'))
+    log_audit('DELETE_ROLE', f'Role deleted: {role.name} (ID: {role.id})')
     db.session.delete(role)
     db.session.commit()
     flash('The role has been deleted.', 'success')
@@ -98,6 +102,7 @@ def edit_user(user_id):
             user.roles.append(role)
 
         db.session.commit()
+        log_audit('EDIT_USER', f'User edited: {user.phone_number} (ID: {user.id})')
         flash('The user has been updated.', 'success')
         return redirect(url_for('admin.list_users'))
 
@@ -113,6 +118,7 @@ def change_user_password(user_id):
     if form.validate_on_submit():
         user.password = form.password.data
         db.session.commit()
+        log_audit('ADMIN_CHANGE_PASSWORD', f'Password changed for user: {user.phone_number} (ID: {user.id})')
         flash(f'Password for {user.first_name} {user.last_name} has been updated.', 'success')
         return redirect(url_for('admin.list_users'))
     return render_template('admin/change_password.html', form=form, title='Change Password', user=user)
@@ -135,6 +141,7 @@ def manage_temp_codes():
         )
         db.session.add(new_code)
         db.session.commit()
+        log_audit('GENERATE_TEMP_CODE', f'Temp code generated for user ID {new_code.user_id} with permission ID {new_code.permission_id}')
         flash(f'New temporary access code generated: {code_str}', 'success')
         return redirect(url_for('admin.manage_temp_codes'))
 
@@ -148,5 +155,14 @@ def revoke_temp_code(code_id):
     code = TemporaryAccessCode.query.get_or_404(code_id)
     code.is_active = False
     db.session.commit()
+    log_audit('REVOKE_TEMP_CODE', f'Temp code revoked: {code.code} (ID: {code.id})')
     flash(f'Code {code.code} has been revoked.', 'success')
     return redirect(url_for('admin.manage_temp_codes'))
+
+@admin.route('/audit_trails')
+@login_required
+@permission_required('view_audit_log')
+def audit_trails():
+    page = request.args.get('page', 1, type=int)
+    logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).paginate(page=page, per_page=50)
+    return render_template('admin/audit_trails.html', title='Audit Trails', logs=logs)
