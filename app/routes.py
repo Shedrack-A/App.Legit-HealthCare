@@ -1,18 +1,11 @@
-from flask import Blueprint, render_template, session, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from flask_login import current_user, login_required
-from datetime import date, datetime, UTC
-from app.models import TemporaryAccessCode
 from app import db
 from app.decorators import permission_required
+from app.models import TemporaryAccessCode
+from datetime import datetime
 
 main = Blueprint('main', __name__)
-
-@main.before_app_request
-def before_request():
-    if 'company' not in session:
-        session['company'] = 'DCP'
-    if 'year' not in session:
-        session['year'] = date.today().year
 
 @main.route('/')
 @main.route('/index')

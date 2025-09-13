@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import StringField, SubmitField, SelectMultipleField, PasswordField, IntegerField, BooleanField, SelectField
 from wtforms.validators import DataRequired, EqualTo, NumberRange
 from app.models import Permission, Role, User
@@ -38,3 +39,10 @@ class GenerateTempCodeForm(FlaskForm):
         super(GenerateTempCodeForm, self).__init__(*args, **kwargs)
         self.user.choices = [(u.id, f"{u.first_name} {u.last_name} ({u.phone_number})") for u in User.query.order_by('last_name')]
         self.permission.choices = [(p.id, p.name) for p in Permission.query.order_by('name')]
+
+class UploadForm(FlaskForm):
+    excel_file = FileField('Excel File', validators=[
+        FileRequired(),
+        FileAllowed(['xlsx'], 'Excel files only!')
+    ])
+    submit = SubmitField('Upload and Process')

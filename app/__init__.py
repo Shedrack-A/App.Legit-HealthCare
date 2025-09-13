@@ -1,9 +1,10 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from config import config
+from datetime import date
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -46,6 +47,14 @@ def create_app(config_name='default'):
 
     from app.admin import admin as admin_blueprint
     app.register_blueprint(admin_blueprint, url_prefix='/admin')
+
+    # Set default session filters for company and year
+    @app.before_request
+    def before_request_hook():
+        if 'company' not in session:
+            session['company'] = 'DCP'
+        if 'year' not in session:
+            session['year'] = date.today().year
 
     # Error Handlers
     @app.errorhandler(403)

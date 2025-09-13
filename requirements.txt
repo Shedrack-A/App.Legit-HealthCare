@@ -8,3 +8,5 @@ email_validator
 python-dotenv
 alembic
 pytest
+pandas
+openpyxl

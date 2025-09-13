@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="upload-data-page">
+    <h2>Upload Patient Bio-Data from Excel</h2>
+
+    <div class="page-section instructions">
+        <h3>Instructions</h3>
+        <p>Please ensure your Excel file (`.xlsx`) is formatted correctly before uploading. The system expects the first sheet in the workbook to contain the patient data.</p>
+        <p>The first row must be a header row with the following column names in this exact order:</p>
+        <code>staff_id, patient_id, first_name, middle_name, last_name, department, gender, date_of_birth, contact_phone, email_address, race, nationality</code>
+        <ul>
+            <li><strong>date_of_birth</strong> should be in a standard date format (e.g., YYYY-MM-DD).</li>
+            <li><strong>department</strong> must match one of the existing department names in the system.</li>
+            <li>Any rows with missing required data (like `staff_id` or `first_name`) will be skipped.</li>
+        </ul>
+    </div>
+
+    <div class="page-section">
+        <h3>Upload File</h3>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.excel_file.label }}
+                {{ form.excel_file() }}
+                {% for error in form.excel_file.errors %}
+                    <span class="error-text">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-actions">
+                {{ form.submit(class="btn-submit") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

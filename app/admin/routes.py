@@ -3,12 +3,17 @@ from flask_login import login_required
 from app import db
 from app.admin import admin
 from flask import render_template, redirect, url_for, flash, request
+import os
+import pandas as pd
+from werkzeug.utils import secure_filename
+from flask import current_app
 from app.decorators import permission_required
-from app.models import Role, Permission, User, TemporaryAccessCode, AuditLog
-from .forms import RoleForm, EditUserForm, ChangePasswordForm, GenerateTempCodeForm
+from app.models import Role, Permission, User, TemporaryAccessCode, AuditLog, Patient
+from .forms import RoleForm, EditUserForm, ChangePasswordForm, GenerateTempCodeForm, UploadForm
 import secrets
 from datetime import datetime, timedelta, UTC
 from app.utils import log_audit
+from app.patient.routes import calculate_age
 
 @admin.route('/')
 @login_required
@@ -158,6 +163,83 @@ def revoke_temp_code(code_id):
     log_audit('REVOKE_TEMP_CODE', f'Temp code revoked: {code.code} (ID: {code.id})')
     flash(f'Code {code.code} has been revoked.', 'success')
     return redirect(url_for('admin.manage_temp_codes'))
+
+@admin.route('/upload_data', methods=['GET', 'POST'])
+@login_required
+@permission_required('upload_data')
+def upload_data():
+    form = UploadForm()
+    if form.validate_on_submit():
+        f = form.excel_file.data
+        filename = secure_filename(f.filename)
+        filepath = os.path.join('uploads', filename)
+        f.save(filepath)
+
+        try:
+            df = pd.read_excel(filepath)
+
+            required_columns = ['staff_id', 'patient_id', 'first_name', 'last_name', 'department', 'gender', 'date_of_birth', 'contact_phone', 'email_address', 'race', 'nationality']
+            if not all(col in df.columns for col in required_columns):
+                flash('Excel file is missing one or more required columns.', 'danger')
+                return redirect(url_for('admin.upload_data'))
+
+            success_count = 0
+            error_rows = []
+
+            for index, row in df.iterrows():
+                # Basic validation
+                if pd.isna(row['staff_id']) or pd.isna(row['first_name']) or pd.isna(row['date_of_birth']):
+                    error_rows.append(index + 2) # +2 to account for 0-based index and header
+                    continue
+
+                # Check for duplicates before adding
+                exists = Patient.query.filter_by(
+                    staff_id=str(row['staff_id']),
+                    company=session.get('company', 'DCP'),
+                    screening_year=session.get('year', datetime.now(UTC).year)
+                ).first()
+
+                if exists:
+                    error_rows.append(index + 2)
+                    continue
+
+                age = calculate_age(row['date_of_birth'].to_pydatetime().date())
+
+                patient = Patient(
+                    staff_id=str(row['staff_id']),
+                    patient_id=str(row['patient_id']),
+                    first_name=row['first_name'],
+                    middle_name=row.get('middle_name', ''),
+                    last_name=row['last_name'],
+                    department=row['department'],
+                    gender=row['gender'],
+                    date_of_birth=row['date_of_birth'],
+                    age=age,
+                    contact_phone=str(row['contact_phone']),
+                    email_address=row['email_address'],
+                    race=row['race'],
+                    nationality=row['nationality'],
+                    company=session.get('company', 'DCP'),
+                    screening_year=session.get('year', datetime.now(UTC).year)
+                )
+                db.session.add(patient)
+                success_count += 1
+
+            db.session.commit()
+            log_audit('UPLOAD_PATIENTS', f'Successfully uploaded {success_count} patients from file: {filename}')
+            flash(f'Successfully imported {success_count} patient records.', 'success')
+            if error_rows:
+                flash(f'Skipped {len(error_rows)} rows due to missing data or duplicates: {", ".join(map(str, error_rows))}', 'warning')
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f'An error occurred during processing: {e}', 'danger')
+        finally:
+            os.remove(filepath) # Clean up the uploaded file
+
+        return redirect(url_for('admin.upload_data'))
+
+    return render_template('admin/upload_data.html', title='Upload Patient Data', form=form)
 
 @admin.route('/audit_trails')
 @login_required
