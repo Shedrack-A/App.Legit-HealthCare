@@ -1,12 +1,10 @@
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, request, session, current_app
 from flask_login import login_required
 from app import db
 from app.admin import admin
-from flask import render_template, redirect, url_for, flash, request
 import os
 import pandas as pd
 from werkzeug.utils import secure_filename
-from flask import current_app
 from app.decorators import permission_required
 from app.models import Role, Permission, User, TemporaryAccessCode, AuditLog, Patient
 from .forms import RoleForm, EditUserForm, ChangePasswordForm, GenerateTempCodeForm, UploadForm
@@ -239,7 +237,7 @@ def upload_data():
 
         return redirect(url_for('admin.upload_data'))
 
-    return render_template('admin/upload_data.html', title='Upload Patient Data', form=form)
+    return render_template('admin/upload_data.html', title='Upload Patient Data', form=form, session=session)
 
 @admin.route('/audit_trails')
 @login_required

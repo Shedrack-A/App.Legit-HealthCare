@@ -122,3 +122,38 @@ def test_temp_code_workflow(client, app):
     assert response.status_code == 200
     assert b'This is sensitive data.' in response.data
     client.get('/auth/logout')
+
+def test_admin_session_context(client, app):
+    # 1. Setup admin user
+    with app.app_context():
+        p_admin = Permission.query.filter_by(name='upload_data').first()
+        if not p_admin:
+            p_admin = Permission(name='upload_data')
+            db.session.add(p_admin)
+
+        admin_role = Role(name='UploadAdmin')
+        admin_role.permissions.append(p_admin)
+        db.session.add(admin_role)
+
+        admin = User(first_name='upload_admin', last_name='user', phone_number='uploadadmin123', password='password')
+        admin.roles.append(admin_role)
+        db.session.add(admin)
+        db.session.commit()
+
+    # 2. Login as admin
+    client.post('/auth/login', data={'phone_number': 'uploadadmin123', 'password': 'password'})
+
+    # 3. Check default context
+    response = client.get('/admin/upload_data')
+    assert response.status_code == 200
+    assert b'Company:</strong> DCP' in response.data
+
+    # 4. Change the context
+    client.post('/set_filters', data={'company': 'DCT', 'year': '2024'})
+
+    # 5. Check if the context was updated in the admin page
+    response = client.get('/admin/upload_data')
+    assert response.status_code == 200
+    assert b'Company:</strong> DCT' in response.data
+    assert b'Year:</strong> 2024' in response.data
+    client.get('/auth/logout')
