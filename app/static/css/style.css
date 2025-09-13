@@ -65,20 +65,43 @@ main {
 }
 
 /* --- FORMS --- */
-form div {
-    margin-bottom: 1rem;
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
 }
 
 input[type="text"],
 input[type="password"],
 input[type="email"],
-input[type="tel"] {
+input[type="tel"],
+input[type="search"],
+select.form-control,
+input.form-control {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     border: 1px solid var(--border-color);
     background-color: var(--bg-color);
     color: var(--font-color);
     border-radius: 5px;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="search"]:focus,
+select.form-control:focus,
+input.form-control:focus {
+    outline: none;
+    border-color: var(--main-color-blue);
+    box-shadow: 0 0 0 3px rgba(0, 0, 255, 0.2);
 }
 
 input[type="submit"], button {
@@ -186,6 +209,7 @@ input[type="submit"], button {
     border-radius: 8px;
     border: 1px solid var(--border-color);
     text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
 .stat-card span {
@@ -255,6 +279,7 @@ input[type="submit"], button {
     border-radius: 8px;
     margin-bottom: 2rem;
     border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
 .patient-details {
@@ -428,6 +453,12 @@ input[type="submit"], button {
     padding: 2rem;
     width: 300px;
     text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.login-box:hover {
+    box-shadow: 0 7px 14px rgba(0,0,0,0.07);
 }
 
 .login-box h3 {
