@@ -1,28 +1,22 @@
 {% extends "base.html" %}
 
 {% block navigation %}
-<!-- Hide side navigation on patient login page -->
+<!-- Hide side navigation -->
 {% endblock %}
 
 {% block content %}
 <div class="login-page">
     <h2>Patient Portal Login</h2>
-    <p>Please enter your Patient ID and Date of Birth to access your records.</p>
+    <p>Please enter your Staff ID and password to access your records.</p>
     <form method="POST" action="">
         {{ form.hidden_tag() }}
         <div class="form-group">
-            {{ form.patient_id.label }}<br>
-            {{ form.patient_id(class="form-control") }}
-            {% for error in form.patient_id.errors %}
-            <span class="error-text">{{ error }}</span>
-            {% endfor %}
+            {{ form.staff_id.label }}<br>
+            {{ form.staff_id(class="form-control") }}
         </div>
         <div class="form-group">
-            {{ form.date_of_birth.label }} (YYYY-MM-DD)<br>
-            {{ form.date_of_birth(class="form-control") }}
-            {% for error in form.date_of_birth.errors %}
-            <span class="error-text">{{ error }}</span>
-            {% endfor %}
+            {{ form.password.label }}<br>
+            {{ form.password(class="form-control") }}
         </div>
         <div class="form-actions">
             {{ form.submit() }}

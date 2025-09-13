@@ -1,3 +1,4 @@
+import re
 from app import db
 from app.models import AuditLog
 from flask_login import current_user
@@ -20,3 +21,24 @@ def log_audit(action, details=None):
         # perhaps logging the error to a file instead of just printing.
         print(f"Error logging audit trail: {e}")
         db.session.rollback()
+
+def is_password_strong(password):
+    """
+    Checks if a password meets the strength requirements.
+    - At least 10 characters
+    - At least one uppercase letter
+    - At least one lowercase letter
+    - At least one digit
+    - At least one special symbol
+    """
+    if len(password) < 10:
+        return False, "Password must be at least 10 characters long."
+    if not re.search(r"[A-Z]", password):
+        return False, "Password must contain at least one uppercase letter."
+    if not re.search(r"[a-z]", password):
+        return False, "Password must contain at least one lowercase letter."
+    if not re.search(r"\d", password):
+        return False, "Password must contain at least one digit."
+    if not re.search(r"[!@#$%^&*()\[\]{};:,./<>?~`_+=|-]", password):
+        return False, "Password must contain at least one special symbol."
+    return True, ""

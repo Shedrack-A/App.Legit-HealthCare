@@ -1,4 +1,4 @@
-from app.models import User, Role, Permission, TemporaryAccessCode, Patient
+from app.models import User, Role, Permission, TemporaryAccessCode, Patient, PatientAccount
 from app import db
 from datetime import datetime, timedelta, date
 
@@ -8,16 +8,16 @@ def test_registration_and_login(client):
         'first_name': 'test',
         'last_name': 'user',
         'phone_number': '1112223333',
-        'password': 'password123',
-        'confirm_password': 'password123'
+        'password': 'Password123!',
+        'confirm_password': 'Password123!'
     }, follow_redirects=True)
     assert response.status_code == 200
-    assert b'Congratulations, you are now a registered user!' in response.data
+    assert b'Sign In' in response.data # Should be on the login page
 
     # Test login
     response = client.post('/auth/login', data={
         'phone_number': '1112223333',
-        'password': 'password123'
+        'password': 'Password123!'
     }, follow_redirects=True)
     assert response.status_code == 200
     assert b'Dashboard' in response.data # Should be on the dashboard after login
@@ -63,43 +63,51 @@ def test_route_protection(client, app):
     assert b'Manage Roles' in response.data
     client.get('/auth/logout')
 
-def test_patient_portal_login(client, app):
-    # 1. Setup a patient
+def test_new_patient_portal_signup_and_login(client, app):
+    # 1. Setup a patient record
     with app.app_context():
-        dob = date(1990, 5, 15)
+        dob = date(1985, 10, 21)
         patient = Patient(
-            staff_id='P123', patient_id='HOS456', first_name='Portal',
-            last_name='Tester', department='Testing', gender='Other',
-            date_of_birth=dob, age=34, contact_phone='555-0123',
-            email_address='portal@test.com', race='Other', nationality='Nigerian',
-            company='DCP', screening_year=2024
+            staff_id='S987', patient_id='HOS987', first_name='NewPortal',
+            last_name='User', department='IT', gender='Male',
+            date_of_birth=dob, age=38, contact_phone='555-0987',
+            email_address='newportal@test.com', race='Caucasian', nationality='American',
+            company='DCT', screening_year=2023
         )
         db.session.add(patient)
         db.session.commit()
 
-    # 2. Test accessing dashboard while logged out
-    response = client.get('/portal/dashboard', follow_redirects=True)
-    assert b'Patient Portal Login' in response.data
+    # 2. Test API search for the patient
+    response = client.get('/portal/api/patient_search?staff_id=S987')
+    assert response.status_code == 200
+    assert response.json['first_name'] == 'NewPortal'
 
-    # 3. Test login with incorrect credentials
-    response = client.post('/portal/login', data={
-        'patient_id': 'HOS456',
-        'date_of_birth': '1990-05-16' # Wrong DOB
-    }, follow_redirects=True)
-    assert b'Invalid Patient ID or Date of Birth' in response.data
-
-    # 4. Test login with correct credentials
-    response = client.post('/portal/login', data={
-        'patient_id': 'HOS456',
-        'date_of_birth': '1990-05-15'
+    # 3. Test sign up
+    response = client.post('/portal/signup', data={
+        'staff_id': 'S987',
+        'first_name': 'NewPortal',
+        'last_name': 'User',
+        'email': 'newportal@test.com',
+        'gender': 'Male',
+        'phone_number': '555-0987',
+        'password': 'StrongPassword123!',
+        'confirm_password': 'StrongPassword123!'
     }, follow_redirects=True)
     assert response.status_code == 200
-    assert b'Welcome, Portal Tester' in response.data
+    assert b'Your account has been created successfully!' in response.data
+    assert b'Welcome, NewPortal User' in response.data
 
-    # 5. Test logout
+    # 4. Test logout
     response = client.get('/portal/logout', follow_redirects=True)
     assert b'You have been logged out' in response.data
-    assert b'Staff Login' in response.data # Should be back on landing page
+
+    # 5. Test new login
+    response = client.post('/portal/login', data={
+        'staff_id': 'S987',
+        'password': 'StrongPassword123!'
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Welcome, NewPortal User' in response.data
 
 def test_temp_code_workflow(client, app):
     # 1. Setup

@@ -70,7 +70,7 @@ class TemporaryAccessCode(db.Model):
     is_active = db.Column(db.Boolean, default=True)
 
     permission = db.relationship('Permission')
-    user = db.relationship('User')
+    user = db.relationship('User', backref=db.backref('audit_logs', lazy='dynamic'))
 
     def __repr__(self):
         return f"<TempCode {self.code}>"
@@ -86,6 +86,26 @@ class AuditLog(db.Model):
 
     def __repr__(self):
         return f"<AuditLog {self.action} by User ID {self.user_id}>"
+
+class PatientAccount(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    staff_id = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=True)
+    password_hash = db.Column(db.String(128))
+
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
+
+    @password.setter
+    def password(self, password):
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def verify_password(self, password):
+        return bcrypt.check_password_hash(self.password_hash, password)
+
+    def __repr__(self):
+        return f"<PatientAccount {self.staff_id}>"
 
 from datetime import datetime, UTC
 

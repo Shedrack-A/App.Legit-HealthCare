@@ -29,13 +29,13 @@ def permission_required(permission_name):
         return decorated_function
     return decorator
 
-def patient_login_required(f):
+def patient_account_login_required(f):
     """
-    Restricts access to routes to logged-in patients.
+    Restricts access to routes to logged-in patients (PatientAccount).
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if 'patient_id' not in session:
+        if 'patient_account_id' not in session:
             flash('You must be logged in as a patient to view this page.', 'warning')
             return redirect(url_for('portal.login'))
         return f(*args, **kwargs)

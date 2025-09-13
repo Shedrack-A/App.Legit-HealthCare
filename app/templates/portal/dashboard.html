@@ -6,33 +6,47 @@
 
 {% block content %}
 <div class="patient-portal-dashboard">
+    {% if latest_patient_record %}
     <div class="patient-header">
-        <h2>Welcome, {{ patient.first_name }} {{ patient.last_name }}</h2>
+        <h2>Welcome, {{ latest_patient_record.first_name }} {{ latest_patient_record.last_name }}</h2>
         <p>This is your personal health portal. You can view and download your annual screening reports here.</p>
-        <a href="{{ url_for('portal.logout') }}">Logout</a>
+        <div>
+            <a href="{{ url_for('portal.settings') }}">Settings</a> |
+            <a href="{{ url_for('portal.logout') }}">Logout</a>
+        </div>
     </div>
 
     <div class="page-section">
         <h3>Your Details</h3>
         <ul>
-            <li><strong>Patient ID:</strong> {{ patient.patient_id }}</li>
-            <li><strong>Staff ID:</strong> {{ patient.staff_id }}</li>
-            <li><strong>Department:</strong> {{ patient.department }}</li>
-            <li><strong>Date of Birth:</strong> {{ patient.date_of_birth.strftime('%Y-%m-%d') }}</li>
+            <li><strong>Staff ID:</strong> {{ latest_patient_record.staff_id }}</li>
+            <li><strong>Department:</strong> {{ latest_patient_record.department }}</li>
+            <li><strong>Date of Birth:</strong> {{ latest_patient_record.date_of_birth.strftime('%Y-%m-%d') }}</li>
         </ul>
     </div>
 
     <div class="page-section">
         <h3>Download Report</h3>
-        <p>Select a screening year to download your comprehensive health report.</p>
+        <p>Select a screening year to view your comprehensive health report.</p>
         <form action="#" method="POST" class="report-form">
              <select name="report_year">
-                <!-- This would be populated with years the patient has records for -->
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
+                {% for record in patient_records %}
+                <option value="{{ record.screening_year }}">{{ record.screening_year }}</option>
+                {% endfor %}
             </select>
-            <button type="submit" class="btn-submit">Download PDF Report</button>
+            <button type="submit" class="btn-submit">View Report</button>
         </form>
+        <div class="report-display" style="margin-top: 20px; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+            <p>Report for the selected year will be displayed here.</p>
+            <p><em>(Feature under development)</em></p>
+        </div>
     </div>
+    {% else %}
+    <div class="patient-header">
+        <h2>Welcome</h2>
+        <p>We couldn't find any patient records associated with your account's Staff ID. Please contact an administrator.</p>
+        <a href="{{ url_for('portal.logout') }}">Logout</a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
