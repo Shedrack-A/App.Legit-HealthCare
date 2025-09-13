@@ -1,5 +1,8 @@
 import re
-from app import db
+from threading import Thread
+from flask import current_app, render_template
+from flask_mail import Message
+from app import db, mail
 from app.models import AuditLog
 from flask_login import current_user
 
@@ -21,6 +24,19 @@ def log_audit(action, details=None):
         # perhaps logging the error to a file instead of just printing.
         print(f"Error logging audit trail: {e}")
         db.session.rollback()
+
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+def send_email(to, subject, template, **kwargs):
+    app = current_app._get_current_object()
+    msg = Message(subject, recipients=[to])
+    msg.body = render_template(template + '.txt', **kwargs)
+    msg.html = render_template(template + '.html', **kwargs)
+    thr = Thread(target=send_async_email, args=[app, msg])
+    thr.start()
+    return thr
 
 def is_password_strong(password):
     """

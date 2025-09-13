@@ -10,3 +10,4 @@ alembic
 pytest
 pandas
 openpyxl
+Flask-Mail

@@ -1,10 +1,11 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
+from flask_login import current_user
 from app.auth import auth
 from app.models import User, Role
 from app.auth.forms import LoginForm, RegistrationForm
-from app.utils import log_audit
+from app.utils import log_audit, send_email
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
@@ -14,6 +15,7 @@ def register():
             first_name=form.first_name.data,
             last_name=form.last_name.data,
             phone_number=form.phone_number.data,
+            email_address=form.email_address.data,
             password=form.password.data
         )
         db.session.add(user)
@@ -25,6 +27,9 @@ def register():
             db.session.add(new_user_role)
         user.roles.append(new_user_role)
         db.session.commit()
+        # The user object has the new ID after the commit
+        if user.email_address:
+            send_email(user.email_address, 'Welcome to Legit HealthCare Services', 'email/welcome', user=user)
         log_audit('USER_REGISTER', f'New user registered: {user.phone_number} (ID: {user.id})')
         flash('Congratulations, you are now a registered user!', 'success')
         return redirect(url_for('auth.login'))

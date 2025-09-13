@@ -1,0 +1,10 @@
+Dear {{ user.first_name }},
+
+Welcome to Legit HealthCare Services Ltd!
+
+Your account has been successfully created. You can now log in using your phone number and the password you set.
+
+Thank you for joining us.
+
+Sincerely,
+The Legit HealthCare Services Team
