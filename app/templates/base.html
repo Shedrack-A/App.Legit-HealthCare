@@ -12,8 +12,17 @@
         {% block navigation %}
         <nav id="side-nav">
             <div class="nav-header">
-                <!-- Logo will go here -->
-                <h3>LHS Ltd.</h3>
+                <a href="{{ url_for('main.index') }}">
+                    {% if light_logo_url %}
+                        <img src="{{ light_logo_url }}" alt="Logo" class="logo logo-light">
+                    {% endif %}
+                    {% if dark_logo_url %}
+                        <img src="{{ dark_logo_url }}" alt="Logo" class="logo logo-dark">
+                    {% endif %}
+                    {% if not light_logo_url and not dark_logo_url %}
+                        <h3>LHS Ltd.</h3>
+                    {% endif %}
+                </a>
             </div>
             <ul class="nav-links">
                 <li><a href="{{ url_for('main.dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>

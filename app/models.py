@@ -108,6 +108,14 @@ class PatientAccount(db.Model):
     def __repr__(self):
         return f"<PatientAccount {self.staff_id}>"
 
+class Setting(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(50), unique=True, nullable=False)
+    value = db.Column(db.String(255), nullable=True)
+
+    def __repr__(self):
+        return f"<Setting {self.key}>"
+
 from datetime import datetime, UTC
 
 @login_manager.user_loader

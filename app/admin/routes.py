@@ -6,8 +6,8 @@ import os
 import pandas as pd
 from werkzeug.utils import secure_filename
 from app.decorators import permission_required
-from app.models import Role, Permission, User, TemporaryAccessCode, AuditLog, Patient
-from .forms import RoleForm, EditUserForm, ChangePasswordForm, GenerateTempCodeForm, UploadForm
+from app.models import Role, Permission, User, TemporaryAccessCode, AuditLog, Patient, Setting
+from .forms import RoleForm, EditUserForm, ChangePasswordForm, GenerateTempCodeForm, UploadForm, BrandingForm, EmailSettingsForm
 import secrets
 from datetime import datetime, timedelta, UTC
 from app.utils import log_audit
@@ -246,3 +246,77 @@ def audit_trails():
     page = request.args.get('page', 1, type=int)
     logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).paginate(page=page, per_page=50)
     return render_template('admin/audit_trails.html', title='Audit Trails', logs=logs)
+
+@admin.route('/branding', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_settings')
+def branding():
+    form = BrandingForm()
+    if form.validate_on_submit():
+        if form.light_logo.data:
+            f = form.light_logo.data
+            filename = secure_filename('light_logo' + os.path.splitext(f.filename)[1])
+            filepath = os.path.join('app/static/logos', filename)
+            f.save(filepath)
+
+            setting = Setting.query.filter_by(key='light_logo_url').first()
+            if not setting:
+                setting = Setting(key='light_logo_url')
+            setting.value = f'/static/logos/{filename}'
+            db.session.add(setting)
+
+        if form.dark_logo.data:
+            f = form.dark_logo.data
+            filename = secure_filename('dark_logo' + os.path.splitext(f.filename)[1])
+            filepath = os.path.join('app/static/logos', filename)
+            f.save(filepath)
+
+            setting = Setting.query.filter_by(key='dark_logo_url').first()
+            if not setting:
+                setting = Setting(key='dark_logo_url')
+            setting.value = f'/static/logos/{filename}'
+            db.session.add(setting)
+
+        db.session.commit()
+        log_audit('UPDATE_BRANDING', 'Updated site logos.')
+        flash('Branding has been updated.', 'success')
+        return redirect(url_for('admin.branding'))
+
+    logos = {
+        'light': Setting.query.filter_by(key='light_logo_url').first(),
+        'dark': Setting.query.filter_by(key='dark_logo_url').first()
+    }
+    return render_template('admin/branding.html', title='Branding', form=form, logos=logos)
+
+@admin.route('/email_settings', methods=['GET', 'POST'])
+@login_required
+@permission_required('manage_settings')
+def email_settings():
+    form = EmailSettingsForm()
+    if form.validate_on_submit():
+        # Update or create MAIL_USERNAME
+        username_setting = Setting.query.filter_by(key='MAIL_USERNAME').first()
+        if not username_setting:
+            username_setting = Setting(key='MAIL_USERNAME')
+        username_setting.value = form.mail_username.data
+        db.session.add(username_setting)
+
+        # Update or create MAIL_PASSWORD, only if a new password is provided
+        if form.mail_password.data:
+            password_setting = Setting.query.filter_by(key='MAIL_PASSWORD').first()
+            if not password_setting:
+                password_setting = Setting(key='MAIL_PASSWORD')
+            password_setting.value = form.mail_password.data
+            db.session.add(password_setting)
+
+        db.session.commit()
+        log_audit('UPDATE_EMAIL_SETTINGS', 'Updated email configuration.')
+        flash('Email settings have been updated. The application may need to be restarted for changes to take effect.', 'success')
+        return redirect(url_for('admin.email_settings'))
+
+    # Pre-populate the form
+    username = Setting.query.filter_by(key='MAIL_USERNAME').first()
+    if username:
+        form.mail_username.data = username.value
+
+    return render_template('admin/email_settings.html', title='Email Settings', form=form)

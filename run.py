@@ -46,7 +46,8 @@ def init_permissions():
         'enter_lab_results',
         'manage_temp_codes',
         'view_audit_log',
-        'upload_data'
+        'upload_data',
+        'manage_settings'
     ]
 
     for perm_name in permissions:

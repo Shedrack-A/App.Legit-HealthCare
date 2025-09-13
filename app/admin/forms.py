@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import StringField, SubmitField, SelectMultipleField, PasswordField, IntegerField, BooleanField, SelectField
-from wtforms.validators import DataRequired, EqualTo, NumberRange
+from wtforms.validators import DataRequired, EqualTo, NumberRange, Optional, Email
 from app.models import Permission, Role, User
 
 class RoleForm(FlaskForm):
@@ -46,3 +46,13 @@ class UploadForm(FlaskForm):
         FileAllowed(['xlsx'], 'Excel files only!')
     ])
     submit = SubmitField('Upload and Process')
+
+class BrandingForm(FlaskForm):
+    light_logo = FileField('Light Theme Logo', validators=[FileAllowed(['jpg', 'png', 'svg'], 'Images only!')])
+    dark_logo = FileField('Dark Theme Logo', validators=[FileAllowed(['jpg', 'png', 'svg'], 'Images only!')])
+    submit = SubmitField('Save Logos')
+
+class EmailSettingsForm(FlaskForm):
+    mail_username = StringField('Gmail Address', validators=[Optional(), Email()])
+    mail_password = PasswordField('Gmail App Password', validators=[Optional()])
+    submit = SubmitField('Save Email Settings')

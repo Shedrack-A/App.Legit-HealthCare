@@ -62,6 +62,24 @@ def create_app(config_name='default'):
         if 'year' not in session:
             session['year'] = date.today().year
 
+    # Load email settings from DB as a fallback to env vars
+    with app.app_context():
+        from .models import Setting
+        from sqlalchemy.exc import OperationalError
+        try:
+            if not app.config.get('MAIL_USERNAME'):
+                mail_user = Setting.query.filter_by(key='MAIL_USERNAME').first()
+                if mail_user:
+                    app.config['MAIL_USERNAME'] = mail_user.value
+            if not app.config.get('MAIL_PASSWORD'):
+                mail_pass = Setting.query.filter_by(key='MAIL_PASSWORD').first()
+                if mail_pass:
+                    app.config['MAIL_PASSWORD'] = mail_pass.value
+        except OperationalError:
+            # This can happen if the db is not yet initialized.
+            # It's safe to ignore in that case.
+            pass
+
     # Error Handlers
     @app.errorhandler(403)
     def forbidden(error):
@@ -74,5 +92,14 @@ def create_app(config_name='default'):
     @app.errorhandler(500)
     def internal_server_error(error):
         return render_template('errors/500.html'), 500
+
+    @app.context_processor
+    def inject_branding():
+        light_logo = Setting.query.filter_by(key='light_logo_url').first()
+        dark_logo = Setting.query.filter_by(key='dark_logo_url').first()
+        return dict(
+            light_logo_url=light_logo.value if light_logo else None,
+            dark_logo_url=dark_logo.value if dark_logo else None
+        )
 
     return app

@@ -1,12 +1,12 @@
 /* --- THEME AND COLOR VARIABLES --- */
 :root {
     --font-color: #333;
-    --bg-color: #f4f4f9;
+    --bg-color: #e8f1ff;
     --panel-bg-color: #ffffff;
-    --border-color: #ddd;
+    --border-color: #d1d9e6;
 
     /* Custom Theme Colors */
-    --main-color-blue: #0000FF;
+    --main-color-blue: #2f45ff;
     --accent-color-red: #FF0000;
     --highlight-color-green: #00FF00;
 
@@ -131,6 +131,18 @@ input[type="submit"], button {
     border-bottom: 1px solid var(--border-color);
     text-align: center;
 }
+
+.nav-header .logo {
+    max-height: 50px;
+    width: auto;
+}
+
+/* Logo visibility logic */
+.logo-dark { display: none; }
+.logo-light { display: block; }
+
+[data-theme='dark'] .logo-dark { display: block; }
+[data-theme='dark'] .logo-light { display: none; }
 
 .nav-links {
     list-style: none;
