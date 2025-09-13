@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail
+from flask_socketio import SocketIO
 from config import config
 from datetime import date
 
@@ -13,6 +14,7 @@ login_manager = LoginManager()
 login_manager.login_view = 'auth.login' # Redirect to login page if user is not authenticated
 bcrypt = Bcrypt()
 mail = Mail()
+socketio = SocketIO()
 
 def create_app(config_name='default'):
     app = Flask(__name__)
@@ -25,6 +27,7 @@ def create_app(config_name='default'):
     login_manager.init_app(app)
     bcrypt.init_app(app)
     mail.init_app(app)
+    socketio.init_app(app)
 
     # Register blueprints
     # I will create and register blueprints for different parts of the app
@@ -53,6 +56,9 @@ def create_app(config_name='default'):
 
     from app.portal import portal as portal_blueprint
     app.register_blueprint(portal_blueprint, url_prefix='/portal')
+
+    from app.messaging import messaging as messaging_blueprint
+    app.register_blueprint(messaging_blueprint, url_prefix='/messaging')
 
     # Set default session filters for company and year
     @app.before_request

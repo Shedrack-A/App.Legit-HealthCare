@@ -1,4 +1,4 @@
-from app import create_app, db
+from app import create_app, db, socketio
 import os
 from app.models import User, Role, Permission
 import click
@@ -66,4 +66,4 @@ def init_permissions():
     print('Permissions have been initialized and assigned to Admin role.')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True)

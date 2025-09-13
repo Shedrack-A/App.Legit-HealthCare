@@ -168,3 +168,16 @@ def test_temp_code_workflow(client, app):
     assert response.status_code == 200
     assert b'This is sensitive data.' in response.data
     client.get('/auth/logout')
+
+def test_messaging_page_loads(client, app):
+    # Setup a user to login
+    with app.app_context():
+        user = User(first_name='chat', last_name='user', phone_number='chat123', password='password')
+        db.session.add(user)
+        db.session.commit()
+
+    # Login and access the page
+    client.post('/auth/login', data={'phone_number': 'chat123', 'password': 'password'})
+    response = client.get('/messaging/')
+    assert response.status_code == 200
+    assert b'Contacts' in response.data

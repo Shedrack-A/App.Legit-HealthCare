@@ -11,3 +11,5 @@ pytest
 pandas
 openpyxl
 Flask-Mail
+Flask-SocketIO
+eventlet
