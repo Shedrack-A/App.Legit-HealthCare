@@ -43,6 +43,15 @@ This is the official web application for Legit HealthCare Services Ltd, designed
     ```
 The application will be available at `http://127.0.0.1:5000`. Default admin login is `admin` / `adminpass`.
 
+## Configuration
+
+### Changing the Logo
+1. Log in as an Administrator.
+2. Navigate to the "Control Panel" from the main navigation.
+3. Click on the "Branding" button.
+4. Use the file upload fields to select a new logo for the Light Theme and/or the Dark Theme.
+5. Click "Save Logos". The new logo will appear immediately.
+
 ---
 
 ## Future Implementation (Awaiting Details)

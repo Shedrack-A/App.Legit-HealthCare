@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request, session, current_app
+from flask import render_template, redirect, url_for, flash, request, session, current_app, jsonify
 from flask_login import login_required
 from app import db
 from app.admin import admin
@@ -246,6 +246,33 @@ def audit_trails():
     page = request.args.get('page', 1, type=int)
     logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).paginate(page=page, per_page=50)
     return render_template('admin/audit_trails.html', title='Audit Trails', logs=logs)
+
+@admin.route('/api/notifications')
+@login_required
+@permission_required('manage_roles') # Only admins should see notifications
+def get_notifications():
+    notifiable_actions = ['GENERATE_TEMP_CODE', 'REVOKE_TEMP_CODE', 'USER_REGISTER']
+    notifications = AuditLog.query.filter(
+        AuditLog.action.in_(notifiable_actions),
+        AuditLog.notified == False
+    ).order_by(AuditLog.timestamp.desc()).limit(5).all()
+
+    return jsonify([{
+        'id': n.id,
+        'action': n.action,
+        'details': n.details,
+        'timestamp': n.timestamp.isoformat() + 'Z'
+    } for n in notifications])
+
+@admin.route('/api/notifications/mark_read', methods=['POST'])
+@login_required
+@permission_required('manage_roles')
+def mark_notifications_read():
+    ids_to_mark = request.json.get('ids', [])
+    if ids_to_mark:
+        AuditLog.query.filter(AuditLog.id.in_(ids_to_mark)).update({'notified': True}, synchronize_session=False)
+        db.session.commit()
+    return jsonify({'status': 'success'})
 
 @admin.route('/branding', methods=['GET', 'POST'])
 @login_required

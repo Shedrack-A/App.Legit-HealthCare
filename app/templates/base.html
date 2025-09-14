@@ -58,7 +58,17 @@
                             {% endfor %}
                         </select>
                     </form>
-                    <button id="theme-switcher">Toggle Theme</button>
+                    <div class="header-actions">
+                        <div class="notification-bell" id="notification-bell">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-dot" style="display: none;"></span>
+                        </div>
+                        <div class="notification-panel" id="notification-panel">
+                            <!-- Notifications will be loaded here -->
+                            <div class="notification-item">No new notifications.</div>
+                        </div>
+                        <button id="theme-switcher">Toggle Theme</button>
+                    </div>
                 </div>
             </header>
 
@@ -79,5 +89,9 @@
         </div>
     </div>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% if current_user.is_authenticated %}
+    <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+    {% endif %}
+    {% block scripts %}{% endblock %}
 </body>
 </html>

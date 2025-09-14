@@ -82,6 +82,7 @@ class AuditLog(db.Model):
     action = db.Column(db.String(100), nullable=False)
     details = db.Column(db.Text, nullable=True)
     timestamp = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    notified = db.Column(db.Boolean, default=False, nullable=False)
 
     user = db.relationship('User')
 
