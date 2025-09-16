@@ -1,0 +1,8 @@
+<div class="form-floating mb-3">
+    <select class="form-select" id="year" name="year">
+        {% for year in range(2020, 2036) %}
+            <option value="{{ year }}" {% if session.get('year') == year %}selected{% endif %}>{{ year }}</option>
+        {% endfor %}
+    </select>
+    <label for="year">Screening Year</label>
+</div>

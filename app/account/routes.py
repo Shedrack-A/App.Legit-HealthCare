@@ -1,8 +1,9 @@
-from flask import render_template, redirect, url_for, flash, session, request, Markup
+from flask import render_template, redirect, url_for, flash, session, request
+from markupsafe import Markup
 from flask_login import login_required, current_user, login_user
 from app import db, bcrypt
 from app.account import account
-from .forms import ChangePasswordForm, Enable2FAForm, Disable2FAForm, Verify2FAForm
+from .forms import ChangePasswordForm, Enable2FAForm, Disable2FAForm, Verify2FAForm, RecoveryCodeForm
 from app.models import User, UserRecoveryCode
 from app.utils import is_password_strong, log_audit
 import pyotp
@@ -122,7 +123,6 @@ def verify_2fa():
                 flash('Logged in successfully.', 'success')
                 return redirect(url_for('main.dashboard'))
             else:
-                # Handle recovery code logic here if needed
                 flash('Invalid authenticator code.', 'danger')
         else:
             flash('User not found.', 'danger')
@@ -130,3 +130,35 @@ def verify_2fa():
             return redirect(url_for('auth.login'))
 
     return render_template('account/verify_2fa.html', title='Verify 2FA', form=form)
+
+@account.route('/verify_recovery', methods=['GET', 'POST'])
+def verify_recovery():
+    if 'user_id_for_2fa' not in session:
+        return redirect(url_for('auth.login'))
+
+    form = RecoveryCodeForm()
+    if form.validate_on_submit():
+        user = User.query.get(session['user_id_for_2fa'])
+        submitted_code = form.recovery_code.data
+
+        if not user:
+            flash('User not found.', 'danger')
+            session.pop('user_id_for_2fa')
+            return redirect(url_for('auth.login'))
+
+        # Find a matching, unused code
+        for code_record in user.recovery_codes.filter_by(used=False):
+            if bcrypt.check_password_hash(code_record.code_hash, submitted_code):
+                code_record.used = True
+                db.session.commit()
+
+                session.pop('user_id_for_2fa')
+                login_user(user)
+
+                log_audit('USER_LOGIN_RECOVERY', f'User {user.id} logged in with a recovery code.')
+                flash('Successfully logged in with recovery code.', 'success')
+                return redirect(url_for('main.dashboard'))
+
+        flash('Invalid or already used recovery code.', 'danger')
+
+    return render_template('account/verify_recovery_code.html', title='Use Recovery Code', form=form)

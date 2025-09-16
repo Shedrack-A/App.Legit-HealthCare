@@ -30,11 +30,16 @@ def send_async_email(app, msg):
     with app.app_context():
         mail.send(msg)
 
-def send_email(to, subject, template, **kwargs):
+def send_email(to, subject, template, attachments=None, **kwargs):
     app = current_app._get_current_object()
     msg = Message(subject, recipients=[to])
     msg.body = render_template(template + '.txt', **kwargs)
     msg.html = render_template(template + '.html', **kwargs)
+
+    if attachments:
+        for attachment in attachments:
+            msg.attach(*attachment)
+
     thr = Thread(target=send_async_email, args=[app, msg])
     thr.start()
     return thr
@@ -60,17 +65,20 @@ def is_password_strong(password):
         return False, "Password must contain at least one special symbol."
     return True, ""
 
+def generate_patient_pdf_bytes(patient):
+    """
+    Generates the raw bytes of a PDF report for a given patient object.
+    """
+    rendered_template = render_template('reports/report_template.html', patient=patient)
+    html = HTML(string=rendered_template, base_url=request.base_url)
+    return html.write_pdf()
+
 def generate_patient_pdf(patient):
     """
     Generates a PDF report for a given patient object.
     Returns a Flask response object with the PDF.
     """
-    # Render the report template with patient data
-    rendered_template = render_template('reports/report_template.html', patient=patient)
-
-    # Create PDF using WeasyPrint
-    html = HTML(string=rendered_template, base_url=request.base_url)
-    pdf_bytes = html.write_pdf()
+    pdf_bytes = generate_patient_pdf_bytes(patient)
 
     # Create a Flask response
     response = make_response(pdf_bytes)

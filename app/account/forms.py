@@ -22,3 +22,8 @@ class Verify2FAForm(FlaskForm):
 class Disable2FAForm(FlaskForm):
     """Form to disable 2FA."""
     submit_disable = SubmitField('Disable 2FA')
+
+class RecoveryCodeForm(FlaskForm):
+    """Form to enter a 2FA recovery code."""
+    recovery_code = StringField('Recovery Code', validators=[DataRequired()])
+    submit_recovery = SubmitField('Use Recovery Code')

@@ -2,6 +2,8 @@ from app.models import User
 from datetime import date
 
 from app.patient.routes import calculate_age
+from app.utils import is_password_strong
+from app.auth.forms import RegistrationForm
 
 def test_password_hashing(app):
     u = User(first_name='john', last_name='doe', phone_number='1234567890', password='cat')
@@ -34,3 +36,31 @@ def test_lipid_profile_calculation():
     # Expected LDL: 200.0 + (150.0 / 5) + 70.0 = 200.0 + 30.0 + 70.0 = 300.0
     ldl = tcho + (tg / 5) + hdl
     assert ldl == 300.0
+
+def test_is_password_strong():
+    assert is_password_strong("short")[0] is False
+    assert is_password_strong("longpassword")[0] is False
+    assert is_password_strong("Longpassword1")[0] is False
+    assert is_password_strong("Longpassword1!")[0] is True
+    assert is_password_strong("AnotherValidP@ssw0rd")[0] is True
+
+def test_phone_number_validator(app):
+    with app.test_request_context():
+        form = RegistrationForm()
+
+        # Valid case
+        form.phone_number.data = "+2348012345678"
+        try:
+            form.validate_phone_number(form.phone_number)
+        except Exception as e:
+            assert False, f"Validation failed for a valid number: {e}"
+
+        # Invalid cases
+        invalid_numbers = ["12345", "+23412345678", "+23412345678901", "abcdefg"]
+        for number in invalid_numbers:
+            form.phone_number.data = number
+            try:
+                form.validate_phone_number(form.phone_number)
+                assert False, f"Validation succeeded for an invalid number: {number}"
+            except Exception:
+                assert True

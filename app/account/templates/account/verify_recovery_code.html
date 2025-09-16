@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block navigation %}{% endblock %} {# Hide nav on this page #}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <h2>Use a Recovery Code</h2>
+        <p>Enter one of your 10-digit recovery codes to log in.</p>
+        <form method="POST" action="{{ url_for('account.verify_recovery') }}">
+            {{ form.hidden_tag() }}
+            {{ render_field(form.recovery_code) }}
+            {{ form.submit_recovery(class="btn btn-primary w-100") }}
+        </form>
+        <div class="text-center mt-3">
+            <a href="{{ url_for('account.verify_2fa') }}">Use an authenticator code instead</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

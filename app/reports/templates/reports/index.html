@@ -60,8 +60,13 @@
                         <td>{{ patient.department }}</td>
                         <td>
                             <a href="{{ url_for('reports.download_report', patient_id=patient.id) }}" class="btn btn-sm btn-danger" target="_blank">
-                                <i class="fas fa-file-pdf"></i> Download Report
+                                <i class="fas fa-file-pdf"></i> Download
                             </a>
+                            {% if patient.email_address %}
+                            <a href="{{ url_for('reports.email_report', patient_id=patient.id) }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-envelope"></i> Email
+                            </a>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

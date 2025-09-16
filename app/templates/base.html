@@ -29,10 +29,10 @@
                 <li><a href="{{ url_for('patient.register') }}"><i class="fas fa-user-plus"></i> Register Patient</a></li>
                 <li><a href="{{ url_for('consultation.index') }}"><i class="fas fa-stethoscope"></i> Consultation</a></li>
                 <li><a href="{{ url_for('results.index') }}"><i class="fas fa-vial"></i> Results</a></li>
-                {% if current_user.has_permission('access_director_page') %}
+                {% if current_user.is_authenticated and current_user.has_permission('access_director_page') %}
                 <li><a href="{{ url_for('director.index') }}"><i class="fas fa-gavel"></i> Director Review</a></li>
                 {% endif %}
-                {% if current_user.has_permission('generate_patient_report') %}
+                {% if current_user.is_authenticated and current_user.has_permission('generate_patient_report') %}
                 <li><a href="{{ url_for('reports.index') }}"><i class="fas fa-file-pdf"></i> Patient Report</a></li>
                 {% endif %}
                 <li><a href="{{ url_for('data_view.view_all_patients') }}"><i class="fas fa-users"></i> View Patients</a></li>

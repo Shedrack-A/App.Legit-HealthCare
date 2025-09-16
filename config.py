@@ -23,6 +23,7 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:' # Use in-memory database for tests
     WTF_CSRF_ENABLED = False # Disable CSRF forms protection in tests
     MAIL_SUPPRESS_SEND = True
+    MAIL_DEFAULT_SENDER = 'noreply@example.com'
 
 config = {
     'development': DevelopmentConfig,

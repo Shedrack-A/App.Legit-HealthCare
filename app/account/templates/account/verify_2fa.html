@@ -13,7 +13,9 @@
             {{ render_field(form.token) }}
             {{ form.submit_verify(class="btn btn-primary w-100") }}
         </form>
-        {# Add link to recovery code page later if needed #}
+        <div class="text-center mt-3">
+            <a href="{{ url_for('account.verify_recovery') }}">Use a recovery code</a>
+        </div>
     </div>
 </div>
 {% endblock %}
