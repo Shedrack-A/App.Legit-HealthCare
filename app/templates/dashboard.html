@@ -15,7 +15,12 @@
             <a href="{{ url_for('patient.register') }}" class="btn-action"><i class="fas fa-user-plus"></i> Register Patient</a>
             <a href="{{ url_for('consultation.index') }}" class="btn-action"><i class="fas fa-stethoscope"></i> Start Consultation</a>
             <a href="{{ url_for('results.index') }}" class="btn-action"><i class="fas fa-vial"></i> Enter Lab Results</a>
-            <a href="#" class="btn-action"><i class="fas fa-file-pdf"></i> Generate Report</a>
+            {% if current_user.has_permission('access_director_page') %}
+            <a href="{{ url_for('director.index') }}" class="btn-action"><i class="fas fa-gavel"></i> Director Review</a>
+            {% endif %}
+            {% if current_user.has_permission('generate_patient_report') %}
+            <a href="{{ url_for('reports.index') }}" class="btn-action"><i class="fas fa-file-pdf"></i> Generate Report</a>
+            {% endif %}
             <a href="{{ url_for('data_view.view_all_patients') }}" class="btn-action"><i class="fas fa-users"></i> View All Patients</a>
             <a href="{{ url_for('data_view.view_yearly_records') }}" class="btn-action"><i class="fas fa-folder-open"></i> View Yearly Records</a>
         </div>

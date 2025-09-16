@@ -1,8 +1,9 @@
 import re
 from threading import Thread
-from flask import current_app, render_template
+from flask import current_app, render_template, request, make_response
 from flask_mail import Message
 from app import db, mail
+from weasyprint import HTML
 from app.models import AuditLog
 from flask_login import current_user
 
@@ -58,3 +59,22 @@ def is_password_strong(password):
     if not re.search(r"[!@#$%^&*()\[\]{};:,./<>?~`_+=|-]", password):
         return False, "Password must contain at least one special symbol."
     return True, ""
+
+def generate_patient_pdf(patient):
+    """
+    Generates a PDF report for a given patient object.
+    Returns a Flask response object with the PDF.
+    """
+    # Render the report template with patient data
+    rendered_template = render_template('reports/report_template.html', patient=patient)
+
+    # Create PDF using WeasyPrint
+    html = HTML(string=rendered_template, base_url=request.base_url)
+    pdf_bytes = html.write_pdf()
+
+    # Create a Flask response
+    response = make_response(pdf_bytes)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=report_{patient.staff_id}_{patient.screening_year}.pdf'
+
+    return response

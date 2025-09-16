@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Report - {{ patient.first_name }} {{ patient.last_name }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; color: #333; }
+        .report-container { width: 90%; margin: 20px auto; border: 1px solid #ccc; padding: 20px; }
+        .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+        .header img { max-width: 200px; max-height: 80px; }
+        .header h1 { margin: 0; }
+        .section { margin-bottom: 20px; }
+        .section-title { font-size: 1.2em; font-weight: bold; background-color: #f2f2f2; padding: 8px; border: 1px solid #ddd; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table td, .data-table th { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .data-table th { font-weight: bold; }
+        .data-pair { display: block; margin-bottom: 5px; }
+        .data-pair strong { display: inline-block; width: 200px; }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="header">
+            <!-- Logo will be loaded from settings -->
+            <h1>Medical Report</h1>
+            <h2>Legit HealthCare Services Ltd.</h2>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Patient Information</div>
+            <div class="data-pair"><strong>Screening Year:</strong> {{ patient.screening_year }}</div>
+            <div class="data-pair"><strong>Company:</strong> {{ patient.company }}</div>
+            <div class="data-pair"><strong>Staff ID:</strong> {{ patient.staff_id }}</div>
+            <div class="data-pair"><strong>Patient ID:</strong> {{ patient.patient_id }}</div>
+            <div class="data-pair"><strong>Full Name:</strong> {{ patient.first_name }} {{ patient.middle_name or '' }} {{ patient.last_name }}</div>
+            <div class="data-pair"><strong>Date of Birth:</strong> {{ patient.date_of_birth.strftime('%Y-%m-%d') }}</div>
+            <div class="data-pair"><strong>Age:</strong> {{ patient.age }}</div>
+            <div class="data-pair"><strong>Gender:</strong> {{ patient.gender }}</div>
+            <div class="data-pair"><strong>Department:</strong> {{ patient.department }}</div>
+        </div>
+
+        {% if patient.consultation %}
+        <div class="section">
+            <div class="section-title">Doctor's Consultation</div>
+            <table class="data-table">
+                {% for key, value in patient.consultation.__dict__.items() if not key.startswith('_') and key not in ['id', 'patient_id', 'date_created', 'patient'] %}
+                <tr><th>{{ key|replace('_', ' ')|title }}</th><td>{{ value|default('N/A', true) }}</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+        <div class="section">
+            <div class="section-title">Laboratory & Test Results</div>
+            <!-- Loop through tests -->
+            {% set tests = [
+                ('full_blood_count', 'Full Blood Count'), ('kidney_function_test', 'Kidney Function Test'),
+                ('lipid_profile', 'Lipid Profile'), ('liver_function_test', 'Liver Function Test'),
+                ('ecg', 'ECG'), ('spirometry', 'Spirometry'), ('audiometry', 'Audiometry')
+            ] %}
+            {% for test_attr, test_name in tests %}
+                {% set test_result = patient[test_attr] %}
+                {% if test_result %}
+                    <h4>{{ test_name }}</h4>
+                    <table class="data-table">
+                    {% for key, value in test_result.__dict__.items() if not key.startswith('_') and key not in ['id', 'patient_id', 'date_created', 'patient'] %}
+                        <tr><th>{{ key|replace('_', ' ')|title }}</th><td>{{ value|default('N/A', true) }}</td></tr>
+                    {% endfor %}
+                    </table>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {% if patient.director_review %}
+        <div class="section">
+            <div class="section-title">Director's Review</div>
+            <div class="data-pair"><strong>Director Remarks:</strong> {{ patient.director_review.director_remarks }}</div>
+            <div class="data-pair"><strong>Overall Assessment:</strong> {{ patient.director_review.overall_assessment }}</div>
+        </div>
+        {% endif %}
+
+    </div>
+</body>
+</html>

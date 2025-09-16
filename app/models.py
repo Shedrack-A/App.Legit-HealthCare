@@ -15,8 +15,11 @@ class User(db.Model, UserMixin):
     phone_number = db.Column(db.String(20), unique=True, nullable=False)
     email_address = db.Column(db.String(120), unique=True, nullable=True)
     password_hash = db.Column(db.String(128))
+    otp_secret = db.Column(db.String(16))
+    otp_enabled = db.Column(db.Boolean, default=False)
 
     roles = db.relationship('Role', secondary=user_roles, backref=db.backref('users', lazy='dynamic'))
+    recovery_codes = db.relationship('UserRecoveryCode', backref='user', lazy='dynamic')
 
     def has_permission(self, perm_name):
         for role in self.roles:
@@ -303,3 +306,24 @@ class Audiometry(db.Model):
     remark = db.Column(db.Text)
     date_created = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     patient = db.relationship('Patient', backref=db.backref('audiometry', lazy=True, uselist=False))
+
+class DirectorReview(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=False, unique=True)
+    director_remarks = db.Column(db.Text, nullable=False)
+    overall_assessment = db.Column(db.Text, nullable=False)
+    date_created = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+
+    patient = db.relationship('Patient', backref=db.backref('director_review', lazy=True, uselist=False))
+
+    def __repr__(self):
+        return f"<DirectorReview for Patient ID: {self.patient_id}>"
+
+class UserRecoveryCode(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    code_hash = db.Column(db.String(128), nullable=False)
+    used = db.Column(db.Boolean, default=False, nullable=False)
+
+    def __repr__(self):
+        return f"<RecoveryCode for User ID {self.user_id}>"

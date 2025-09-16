@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mt-4">{{ title }}</h1>
+
+    <!-- Patient Bio-Data -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-user-circle me-1"></i>
+            Patient Bio-Data
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4"><strong>Staff ID:</strong> {{ patient.staff_id }}</div>
+                <div class="col-md-4"><strong>Patient ID:</strong> {{ patient.patient_id }}</div>
+                <div class="col-md-4"><strong>Name:</strong> {{ patient.first_name }} {{ patient.last_name }}</div>
+                <div class="col-md-4"><strong>Department:</strong> {{ patient.department }}</div>
+                <div class="col-md-4"><strong>Age:</strong> {{ patient.age }}</div>
+                <div class="col-md-4"><strong>Gender:</strong> {{ patient.gender }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consultation -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-stethoscope me-1"></i>
+            Consultation Details
+        </div>
+        <div class="card-body">
+            {% if patient.consultation %}
+                <!-- Display consultation data here, two columns -->
+                <div class="row">
+                    {% for key, value in patient.consultation.__dict__.items() if not key.startswith('_') and key not in ['id', 'patient_id', 'date_created', 'patient'] %}
+                        <div class="col-md-6 mb-2">
+                            <strong>{{ key|replace('_', ' ')|title }}:</strong> {{ value|default('N/A', true) }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No consultation data available for this patient.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Test Results -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-vial me-1"></i>
+            Test Results
+        </div>
+        <div class="card-body">
+            <div class="accordion" id="testResultsAccordion">
+                {% set tests = [
+                    ('full_blood_count', 'Full Blood Count'),
+                    ('kidney_function_test', 'Kidney Function Test'),
+                    ('lipid_profile', 'Lipid Profile'),
+                    ('liver_function_test', 'Liver Function Test'),
+                    ('ecg', 'ECG'),
+                    ('spirometry', 'Spirometry'),
+                    ('audiometry', 'Audiometry')
+                ] %}
+
+                {% for test_attr, test_name in tests %}
+                    {% set test_result = patient[test_attr] %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-{{ test_attr }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ test_attr }}" aria-expanded="false" aria-controls="collapse-{{ test_attr }}">
+                                {{ test_name }}
+                            </button>
+                        </h2>
+                        <div id="collapse-{{ test_attr }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ test_attr }}" data-bs-parent="#testResultsAccordion">
+                            <div class="accordion-body">
+                                {% if test_result %}
+                                    <div class="row">
+                                    {% for key, value in test_result.__dict__.items() if not key.startswith('_') and key not in ['id', 'patient_id', 'date_created', 'patient'] %}
+                                        <div class="col-md-6 mb-2">
+                                            <strong>{{ key|replace('_', ' ')|title }}:</strong> {{ value|default('N/A', true) }}
+                                        </div>
+                                    {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <p>No {{ test_name }} data available.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Director Review Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-gavel me-1"></i>
+            Director's Review
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('director.review', patient_id=patient.id) }}">
+                {{ form.hidden_tag() }}
+                <div class="form-floating mb-3">
+                    {{ form.director_remarks(class="form-control", style="height: 100px") }}
+                    <label for="director_remarks">Director Remarks</label>
+                </div>
+                <div class="form-floating mb-3">
+                    {{ form.overall_assessment(class="form-control", style="height: 100px") }}
+                    <label for="overall_assessment">Overall Assessment</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

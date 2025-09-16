@@ -1,9 +1,10 @@
 from flask import render_template, redirect, url_for, jsonify, request, flash, session
 from app.portal import portal
+from flask import abort
 from app.models import Patient, PatientAccount
 from .forms import PatientSignUpForm, PatientLoginForm, PatientChangePasswordForm
 from app import db
-from app.utils import log_audit
+from app.utils import log_audit, generate_patient_pdf
 from app.decorators import patient_account_login_required
 
 @portal.route('/start')
@@ -113,3 +114,26 @@ def settings():
         flash('Your password has been updated.', 'success')
         return redirect(url_for('portal.dashboard'))
     return render_template('portal/settings.html', title='Account Settings', form=form)
+
+@portal.route('/download_report', methods=['POST'])
+@patient_account_login_required
+def download_report():
+    patient_id = request.form.get('patient_id')
+    if not patient_id:
+        abort(400, 'Patient ID not provided.')
+
+    # Security Check: Ensure the requested patient record belongs to the logged-in patient account
+    account = PatientAccount.query.get_or_404(session['patient_account_id'])
+    patient = Patient.query.get_or_404(patient_id)
+
+    if account.staff_id != patient.staff_id:
+        log_audit('PATIENT_UNAUTHORIZED_REPORT_ACCESS', f'Patient account {account.id} tried to access report for patient {patient.id}')
+        abort(403) # Forbidden
+
+    # Eager load all data for the report
+    patient_with_data = Patient.query.options(
+        db.joinedload('*')
+    ).get(patient_id)
+
+    log_audit('PATIENT_DOWNLOAD_REPORT', f'Patient {account.staff_id} downloaded report for year {patient.screening_year}')
+    return generate_patient_pdf(patient_with_data)

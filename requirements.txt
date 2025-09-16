@@ -13,3 +13,6 @@ openpyxl
 Flask-Mail
 Flask-SocketIO
 eventlet
+WeasyPrint
+pyotp
+qrcode[pil]
