@@ -57,6 +57,15 @@ def create_app(config_name='default'):
     from app.portal import portal as portal_blueprint
     app.register_blueprint(portal_blueprint, url_prefix='/portal')
 
+    from app.director import director as director_blueprint
+    app.register_blueprint(director_blueprint, url_prefix='/director')
+
+    from app.reports import reports as reports_blueprint
+    app.register_blueprint(reports_blueprint, url_prefix='/reports')
+
+    from app.account import account as account_blueprint
+    app.register_blueprint(account_blueprint, url_prefix='/account')
+
     from app.messaging import messaging as messaging_blueprint
     app.register_blueprint(messaging_blueprint, url_prefix='/messaging')
 

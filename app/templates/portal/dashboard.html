@@ -26,20 +26,16 @@
     </div>
 
     <div class="page-section">
-        <h3>Download Report</h3>
-        <p>Select a screening year to view your comprehensive health report.</p>
-        <form action="#" method="POST" class="report-form">
-             <select name="report_year">
+        <h3>Download Your Report</h3>
+        <p>Select a screening year to download your comprehensive health report as a PDF.</p>
+        <form action="{{ url_for('portal.download_report') }}" method="POST" class="report-form">
+             <select name="patient_id" class="form-control">
                 {% for record in patient_records %}
-                <option value="{{ record.screening_year }}">{{ record.screening_year }}</option>
+                <option value="{{ record.id }}">{{ record.screening_year }} Report</option>
                 {% endfor %}
             </select>
-            <button type="submit" class="btn-submit">View Report</button>
+            <button type="submit" class="btn btn-primary mt-2">Download Report</button>
         </form>
-        <div class="report-display" style="margin-top: 20px; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
-            <p>Report for the selected year will be displayed here.</p>
-            <p><em>(Feature under development)</em></p>
-        </div>
     </div>
     {% else %}
     <div class="patient-header">

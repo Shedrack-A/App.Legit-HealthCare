@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from flask_login import current_user
@@ -41,6 +41,12 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(phone_number=form.phone_number.data).first()
         if user is not None and user.verify_password(form.password.data):
+            # Check if 2FA is enabled
+            if user.otp_enabled:
+                session['user_id_for_2fa'] = user.id
+                return redirect(url_for('account.verify_2fa'))
+
+            # If 2FA is not enabled, log in directly
             login_user(user, remember=form.remember.data)
             log_audit('USER_LOGIN', f'User logged in: {user.phone_number}')
             next_page = request.args.get('next')

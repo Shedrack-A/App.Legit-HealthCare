@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card mt-5">
+                <div class="card-header">
+                    <h3 class="text-center">{{ title }}</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Two-factor authentication is now enabled on your account.</p>
+                    <p><strong>Please save these recovery codes in a safe place.</strong> If you lose access to your authenticator device, you can use one of these codes to log in.</p>
+                    <p>Each code can only be used once.</p>
+
+                    <div class="recovery-codes-list my-4">
+                        <ul class="list-group">
+                            {% for code in recovery_codes %}
+                            <li class="list-group-item text-center font-monospace">{{ code }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="text-center">
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Continue to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block navigation %}{% endblock %} {# Hide nav on this page #}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <h2>{{ title }}</h2>
+        <p>Enter the code from your authenticator app.</p>
+        <form method="POST" action="{{ url_for('account.verify_2fa') }}">
+            {{ form.hidden_tag() }}
+            {{ render_field(form.token) }}
+            {{ form.submit_verify(class="btn btn-primary w-100") }}
+        </form>
+        <div class="text-center mt-3">
+            <a href="{{ url_for('account.verify_recovery') }}">Use a recovery code</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

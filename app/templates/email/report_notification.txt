@@ -1,0 +1,8 @@
+Dear {{ patient.first_name }},
+
+Please find your medical report for the {{ patient.screening_year }} screening attached to this email.
+
+This report contains confidential medical information. Please keep it safe.
+
+Best regards,
+The Team at Legit HealthCare Services Ltd.

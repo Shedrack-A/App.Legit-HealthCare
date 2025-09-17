@@ -47,7 +47,9 @@ def init_permissions():
         'manage_temp_codes',
         'view_audit_log',
         'upload_data',
-        'manage_settings'
+        'manage_settings',
+        'access_director_page',
+        'generate_patient_report'
     ]
 
     for perm_name in permissions:

@@ -4,10 +4,12 @@ from wtforms.validators import DataRequired, EqualTo, ValidationError, Length, O
 from app.models import User
 from app.utils import is_password_strong
 
+import re
+
 class RegistrationForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired(), Length(min=2, max=50)])
     last_name = StringField('Last Name', validators=[DataRequired(), Length(min=2, max=50)])
-    phone_number = StringField('Phone Number', validators=[DataRequired(), Length(min=10, max=20)])
+    phone_number = StringField('Phone Number', validators=[DataRequired()], render_kw={"placeholder": "+234..."})
     email_address = StringField('Email Address', validators=[Optional(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
@@ -19,6 +21,11 @@ class RegistrationForm(FlaskForm):
             raise ValidationError(message)
 
     def validate_phone_number(self, phone_number):
+        # Check format
+        if not re.match(r'^\+234\d{10}$', phone_number.data):
+            raise ValidationError('Phone number must be in the format +234 followed by 10 digits (e.g., +2348012345678).')
+
+        # Check for uniqueness
         user = User.query.filter_by(phone_number=phone_number.data).first()
         if user:
             raise ValidationError('That phone number is already registered. Please choose a different one.')

@@ -1,8 +1,9 @@
 import re
 from threading import Thread
-from flask import current_app, render_template
+from flask import current_app, render_template, request, make_response
 from flask_mail import Message
 from app import db, mail
+from weasyprint import HTML
 from app.models import AuditLog
 from flask_login import current_user
 
@@ -29,11 +30,16 @@ def send_async_email(app, msg):
     with app.app_context():
         mail.send(msg)
 
-def send_email(to, subject, template, **kwargs):
+def send_email(to, subject, template, attachments=None, **kwargs):
     app = current_app._get_current_object()
     msg = Message(subject, recipients=[to])
     msg.body = render_template(template + '.txt', **kwargs)
     msg.html = render_template(template + '.html', **kwargs)
+
+    if attachments:
+        for attachment in attachments:
+            msg.attach(*attachment)
+
     thr = Thread(target=send_async_email, args=[app, msg])
     thr.start()
     return thr
@@ -58,3 +64,25 @@ def is_password_strong(password):
     if not re.search(r"[!@#$%^&*()\[\]{};:,./<>?~`_+=|-]", password):
         return False, "Password must contain at least one special symbol."
     return True, ""
+
+def generate_patient_pdf_bytes(patient):
+    """
+    Generates the raw bytes of a PDF report for a given patient object.
+    """
+    rendered_template = render_template('reports/report_template.html', patient=patient)
+    html = HTML(string=rendered_template, base_url=request.base_url)
+    return html.write_pdf()
+
+def generate_patient_pdf(patient):
+    """
+    Generates a PDF report for a given patient object.
+    Returns a Flask response object with the PDF.
+    """
+    pdf_bytes = generate_patient_pdf_bytes(patient)
+
+    # Create a Flask response
+    response = make_response(pdf_bytes)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename=report_{patient.staff_id}_{patient.screening_year}.pdf'
+
+    return response
