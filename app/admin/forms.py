@@ -1,12 +1,17 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
-from wtforms import StringField, SubmitField, SelectMultipleField, PasswordField, IntegerField, BooleanField, SelectField
+from wtforms import StringField, SubmitField, SelectMultipleField, PasswordField, IntegerField, BooleanField, SelectField, widgets
 from wtforms.validators import DataRequired, EqualTo, NumberRange, Optional, Email
 from app.models import Permission, Role, User
 
 class RoleForm(FlaskForm):
     name = StringField('Role Name', validators=[DataRequired()])
-    permissions = SelectMultipleField('Permissions', coerce=int, render_kw={'class': 'select2-enable'})
+    permissions = SelectMultipleField(
+        'Permissions',
+        coerce=int,
+        widget=widgets.ListWidget(prefix_label=False),
+        option_widget=widgets.CheckboxInput()
+    )
     submit = SubmitField('Save Role')
 
     def __init__(self, *args, **kwargs):

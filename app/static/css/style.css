@@ -677,3 +677,25 @@ input[type="submit"], button {
     font-family: "Font Awesome 6 Free", "Font Awesome 6 Solid";
     font-weight: 900;
 }
+
+/* --- PERMISSION CHECKBOXES --- */
+.permission-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: auto;
+}
