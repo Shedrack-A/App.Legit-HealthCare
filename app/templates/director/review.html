@@ -15,27 +15,21 @@
             <div class="col-md-6">
                 <h4>Test Results</h4>
                 <div class="card mb-3">
-                    <div class="card-header">Spirometry</div>
+                    <div class="card-header">Spirometry Result (Editable)</div>
                     <div class="card-body">
-                        <p>{{ patient.spirometry.spirometry_result if patient.spirometry else 'N/A' }}</p>
-                        <hr>
-                        {{ render_field(form.spirometry_review, class="form-control", rows=3) }}
+                        <textarea name="spirometry_result" class="form-control" rows="4">{{ patient.spirometry.spirometry_result if patient.spirometry else '' }}</textarea>
                     </div>
                 </div>
                 <div class="card mb-3">
-                    <div class="card-header">Audiometry</div>
+                    <div class="card-header">Audiometry Result (Editable)</div>
                     <div class="card-body">
-                        <p>{{ patient.audiometry.audiometry_result if patient.audiometry else 'N/A' }}</p>
-                        <hr>
-                        {{ render_field(form.audiometry_review, class="form-control", rows=3) }}
+                        <textarea name="audiometry_result" class="form-control" rows="4">{{ patient.audiometry.audiometry_result if patient.audiometry else '' }}</textarea>
                     </div>
                 </div>
                 <div class="card mb-3">
-                    <div class="card-header">ECG</div>
+                    <div class="card-header">ECG Result (Editable)</div>
                     <div class="card-body">
-                        <p>{{ patient.ecg.ecg_result if patient.ecg else 'N/A' }}</p>
-                        <hr>
-                        {{ render_field(form.ecg_review, class="form-control", rows=3) }}
+                        <textarea name="ecg_result" class="form-control" rows="4">{{ patient.ecg.ecg_result if patient.ecg else '' }}</textarea>
                     </div>
                 </div>
             </div>

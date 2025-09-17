@@ -9,10 +9,6 @@ class DirectorReviewForm(FlaskForm):
     director_remarks = TextAreaField('Director Remarks', validators=[Optional()])
     overall_assessment = TextAreaField('Overall Assessment', validators=[Optional()])
 
-    spirometry_review = TextAreaField('Spirometry Review', validators=[Optional()])
-    audiometry_review = TextAreaField('Audiometry Review', validators=[Optional()])
-    ecg_review = TextAreaField('ECG Review', validators=[Optional()])
-
     comment_one = TextAreaField('Comment One', validators=[Optional()])
     comment_two = TextAreaField('Comment Two', validators=[Optional()])
     comment_three = TextAreaField('Comment Three', validators=[Optional()])

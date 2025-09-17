@@ -232,12 +232,30 @@ def test_director_and_reports_flow(client, app):
     assert response.status_code == 200
     assert b'S123' in response.data # Should find the patient by Staff ID
 
+    # Add initial test results for the patient
+    with app.app_context():
+        from app.models import Spirometry, ECG, Audiometry
+        patient.spirometry = Spirometry(spirometry_result='Initial Spiro Result')
+        patient.ecg = ECG(ecg_result='Initial ECG Result')
+        db.session.commit()
+
     response = client.post(f'/director/review/{patient_id}', data={
         'director_remarks': 'Patient is healthy.',
-        'overall_assessment': 'Fit to work.'
+        'overall_assessment': 'Fit to work.',
+        'spirometry_result': 'Updated Spiro Result',
+        'ecg_result': 'Updated ECG Result',
+        'audiometry_result': 'New Audio Result' # Test creating a new one
     }, follow_redirects=True)
     assert response.status_code == 200
-    assert b'Director review saved successfully!' in response.data
+    assert b'Patient review and results have been updated successfully!' in response.data
+
+    # Verify that the results were updated in the database
+    with app.app_context():
+        p = Patient.query.get(patient_id)
+        assert p.spirometry.spirometry_result == 'Updated Spiro Result'
+        assert p.ecg.ecg_result == 'Updated ECG Result'
+        assert p.audiometry is not None
+        assert p.audiometry.audiometry_result == 'New Audio Result'
 
     # 4. Verify report download
     response = client.get(f'/reports/download/{patient_id}')

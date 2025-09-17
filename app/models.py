@@ -315,11 +315,6 @@ class DirectorReview(db.Model):
     director_remarks = db.Column(db.Text, nullable=True)
     overall_assessment = db.Column(db.Text, nullable=True)
 
-    # New fields for specific test remarks
-    spirometry_review = db.Column(db.Text, nullable=True)
-    audiometry_review = db.Column(db.Text, nullable=True)
-    ecg_review = db.Column(db.Text, nullable=True)
-
     # New comment fields
     comment_one = db.Column(db.Text, nullable=True)
     comment_two = db.Column(db.Text, nullable=True)
