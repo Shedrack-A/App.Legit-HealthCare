@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }} - {{ hospital_name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     {% if favicon_url %}
     <link rel="icon" href="{{ favicon_url }}">
     {% endif %}
@@ -12,90 +15,88 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body {% if current_user.is_authenticated %}data-user-id="{{ current_user.id }}"{% endif %}>
-    <div class="app-container {% if not current_user.is_authenticated %}no-nav{% endif %}">
+<body data-user-id="{{ current_user.id if current_user.is_authenticated else '' }}">
+    <div class="app-wrapper">
         {% if current_user.is_authenticated %}
-        {% block navigation %}
-        <nav id="side-nav">
-            <div class="nav-header">
-                <a href="{{ url_for('main.index') }}">
-                    {% if light_logo_url %}
-                        <img src="{{ light_logo_url }}" alt="Logo" class="logo logo-light">
+            <nav class="sidebar">
+                {% block sidebar %}
+                <div class="nav-header">
+                    <a href="{{ url_for('main.index') }}">
+                        {% if light_logo_url %}
+                            <img src="{{ light_logo_url }}" alt="Logo" class="logo logo-light">
+                        {% endif %}
+                        {% if dark_logo_url %}
+                            <img src="{{ dark_logo_url }}" alt="Logo" class="logo logo-dark">
+                        {% endif %}
+                        {% if not light_logo_url and not dark_logo_url %}
+                            <h3>{{ organization_name }}</h3>
+                        {% endif %}
+                    </a>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('main.dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="{{ url_for('patient.register') }}"><i class="fas fa-user-plus"></i> Register Patient</a></li>
+                    <li><a href="{{ url_for('consultation.index') }}"><i class="fas fa-stethoscope"></i> Consultation</a></li>
+                    <li><a href="{{ url_for('results.index') }}"><i class="fas fa-vial"></i> Results</a></li>
+                    {% if current_user.has_permission('access_director_page') %}
+                    <li><a href="{{ url_for('director.index') }}"><i class="fas fa-gavel"></i> Director Review</a></li>
                     {% endif %}
-                    {% if dark_logo_url %}
-                        <img src="{{ dark_logo_url }}" alt="Logo" class="logo logo-dark">
+                    {% if current_user.has_permission('generate_patient_report') %}
+                    <li><a href="{{ url_for('reports.index') }}"><i class="fas fa-file-pdf"></i> Patient Report</a></li>
                     {% endif %}
-                    {% if not light_logo_url and not dark_logo_url %}
-                        <h3>{{ organization_name }}</h3>
+                    <li><a href="{{ url_for('data_view.view_all_patients') }}"><i class="fas fa-users"></i> View Patients</a></li>
+                    <li><a href="{{ url_for('data_view.view_yearly_records') }}"><i class="fas fa-folder-open"></i> View Records</a></li>
+                    <hr>
+                    {% if current_user.has_permission('manage_roles') %}
+                    <li><a href="{{ url_for('admin.index') }}"><i class="fas fa-cogs"></i> Control Panel</a></li>
                     {% endif %}
-                </a>
-            </div>
-            <ul class="nav-links">
-                <li><a href="{{ url_for('main.dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li><a href="{{ url_for('patient.register') }}"><i class="fas fa-user-plus"></i> Register Patient</a></li>
-                <li><a href="{{ url_for('consultation.index') }}"><i class="fas fa-stethoscope"></i> Consultation</a></li>
-                <li><a href="{{ url_for('results.index') }}"><i class="fas fa-vial"></i> Results</a></li>
-                {% if current_user.is_authenticated and current_user.has_permission('access_director_page') %}
-                <li><a href="{{ url_for('director.index') }}"><i class="fas fa-gavel"></i> Director Review</a></li>
-                {% endif %}
-                {% if current_user.is_authenticated and current_user.has_permission('generate_patient_report') %}
-                <li><a href="{{ url_for('reports.index') }}"><i class="fas fa-file-pdf"></i> Patient Report</a></li>
-                {% endif %}
-                <li><a href="{{ url_for('data_view.view_all_patients') }}"><i class="fas fa-users"></i> View Patients</a></li>
-                <li><a href="{{ url_for('data_view.view_yearly_records') }}"><i class="fas fa-folder-open"></i> View Records</a></li>
-                <hr>
-                {% if current_user.is_authenticated and current_user.has_permission('manage_roles') %}
-                <li><a href="{{ url_for('admin.index') }}"><i class="fas fa-cogs"></i> Control Panel</a></li>
-                {% endif %}
-                <hr>
-                <li><a href="{{ url_for('account.settings') }}"><i class="fas fa-user-cog"></i> Manage Account</a></li>
-                <li><a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            </ul>
-        </nav>
-        {% endblock %}
+                    <hr>
+                    <li><a href="{{ url_for('account.settings') }}"><i class="fas fa-user-cog"></i> Manage Account</a></li>
+                    <li><a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+                {% endblock %}
+            </nav>
         {% endif %}
 
-        <div class="main-content">
-            <header>
-                <div class="header-left">
-                    <h1>{{ title }}</h1>
-                </div>
-                <div class="header-right">
-                    <form action="{{ url_for('main.set_filters') }}" method="POST" class="header-filters">
-                        <select name="company" onchange="this.form.submit()">
-                            <option value="DCP" {% if session.company == 'DCP' %}selected{% endif %}>Dangote Cement - DCP</option>
-                            <option value="DCT" {% if session.company == 'DCT' %}selected{% endif %}>Dangote Transport - DCT</option>
-                        </select>
-                        <select name="year" onchange="this.form.submit()">
-                            {% for year in range(2020, 2036) %}
-                                <option value="{{ year }}" {% if session.year == year %}selected{% endif %}>{{ year }}</option>
-                            {% endfor %}
-                        </select>
-                    </form>
-                    <div class="header-actions">
-                        <div class="notification-bell" id="notification-bell">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-dot" style="display: none;"></span>
+        <div class="main-content-wrapper {% if not current_user.is_authenticated %}full-width{% endif %}">
+            {% if current_user.is_authenticated %}
+                <header class="top-nav">
+                    <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
+                        <div class="header-left">
+                            <h1>{{ title }}</h1>
                         </div>
-                        <div class="notification-panel" id="notification-panel">
-                            <!-- Notifications will be loaded here -->
-                            <div class="notification-item">No new notifications.</div>
+                        <div class="header-right d-flex align-items-center">
+                            <form action="{{ url_for('main.set_filters') }}" method="POST" class="header-filters d-flex align-items-center">
+                                <select name="company" onchange="this.form.submit()" class="form-control" style="width: auto; margin-right: 1rem;">
+                                    <option value="DCP" {% if session.company == 'DCP' %}selected{% endif %}>Dangote Cement - DCP</option>
+                                    <option value="DCT" {% if session.company == 'DCT' %}selected{% endif %}>Dangote Transport - DCT</option>
+                                </select>
+                                <select name="year" onchange="this.form.submit()" class="form-control" style="width: auto; margin-right: 1rem;">
+                                    {% for year in range(2020, 2036) %}
+                                        <option value="{{ year }}" {% if session.year == year %}selected{% endif %}>{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                            <div class="header-actions">
+                                <div class="notification-bell" id="notification-bell">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="notification-dot" style="display: none;"></span>
+                                </div>
+                                <button id="theme-switcher" class="btn">Toggle Theme</button>
+                            </div>
                         </div>
-                        <button id="theme-switcher">Toggle Theme</button>
                     </div>
-                </div>
-            </header>
+                </header>
+            {% endif %}
 
-            <main>
+            <main class="content-area">
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
-                        <div class="flash-messages">
                         {% for category, message in messages %}
                             <div class="alert alert-{{ category }}">
                                 {{ message }}
                             </div>
                         {% endfor %}
-                        </div>
                     {% endif %}
                 {% endwith %}
                 {% block content %}{% endblock %}
