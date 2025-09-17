@@ -30,6 +30,30 @@ def index():
     return render_template('director/index.html', title='Director Review - Search Patient')
 
 
+from flask import jsonify
+
+@director.route('/api/search')
+@login_required
+@permission_required('access_director_page')
+def api_search():
+    search_term = request.args.get('q', '')
+    company = request.args.get('company', 'DCP')
+    year = request.args.get('year', datetime.now().year, type=int)
+
+    if not search_term:
+        return jsonify([])
+
+    patients = Patient.query.filter_by(company=company, screening_year=year)\
+                            .filter(Patient.staff_id.ilike(f'%{search_term}%')).limit(10).all()
+
+    return jsonify([{
+        'id': p.id,
+        'staff_id': p.staff_id,
+        'first_name': p.first_name,
+        'last_name': p.last_name,
+        'department': p.department
+    } for p in patients])
+
 @director.route('/review/<int:patient_id>', methods=['GET', 'POST'])
 @login_required
 @permission_required('access_director_page')

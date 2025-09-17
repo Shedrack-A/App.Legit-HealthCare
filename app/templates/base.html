@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} - Legit HealthCare Services</title>
+    <title>{{ title }} - {{ hospital_name }}</title>
+    {% if favicon_url %}
+    <link rel="icon" href="{{ favicon_url }}">
+    {% endif %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body {% if current_user.is_authenticated %}data-user-id="{{ current_user.id }}"{% endif %}>
-    <div class="app-container">
+    <div class="app-container {% if not current_user.is_authenticated %}no-nav{% endif %}">
+        {% if current_user.is_authenticated %}
         {% block navigation %}
         <nav id="side-nav">
             <div class="nav-header">
@@ -20,7 +26,7 @@
                         <img src="{{ dark_logo_url }}" alt="Logo" class="logo logo-dark">
                     {% endif %}
                     {% if not light_logo_url and not dark_logo_url %}
-                        <h3>LHS Ltd.</h3>
+                        <h3>{{ organization_name }}</h3>
                     {% endif %}
                 </a>
             </div>
@@ -47,6 +53,7 @@
             </ul>
         </nav>
         {% endblock %}
+        {% endif %}
 
         <div class="main-content">
             <header>
@@ -95,6 +102,11 @@
             </main>
         </div>
     </div>
+    <!-- JQuery (required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% if current_user.is_authenticated %}
     <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>

@@ -6,7 +6,7 @@ from app.models import Permission, Role, User
 
 class RoleForm(FlaskForm):
     name = StringField('Role Name', validators=[DataRequired()])
-    permissions = SelectMultipleField('Permissions', coerce=int)
+    permissions = SelectMultipleField('Permissions', coerce=int, render_kw={'class': 'select2-enable'})
     submit = SubmitField('Save Role')
 
     def __init__(self, *args, **kwargs):
@@ -16,7 +16,7 @@ class RoleForm(FlaskForm):
 class EditUserForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired()])
     last_name = StringField('Last Name', validators=[DataRequired()])
-    roles = SelectMultipleField('Roles', coerce=int)
+    roles = SelectMultipleField('Roles', coerce=int, render_kw={'class': 'select2-enable'})
     submit = SubmitField('Update User')
 
     def __init__(self, *args, **kwargs):
@@ -29,8 +29,8 @@ class ChangePasswordForm(FlaskForm):
     submit = SubmitField('Change Password')
 
 class GenerateTempCodeForm(FlaskForm):
-    user = SelectField('User', coerce=int, validators=[DataRequired()])
-    permission = SelectField('Permission', coerce=int, validators=[DataRequired()])
+    user = SelectField('User', coerce=int, validators=[DataRequired()], render_kw={'class': 'select2-enable'})
+    permission = SelectField('Permission', coerce=int, validators=[DataRequired()], render_kw={'class': 'select2-enable'})
     duration = IntegerField('Duration (minutes)', default=60, validators=[DataRequired(), NumberRange(min=1)])
     is_single_use = BooleanField('Single Use Only', default=True)
     submit = SubmitField('Generate Code')
@@ -48,11 +48,15 @@ class UploadForm(FlaskForm):
     submit = SubmitField('Upload and Process')
 
 class BrandingForm(FlaskForm):
+    hospital_name = StringField('Hospital Name', validators=[Optional()])
+    organization_name = StringField('Organization Name', validators=[Optional()])
     light_logo = FileField('Light Theme Logo', validators=[FileAllowed(['jpg', 'png', 'svg'], 'Images only!')])
     dark_logo = FileField('Dark Theme Logo', validators=[FileAllowed(['jpg', 'png', 'svg'], 'Images only!')])
-    submit = SubmitField('Save Logos')
+    favicon = FileField('Favicon', validators=[FileAllowed(['ico', 'png'], 'ICO or PNG files only!')])
+    submit = SubmitField('Save Settings')
 
 class EmailSettingsForm(FlaskForm):
-    mail_username = StringField('Gmail Address', validators=[Optional(), Email()])
+    mail_username = StringField('Sender Email (Gmail Address)', validators=[Optional(), Email()])
     mail_password = PasswordField('Gmail App Password', validators=[Optional()])
+    mail_sender_name = StringField('Sender Name (e.g., Legit HealthCare)', validators=[Optional()])
     submit = SubmitField('Save Email Settings')

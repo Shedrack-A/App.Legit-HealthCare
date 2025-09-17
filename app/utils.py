@@ -30,9 +30,17 @@ def send_async_email(app, msg):
     with app.app_context():
         mail.send(msg)
 
-def send_email(to, subject, template, attachments=None, **kwargs):
+def send_email(to, subject, template, attachments=None, sender=None, **kwargs):
     app = current_app._get_current_object()
-    msg = Message(subject, recipients=[to])
+
+    # Use default sender from app config if not provided
+    if sender is None:
+        sender = (
+            app.config.get('MAIL_SENDER_NAME', 'Legit HealthCare'),
+            app.config.get('MAIL_DEFAULT_SENDER')
+        )
+
+    msg = Message(subject, recipients=[to], sender=sender)
     msg.body = render_template(template + '.txt', **kwargs)
     msg.html = render_template(template + '.html', **kwargs)
 
@@ -69,7 +77,8 @@ def generate_patient_pdf_bytes(patient):
     """
     Generates the raw bytes of a PDF report for a given patient object.
     """
-    rendered_template = render_template('reports/report_template.html', patient=patient)
+    # Note: Using the new A4 layout as a placeholder
+    rendered_template = render_template('reports/a4_report_layout.html', patient=patient)
     html = HTML(string=rendered_template, base_url=request.base_url)
     return html.write_pdf()
 

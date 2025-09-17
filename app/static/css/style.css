@@ -648,3 +648,32 @@ input[type="submit"], button {
     background-color: #d1ecf1;
     border-color: #bee5eb;
 }
+
+/* --- SPINNER / LOADING INDICATOR --- */
+@keyframes spinner-border {
+  to { transform: rotate(360deg); }
+}
+
+.spinner-border {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: -0.125em;
+  border: .2em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-border .75s linear infinite;
+  margin-right: 0.5rem;
+}
+
+.spinner-border-sm {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-width: .15em;
+}
+
+/* --- ICON FIXES --- */
+.nav-links li a .fas {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Solid";
+    font-weight: 900;
+}

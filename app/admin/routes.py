@@ -280,40 +280,58 @@ def mark_notifications_read():
 def branding():
     form = BrandingForm()
     if form.validate_on_submit():
-        if form.light_logo.data:
-            f = form.light_logo.data
-            filename = secure_filename('light_logo' + os.path.splitext(f.filename)[1])
-            filepath = os.path.join('app/static/logos', filename)
-            f.save(filepath)
+        # Handle text fields
+        settings_to_update = {
+            'hospital_name': form.hospital_name.data,
+            'organization_name': form.organization_name.data
+        }
+        for key, value in settings_to_update.items():
+            if value:
+                setting = Setting.query.filter_by(key=key).first()
+                if not setting:
+                    setting = Setting(key=key)
+                setting.value = value
+                db.session.add(setting)
 
-            setting = Setting.query.filter_by(key='light_logo_url').first()
-            if not setting:
-                setting = Setting(key='light_logo_url')
-            setting.value = f'/static/logos/{filename}'
-            db.session.add(setting)
+        # Handle file uploads
+        logo_fields = {
+            'light_logo_url': form.light_logo.data,
+            'dark_logo_url': form.dark_logo.data,
+            'favicon_url': form.favicon.data
+        }
+        for key, file_data in logo_fields.items():
+            if file_data:
+                filename_base = key.split('_url')[0]
+                filename = secure_filename(filename_base + os.path.splitext(file_data.filename)[1])
+                filepath = os.path.join(current_app.root_path, 'static/logos', filename)
 
-        if form.dark_logo.data:
-            f = form.dark_logo.data
-            filename = secure_filename('dark_logo' + os.path.splitext(f.filename)[1])
-            filepath = os.path.join('app/static/logos', filename)
-            f.save(filepath)
+                # Ensure the directory exists
+                os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
-            setting = Setting.query.filter_by(key='dark_logo_url').first()
-            if not setting:
-                setting = Setting(key='dark_logo_url')
-            setting.value = f'/static/logos/{filename}'
-            db.session.add(setting)
+                file_data.save(filepath)
+
+                setting = Setting.query.filter_by(key=key).first()
+                if not setting:
+                    setting = Setting(key=key)
+                setting.value = f'/static/logos/{filename}'
+                db.session.add(setting)
 
         db.session.commit()
-        log_audit('UPDATE_BRANDING', 'Updated site logos.')
-        flash('Branding has been updated.', 'success')
+        log_audit('UPDATE_BRANDING', 'Updated site branding and logos.')
+        flash('Branding settings have been updated.', 'success')
         return redirect(url_for('admin.branding'))
 
-    logos = {
+    # Pre-populate the form
+    form.hospital_name.data = Setting.query.filter_by(key='hospital_name').first().value if Setting.query.filter_by(key='hospital_name').first() else ''
+    form.organization_name.data = Setting.query.filter_by(key='organization_name').first().value if Setting.query.filter_by(key='organization_name').first() else ''
+
+    current_logos = {
         'light': Setting.query.filter_by(key='light_logo_url').first(),
-        'dark': Setting.query.filter_by(key='dark_logo_url').first()
+        'dark': Setting.query.filter_by(key='dark_logo_url').first(),
+        'favicon': Setting.query.filter_by(key='favicon_url').first()
     }
-    return render_template('admin/branding.html', title='Branding', form=form, logos=logos)
+
+    return render_template('admin/branding.html', title='Branding and Logos', form=form, logos=current_logos)
 
 @admin.route('/email_settings', methods=['GET', 'POST'])
 @login_required
@@ -321,12 +339,17 @@ def branding():
 def email_settings():
     form = EmailSettingsForm()
     if form.validate_on_submit():
-        # Update or create MAIL_USERNAME
-        username_setting = Setting.query.filter_by(key='MAIL_USERNAME').first()
-        if not username_setting:
-            username_setting = Setting(key='MAIL_USERNAME')
-        username_setting.value = form.mail_username.data
-        db.session.add(username_setting)
+        settings_to_update = {
+            'MAIL_USERNAME': form.mail_username.data,
+            'MAIL_SENDER_NAME': form.mail_sender_name.data,
+        }
+        for key, value in settings_to_update.items():
+            if value:
+                setting = Setting.query.filter_by(key=key).first()
+                if not setting:
+                    setting = Setting(key=key)
+                setting.value = value
+                db.session.add(setting)
 
         # Update or create MAIL_PASSWORD, only if a new password is provided
         if form.mail_password.data:
@@ -338,12 +361,11 @@ def email_settings():
 
         db.session.commit()
         log_audit('UPDATE_EMAIL_SETTINGS', 'Updated email configuration.')
-        flash('Email settings have been updated. The application may need to be restarted for changes to take effect.', 'success')
+        flash('Email settings have been updated. The application may need to be restarted for changes to take effect.', 'info')
         return redirect(url_for('admin.email_settings'))
 
     # Pre-populate the form
-    username = Setting.query.filter_by(key='MAIL_USERNAME').first()
-    if username:
-        form.mail_username.data = username.value
+    form.mail_username.data = Setting.query.filter_by(key='MAIL_USERNAME').first().value if Setting.query.filter_by(key='MAIL_USERNAME').first() else ''
+    form.mail_sender_name.data = Setting.query.filter_by(key='MAIL_SENDER_NAME').first().value if Setting.query.filter_by(key='MAIL_SENDER_NAME').first() else ''
 
     return render_template('admin/email_settings.html', title='Email Settings', form=form)

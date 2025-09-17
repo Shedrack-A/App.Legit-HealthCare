@@ -96,10 +96,11 @@ def test_new_patient_portal_signup_and_login(client, app):
         'confirm_password': 'StrongPassword123!'
     }, follow_redirects=True)
     assert response.status_code == 200
-    assert b'Your account has been created successfully!' in response.data
-    assert b'Welcome, NewPortal User' in response.data
+    # Should be on the login page with a success message
+    assert b'Your account has been created successfully! You can now log in.' in response.data
+    assert b'Patient Login' in response.data # Check for login page title/header
 
-    # 4. Test logout
+    # 4. Test logout (a logged out user should just be redirected)
     response = client.get('/portal/logout', follow_redirects=True)
     assert b'You have been logged out' in response.data
 

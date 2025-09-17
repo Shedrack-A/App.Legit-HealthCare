@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="patient-header">
+        <h2>Director Review for {{ patient.first_name }} {{ patient.last_name }}</h2>
+        <p><strong>Staff ID:</strong> {{ patient.staff_id }} | <strong>Screening Year:</strong> {{ patient.screening_year }}</p>
+    </div>
+
+    <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <!-- Left Column: Test Results -->
+            <div class="col-md-6">
+                <h4>Test Results</h4>
+                <div class="card mb-3">
+                    <div class="card-header">Spirometry</div>
+                    <div class="card-body">
+                        <p>{{ patient.spirometry.spirometry_result if patient.spirometry else 'N/A' }}</p>
+                        <hr>
+                        {{ render_field(form.spirometry_review, class="form-control", rows=3) }}
+                    </div>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-header">Audiometry</div>
+                    <div class="card-body">
+                        <p>{{ patient.audiometry.audiometry_result if patient.audiometry else 'N/A' }}</p>
+                        <hr>
+                        {{ render_field(form.audiometry_review, class="form-control", rows=3) }}
+                    </div>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-header">ECG</div>
+                    <div class="card-body">
+                        <p>{{ patient.ecg.ecg_result if patient.ecg else 'N/A' }}</p>
+                        <hr>
+                        {{ render_field(form.ecg_review, class="form-control", rows=3) }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Director's Remarks -->
+            <div class="col-md-6">
+                <h4>Director's Assessment</h4>
+                <div class="card">
+                    <div class="card-body">
+                        {{ render_field(form.director_remarks, class="form-control", rows=5) }}
+                        {{ render_field(form.overall_assessment, class="form-control", rows=5) }}
+                        <hr>
+                        <h4>Additional Comments</h4>
+                        {{ render_field(form.comment_one, class="form-control", rows=2) }}
+                        {{ render_field(form.comment_two, class="form-control", rows=2) }}
+                        {{ render_field(form.comment_three, class="form-control", rows=2) }}
+                        {{ render_field(form.comment_four, class="form-control", rows=2) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('director.index') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

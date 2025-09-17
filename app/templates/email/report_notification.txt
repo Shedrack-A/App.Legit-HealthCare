@@ -1,8 +1,15 @@
-Dear {{ patient.first_name }},
+Dear {{ patient.first_name }} - {{ patient.staff_id }},
 
-Please find your medical report for the {{ patient.screening_year }} screening attached to this email.
+Thanks for making yourself available for this year's Annual Medical Screening Exercise.
 
-This report contains confidential medical information. Please keep it safe.
+Please find attached your Medical Report for the year {{ patient.screening_year }}.
+The hard copy of your result will be given to the {{ patient.company }} Medical Team for dispatch to your department.
 
-Best regards,
-The Team at Legit HealthCare Services Ltd.
+Warm Regards
+
+SIGNED:
+Dr. Anyanwu Ugochukwu D. FMCPath
+Consultant in Charge
+Legit HealthCare Services Ltd.
+
+For more info and complaints, contact the Consultant in charge (Doctor) on WhatsApp at: https://bit.ly/SUNU-Doctor or Systems Administrator at: https://bit.ly/Admin_lhcsl

@@ -1,0 +1,58 @@
+/* Basic A4 Page Layout Styles */
+@page {
+    size: A4;
+    margin: 1.5cm;
+}
+
+body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+}
+
+.page {
+    page-break-after: always;
+    height: 24.7cm; /* A4 height minus margins */
+    position: relative;
+}
+
+.page:last-child {
+    page-break-after: avoid;
+}
+
+/* Header and Footer */
+.header, .footer {
+    position: absolute;
+    width: 100%;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.header {
+    top: -1cm;
+}
+
+.footer {
+    bottom: -1cm;
+    font-size: 9pt;
+}
+
+/* Content Placeholder Styles */
+.placeholder-box {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    margin-top: 2cm;
+    height: 20cm;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #999;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 1cm;
+}
