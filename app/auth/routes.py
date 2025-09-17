@@ -68,10 +68,6 @@ from app.models import PasswordResetToken, PatientAccount
 import secrets
 from datetime import datetime, timedelta, UTC
 
-def send_password_reset_email(user, token):
-    # This is a placeholder. I will implement the actual email sending later.
-    pass
-
 @auth.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     form = ForgotPasswordForm()

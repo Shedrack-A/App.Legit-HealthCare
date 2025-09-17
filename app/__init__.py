@@ -124,7 +124,7 @@ def create_app(config_name='default'):
                 hospital_name=settings.get('hospital_name', 'Legit HealthCare'),
                 organization_name=settings.get('organization_name', 'LHC')
             )
-        except Exception:
+        except OperationalError:
             # Return defaults if DB is not ready
             return dict(
                 hospital_name='Legit HealthCare',
