@@ -34,24 +34,24 @@
                     </a>
                 </div>
                 <ul class="nav-links">
-                    <li><a href="{{ url_for('main.dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                    <li><a href="{{ url_for('patient.register') }}"><i class="fas fa-user-plus"></i> Register Patient</a></li>
-                    <li><a href="{{ url_for('consultation.index') }}"><i class="fas fa-stethoscope"></i> Consultation</a></li>
-                    <li><a href="{{ url_for('results.index') }}"><i class="fas fa-vial"></i> Results</a></li>
+                    <li><a href="{{ url_for('main.dashboard') }}" class="{{ 'active' if request.endpoint == 'main.dashboard' else '' }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="{{ url_for('patient.register') }}" class="{{ 'active' if request.endpoint == 'patient.register' else '' }}"><i class="fas fa-user-plus"></i> Register Patient</a></li>
+                    <li><a href="{{ url_for('consultation.index') }}" class="{{ 'active' if request.endpoint == 'consultation.index' else '' }}"><i class="fas fa-stethoscope"></i> Consultation</a></li>
+                    <li><a href="{{ url_for('results.index') }}" class="{{ 'active' if request.endpoint == 'results.index' else '' }}"><i class="fas fa-vial"></i> Results</a></li>
                     {% if current_user.has_permission('access_director_page') %}
-                    <li><a href="{{ url_for('director.index') }}"><i class="fas fa-gavel"></i> Director Review</a></li>
+                    <li><a href="{{ url_for('director.index') }}" class="{{ 'active' if request.endpoint == 'director.index' else '' }}"><i class="fas fa-gavel"></i> Director Review</a></li>
                     {% endif %}
                     {% if current_user.has_permission('generate_patient_report') %}
-                    <li><a href="{{ url_for('reports.index') }}"><i class="fas fa-file-pdf"></i> Patient Report</a></li>
+                    <li><a href="{{ url_for('reports.index') }}" class="{{ 'active' if request.endpoint == 'reports.index' else '' }}"><i class="fas fa-file-pdf"></i> Patient Report</a></li>
                     {% endif %}
-                    <li><a href="{{ url_for('data_view.view_all_patients') }}"><i class="fas fa-users"></i> View Patients</a></li>
-                    <li><a href="{{ url_for('data_view.view_yearly_records') }}"><i class="fas fa-folder-open"></i> View Records</a></li>
+                    <li><a href="{{ url_for('data_view.view_all_patients') }}" class="{{ 'active' if request.endpoint == 'data_view.view_all_patients' else '' }}"><i class="fas fa-users"></i> View Patients</a></li>
+                    <li><a href="{{ url_for('data_view.view_yearly_records') }}" class="{{ 'active' if request.endpoint == 'data_view.view_yearly_records' else '' }}"><i class="fas fa-folder-open"></i> View Records</a></li>
                     <hr>
                     {% if current_user.has_permission('manage_roles') %}
-                    <li><a href="{{ url_for('admin.index') }}"><i class="fas fa-cogs"></i> Control Panel</a></li>
+                    <li><a href="{{ url_for('admin.index') }}" class="{{ 'active' if 'admin.' in request.endpoint else '' }}"><i class="fas fa-cogs"></i> Control Panel</a></li>
                     {% endif %}
                     <hr>
-                    <li><a href="{{ url_for('account.settings') }}"><i class="fas fa-user-cog"></i> Manage Account</a></li>
+                    <li><a href="{{ url_for('account.settings') }}" class="{{ 'active' if request.endpoint == 'account.settings' else '' }}"><i class="fas fa-user-cog"></i> Manage Account</a></li>
                     <li><a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
                 {% endblock %}
@@ -65,13 +65,13 @@
                         <div class="header-left">
                             <h1>{{ title }}</h1>
                         </div>
-                        <div class="header-right d-flex align-items-center">
-                            <form action="{{ url_for('main.set_filters') }}" method="POST" class="header-filters d-flex align-items-center">
-                                <select name="company" onchange="this.form.submit()" class="form-control" style="width: auto; margin-right: 1rem;">
+                        <div class="header-right">
+                            <form action="{{ url_for('main.set_filters') }}" method="POST" class="header-filters">
+                                <select name="company" onchange="this.form.submit()" class="form-control" style="width: auto;">
                                     <option value="DCP" {% if session.company == 'DCP' %}selected{% endif %}>Dangote Cement - DCP</option>
                                     <option value="DCT" {% if session.company == 'DCT' %}selected{% endif %}>Dangote Transport - DCT</option>
                                 </select>
-                                <select name="year" onchange="this.form.submit()" class="form-control" style="width: auto; margin-right: 1rem;">
+                                <select name="year" onchange="this.form.submit()" class="form-control" style="width: auto;">
                                     {% for year in range(2020, 2036) %}
                                         <option value="{{ year }}" {% if session.year == year %}selected{% endif %}>{{ year }}</option>
                                     {% endfor %}
@@ -82,7 +82,7 @@
                                     <i class="fas fa-bell"></i>
                                     <span class="notification-dot" style="display: none;"></span>
                                 </div>
-                                <button id="theme-switcher" class="btn">Toggle Theme</button>
+                                <button id="theme-switcher" class="btn"></button>
                             </div>
                         </div>
                     </div>
