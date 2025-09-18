@@ -1,54 +1,66 @@
 {% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
 
 {% block content %}
-<div class="branding-page">
-    <h2>Branding & Logo Management</h2>
-    <p>Upload the logos to be used for the light and dark themes of the application.</p>
+<div class="container mt-4">
+    <h2>Branding and Personalization</h2>
+    <p>Customize the application's appearance and branding.</p>
 
-    <div class="page-section">
-        <h3>Current Logos</h3>
-        <div class="logo-previews">
-            <div>
-                <h4>Light Theme Logo</h4>
-                {% if logos.light and logos.light.value %}
-                    <img src="{{ logos.light.value }}" alt="Light Theme Logo" style="max-width: 200px; background: #e8f1ff; padding: 10px; border: 1px solid #ddd;">
-                {% else %}
-                    <p>No light theme logo uploaded.</p>
-                {% endif %}
-            </div>
-            <div>
-                <h4>Dark Theme Logo</h4>
-                {% if logos.dark and logos.dark.value %}
-                    <img src="{{ logos.dark.value }}" alt="Dark Theme Logo" style="max-width: 200px; background: #222; padding: 10px; border: 1px solid #555;">
-                {% else %}
-                    <p>No dark theme logo uploaded.</p>
-                {% endif %}
+    <form method="POST" enctype="multipart/form-data" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="card mb-4">
+            <div class="card-header">Names</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ render_field(form.hospital_name, class="form-control") }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ render_field(form.organization_name, class="form-control") }}
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="page-section">
-        <h3>Upload New Logos</h3>
-        <form method="POST" enctype="multipart/form-data">
-            {{ form.hidden_tag() }}
-            <div class="form-group">
-                {{ form.light_logo.label }}<br>
-                {{ form.light_logo() }}
-                {% for error in form.light_logo.errors %}
-                    <span class="error-text">{{ error }}</span>
-                {% endfor %}
+        <div class="card mb-4">
+            <div class="card-header">Logos and Favicon</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5 class="card-title">Light Theme Logo</h5>
+                        {% if logos.light and logos.light.value %}
+                            <img src="{{ logos.light.value }}" alt="Light Logo" class="img-thumbnail mb-3" style="max-width: 200px; background-color: #f8f9fa;">
+                        {% else %}
+                            <p>No light theme logo.</p>
+                        {% endif %}
+                        {{ render_field(form.light_logo, class="form-control") }}
+                    </div>
+                    <div class="col-md-4">
+                        <h5 class="card-title">Dark Theme Logo</h5>
+                        {% if logos.dark and logos.dark.value %}
+                            <img src="{{ logos.dark.value }}" alt="Dark Logo" class="img-thumbnail mb-3" style="max-width: 200px; background-color: #343a40;">
+                        {% else %}
+                            <p>No dark theme logo.</p>
+                        {% endif %}
+                        {{ render_field(form.dark_logo, class="form-control") }}
+                    </div>
+                    <div class="col-md-4">
+                        <h5 class="card-title">Favicon</h5>
+                        {% if logos.favicon and logos.favicon.value %}
+                            <img src="{{ logos.favicon.value }}" alt="Favicon" class="img-thumbnail mb-3" style="max-width: 50px;">
+                        {% else %}
+                            <p>No favicon.</p>
+                        {% endif %}
+                        {{ render_field(form.favicon, class="form-control") }}
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                {{ form.dark_logo.label }}<br>
-                {{ form.dark_logo() }}
-                {% for error in form.dark_logo.errors %}
-                    <span class="error-text">{{ error }}</span>
-                {% endfor %}
-            </div>
-            <div class="form-actions">
-                {{ form.submit(class="btn-submit") }}
-            </div>
-        </form>
-    </div>
+        </div>
+
+        <div class="mt-4">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
 </div>
 {% endblock %}

@@ -310,8 +310,17 @@ class Audiometry(db.Model):
 class DirectorReview(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey('patient.id'), nullable=False, unique=True)
-    director_remarks = db.Column(db.Text, nullable=False)
-    overall_assessment = db.Column(db.Text, nullable=False)
+
+    # Existing fields made nullable to allow saving partial reviews
+    director_remarks = db.Column(db.Text, nullable=True)
+    overall_assessment = db.Column(db.Text, nullable=True)
+
+    # New comment fields
+    comment_one = db.Column(db.Text, nullable=True)
+    comment_two = db.Column(db.Text, nullable=True)
+    comment_three = db.Column(db.Text, nullable=True)
+    comment_four = db.Column(db.Text, nullable=True)
+
     date_created = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     patient = db.relationship('Patient', backref=db.backref('director_review', lazy=True, uselist=False))
@@ -327,3 +336,14 @@ class UserRecoveryCode(db.Model):
 
     def __repr__(self):
         return f"<RecoveryCode for User ID {self.user_id}>"
+
+class PasswordResetToken(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    patient_account_id = db.Column(db.Integer, db.ForeignKey('patient_account.id'), nullable=True)
+    token = db.Column(db.String(100), unique=True, nullable=False)
+    expiry_time = db.Column(db.DateTime, nullable=False)
+    used = db.Column(db.Boolean, default=False, nullable=False)
+
+    def __repr__(self):
+        return f"<PasswordResetToken for User ID {self.user_id}>"

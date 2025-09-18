@@ -77,19 +77,23 @@ def create_app(config_name='default'):
         if 'year' not in session:
             session['year'] = date.today().year
 
-    # Load email settings from DB as a fallback to env vars
+    # Load email settings from DB, overriding environment variables if they exist in the DB.
     with app.app_context():
         from .models import Setting
         from sqlalchemy.exc import OperationalError
         try:
-            if not app.config.get('MAIL_USERNAME'):
-                mail_user = Setting.query.filter_by(key='MAIL_USERNAME').first()
-                if mail_user:
-                    app.config['MAIL_USERNAME'] = mail_user.value
-            if not app.config.get('MAIL_PASSWORD'):
-                mail_pass = Setting.query.filter_by(key='MAIL_PASSWORD').first()
-                if mail_pass:
-                    app.config['MAIL_PASSWORD'] = mail_pass.value
+            # Set static Gmail config
+            app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+            app.config['MAIL_PORT'] = 587
+            app.config['MAIL_USE_TLS'] = True
+
+            # Load dynamic settings from DB
+            settings = {s.key: s.value for s in Setting.query.all()}
+            app.config['MAIL_USERNAME'] = settings.get('MAIL_USERNAME')
+            app.config['MAIL_PASSWORD'] = settings.get('MAIL_PASSWORD')
+            app.config['MAIL_SENDER_NAME'] = settings.get('MAIL_SENDER_NAME')
+            app.config['MAIL_DEFAULT_SENDER'] = settings.get('MAIL_USERNAME') # Sender email is the username
+
         except OperationalError:
             # This can happen if the db is not yet initialized.
             # It's safe to ignore in that case.
@@ -110,11 +114,21 @@ def create_app(config_name='default'):
 
     @app.context_processor
     def inject_branding():
-        light_logo = Setting.query.filter_by(key='light_logo_url').first()
-        dark_logo = Setting.query.filter_by(key='dark_logo_url').first()
-        return dict(
-            light_logo_url=light_logo.value if light_logo else None,
-            dark_logo_url=dark_logo.value if dark_logo else None
-        )
+        from .models import Setting
+        try:
+            settings = {s.key: s.value for s in Setting.query.all()}
+            return dict(
+                light_logo_url=settings.get('light_logo_url'),
+                dark_logo_url=settings.get('dark_logo_url'),
+                favicon_url=settings.get('favicon_url'),
+                hospital_name=settings.get('hospital_name', 'Legit HealthCare'),
+                organization_name=settings.get('organization_name', 'LHC')
+            )
+        except OperationalError:
+            # Return defaults if DB is not ready
+            return dict(
+                hospital_name='Legit HealthCare',
+                organization_name='LHC'
+            )
 
     return app

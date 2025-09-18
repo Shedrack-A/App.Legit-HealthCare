@@ -21,6 +21,7 @@ if (themeSwitcher) {
 
 // Apply the saved theme on page load
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Theme Management ---
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
@@ -32,7 +33,27 @@ document.addEventListener('DOMContentLoaded', () => {
         setTheme('light');
     }
 
-    // Patient Search
+    // --- General Form Submission Loading Indicator ---
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function() {
+            const submitButton = this.querySelector('button[type="submit"], input[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = `
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Submitting...
+                `;
+            }
+        });
+    });
+
+    // --- Select2 Initialization ---
+    $('.select2-enable').select2({
+        theme: "classic" // Using a theme that might blend better initially
+    });
+
+    // --- Patient Search ---
     const searchInput = document.getElementById('patient-search');
     if (searchInput) {
         searchInput.addEventListener('keyup', function() {

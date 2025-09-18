@@ -35,3 +35,17 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
+
+class ForgotPasswordForm(FlaskForm):
+    email = StringField('Email Address', validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('New Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Reset Password')
+
+    def validate_password(self, field):
+        is_strong, message = is_password_strong(field.data)
+        if not is_strong:
+            raise ValidationError(message)

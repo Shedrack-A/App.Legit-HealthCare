@@ -51,6 +51,31 @@ def download_report(patient_id):
 
     return generate_patient_pdf(patient)
 
+from flask import jsonify
+from datetime import datetime
+
+@reports.route('/api/search')
+@login_required
+@permission_required('generate_patient_report')
+def api_search():
+    search_term = request.args.get('q', '')
+    company = request.args.get('company', 'DCP')
+    year = request.args.get('year', datetime.now().year, type=int)
+
+    if not search_term:
+        return jsonify([])
+
+    patients = Patient.query.filter_by(company=company, screening_year=year)\
+                            .filter(Patient.staff_id.ilike(f'%{search_term}%')).limit(10).all()
+
+    return jsonify([{
+        'id': p.id,
+        'staff_id': p.staff_id,
+        'first_name': p.first_name,
+        'last_name': p.last_name,
+        'department': p.department
+    } for p in patients])
+
 @reports.route('/email/<int:patient_id>')
 @login_required
 @permission_required('generate_patient_report') # Re-using the same permission

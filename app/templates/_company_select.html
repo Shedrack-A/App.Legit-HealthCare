@@ -1,5 +1,5 @@
 <div class="form-floating mb-3">
-    <select class="form-select" id="company" name="company">
+    <select class="form-select select2-enable" id="company" name="company">
         <option value="DCP" {% if session.get('company') == 'DCP' %}selected{% endif %}>Dangote Cement - DCP</option>
         <option value="DCT" {% if session.get('company') == 'DCT' %}selected{% endif %}>Dangote Transport - DCT</option>
     </select>

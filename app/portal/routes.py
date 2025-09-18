@@ -54,6 +54,16 @@ def login():
 def signup():
     form = PatientSignUpForm()
     if form.validate_on_submit():
+        # Check if account already exists
+        existing_account = PatientAccount.query.filter(
+            (PatientAccount.staff_id == form.staff_id.data) |
+            (PatientAccount.email == form.email.data)
+        ).first()
+
+        if existing_account:
+            flash('An account with this Staff ID or Email already exists. Please log in.', 'warning')
+            return redirect(url_for('portal.login'))
+
         new_account = PatientAccount(
             staff_id=form.staff_id.data,
             email=form.email.data,
@@ -74,10 +84,8 @@ def signup():
             db.session.commit()
 
         log_audit('PATIENT_SIGNUP', f'Patient account created for Staff ID: {new_account.staff_id}')
-        flash('Your account has been created successfully! You are now logged in.', 'success')
-
-        session['patient_account_id'] = new_account.id
-        return redirect(url_for('portal.dashboard'))
+        flash('Your account has been created successfully! You can now log in.', 'success')
+        return redirect(url_for('portal.login'))
 
     return render_template('portal/signup.html', title='Patient Sign Up', form=form)
 
@@ -137,3 +145,47 @@ def download_report():
 
     log_audit('PATIENT_DOWNLOAD_REPORT', f'Patient {account.staff_id} downloaded report for year {patient.screening_year}')
     return generate_patient_pdf(patient_with_data)
+
+@portal.route('/email_report', methods=['POST'])
+@patient_account_login_required
+def email_report():
+    patient_id = request.form.get('patient_id')
+    if not patient_id:
+        flash('Please select a report to email.', 'danger')
+        return redirect(url_for('portal.dashboard'))
+
+    account = PatientAccount.query.get_or_404(session['patient_account_id'])
+    patient = Patient.query.get_or_404(patient_id)
+
+    if account.staff_id != patient.staff_id:
+        log_audit('PATIENT_UNAUTHORIZED_REPORT_ACCESS', f'Patient account {account.id} tried to email report for patient {patient.id}')
+        abort(403)
+
+    if not patient.email_address:
+        flash('You do not have a registered email address. Please add one in your settings.', 'danger')
+        return redirect(url_for('portal.dashboard'))
+
+    # Generate PDF in memory
+    pdf_bytes = generate_patient_pdf_bytes(patient)
+    pdf_filename = f'Medical_Report_{patient.screening_year}.pdf'
+
+    # Construct dynamic sender name and subject
+    sender_name_prefix = db.session.query(Setting).filter_by(key='MAIL_SENDER_NAME').first()
+    sender_name_prefix = sender_name_prefix.value if sender_name_prefix else 'Legit HealthCare'
+
+    sender_name = f"{sender_name_prefix} [{patient.company}-OBAJANA]"
+    subject = f"MEDICAL REPORT: {patient.screening_year} Annual Medical Screening for SUNU Health Enrolees at {patient.company} Obajana"
+
+    # Send email
+    send_email(
+        to=patient.email_address,
+        subject=subject,
+        template='email/report_notification',
+        patient=patient,
+        attachments=[(pdf_filename, 'application/pdf', pdf_bytes)],
+        sender=(sender_name, current_app.config['MAIL_DEFAULT_SENDER'])
+    )
+
+    log_audit('PATIENT_EMAIL_REPORT', f'Patient {account.staff_id} emailed report for year {patient.screening_year}')
+    flash(f'Your {patient.screening_year} medical report has been sent to your registered email address.', 'success')
+    return redirect(url_for('portal.dashboard'))
