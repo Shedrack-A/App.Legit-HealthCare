@@ -1,70 +1,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid">
-    <h1 class="mt-4">{{ title }}</h1>
-    <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-search me-1"></i>
-            Search for a Patient by Staff ID
-        </div>
-        <div class="card-body">
-            <p>Enter a patient's Staff ID to add or view their Liver Function Test results.</p>
-            <form method="POST" action="{{ url_for('results.liver_function_test') }}">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="form-floating mb-3">
-                            <input class="form-control" id="search_term" name="search_term" type="text" placeholder="Enter Staff ID" value="{{ search_term or '' }}" required>
-                            <label for="search_term">Staff ID</label>
-                        </div>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-center">
-                        <button class="btn btn-primary" type="submit">Search</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+<div class="results-search-page">
+    <h2>Liver Function Test - Search Patient</h2>
+    <p>Enter a patient's Staff ID to add or view their Liver Function Test results.</p>
+
+    <form method="POST" class="search-form">
+        <input type="text" name="search_term" placeholder="Enter Staff ID..." value="{{ search_term or '' }}">
+        <button type="submit" class="btn-submit">Search</button>
+    </form>
 
     {% if patients is defined %}
-    <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            Search Results
-        </div>
-        <div class="card-body">
+        <div class="search-results">
+            <h3>Search Results</h3>
             {% if patients %}
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Staff ID</th>
-                        <th>Patient ID</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Department</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
+                <ul class="patient-list">
                     {% for patient in patients %}
-                    <tr>
-                        <td>{{ patient.staff_id }}</td>
-                        <td>{{ patient.patient_id }}</td>
-                        <td>{{ patient.first_name }}</td>
-                        <td>{{ patient.last_name }}</td>
-                        <td>{{ patient.department }}</td>
-                        <td>
-                            <a href="{{ url_for('results.liver_function_test_form', patient_id=patient.id) }}" class="btn btn-sm btn-primary">Enter Results</a>
-                        </td>
-                    </tr>
+                        <li>
+                            <a href="{{ url_for('results.liver_function_test_form', patient_id=patient.id) }}">
+                                <span>{{ patient.first_name }} {{ patient.last_name }}</span>
+                                <small>Staff ID: {{ patient.staff_id }}</small>
+                                <small>Dept: {{ patient.department }}</small>
+                            </a>
+                        </li>
                     {% endfor %}
-                </tbody>
-            </table>
+                </ul>
             {% else %}
-            <p>No patients found for the given criteria in the selected Company/Year.</p>
+                <p>No patients found matching your search term.</p>
             {% endif %}
         </div>
-    </div>
     {% endif %}
 </div>
 {% endblock %}

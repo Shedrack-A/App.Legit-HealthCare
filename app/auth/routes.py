@@ -20,10 +20,10 @@ def register():
         )
         db.session.add(user)
         # Assign a default role
-        new_user_role = Role.query.filter_by(name='New_User').first()
+        new_user_role = Role.query.filter_by(name='New User').first()
         if new_user_role is None:
             # Create the 'New User' role if it doesn't exist
-            new_user_role = Role(name='New_User')
+            new_user_role = Role(name='New User')
             db.session.add(new_user_role)
         user.roles.append(new_user_role)
         db.session.commit()

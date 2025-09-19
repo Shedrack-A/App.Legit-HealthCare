@@ -5,25 +5,16 @@ from app.consultation import consultation
 from app.models import Patient, Consultation
 from .forms import ConsultationForm
 
-from flask import session
-
 @consultation.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
     if request.method == 'POST':
-        search_term = request.form.get('search_term', '').strip()
-        company = session.get('company', 'DCP')
-        year = session.get('year', 2025)
+        search_term = request.form.get('search_term', '')
+        # For now, we search by Staff ID. This can be expanded later.
+        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
+        return render_template('consultation/index.html', title='Search Patient', patients=patients, search_term=search_term)
 
-        if not search_term:
-            flash('Please enter a Staff ID to search.', 'warning')
-            return redirect(url_for('consultation.index'))
-
-        patients = Patient.query.filter_by(company=company, screening_year=year)\
-                                .filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('consultation/index.html', title='Search Results', patients=patients, search_term=search_term)
-
-    return render_template('consultation/index.html', title='Consultation - Search')
+    return render_template('consultation/index.html', title='Search Patient')
 
 @consultation.route('/form/<int:patient_id>', methods=['GET', 'POST'])
 @login_required

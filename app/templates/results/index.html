@@ -7,7 +7,7 @@
 
     <div class="test-selection-grid">
         {% for test in tests %}
-            <a href="{{ url_for(test.endpoint) }}" class="btn btn-primary test-card">
+            <a href="{{ url_for(test.endpoint) }}" class="btn-action test-card">
                 <i class="fas fa-vial"></i>
                 <span>{{ test.name }}</span>
             </a>
