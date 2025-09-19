@@ -24,19 +24,11 @@ def index():
 @login_required
 def full_blood_count():
     if request.method == 'POST':
-        search_term = request.form.get('search_term', '').strip()
-        company = session.get('company', 'DCP')
-        year = session.get('year', 2025)
+        search_term = request.form.get('search_term', '')
+        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
+        return render_template('results/full_blood_count_search.html', title='Search Patient', patients=patients, search_term=search_term)
 
-        if not search_term:
-            flash('Please enter a Staff ID to search.', 'warning')
-            return redirect(url_for('results.full_blood_count'))
-
-        patients = Patient.query.filter_by(company=company, screening_year=year)\
-                                .filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/full_blood_count_search.html', title='Search Results', patients=patients, search_term=search_term)
-
-    return render_template('results/full_blood_count_search.html', title='Full Blood Count - Search')
+    return render_template('results/full_blood_count_search.html', title='Search Patient')
 
 @results.route('/full_blood_count/<int:patient_id>', methods=['GET', 'POST'])
 @login_required
@@ -65,19 +57,11 @@ def full_blood_count_form(patient_id):
 @login_required
 def kidney_function_test():
     if request.method == 'POST':
-        search_term = request.form.get('search_term', '').strip()
-        company = session.get('company', 'DCP')
-        year = session.get('year', 2025)
+        search_term = request.form.get('search_term', '')
+        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
+        return render_template('results/kidney_function_test_search.html', title='Search Patient', patients=patients, search_term=search_term)
 
-        if not search_term:
-            flash('Please enter a Staff ID to search.', 'warning')
-            return redirect(url_for('results.kidney_function_test'))
-
-        patients = Patient.query.filter_by(company=company, screening_year=year)\
-                                .filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/kidney_function_test_search.html', title='Search Results', patients=patients, search_term=search_term)
-
-    return render_template('results/kidney_function_test_search.html', title='Kidney Function Test - Search')
+    return render_template('results/kidney_function_test_search.html', title='Search Patient')
 
 @results.route('/kidney_function_test/<int:patient_id>', methods=['GET', 'POST'])
 @login_required
@@ -108,19 +92,11 @@ def kidney_function_test_form(patient_id):
 @login_required
 def lipid_profile():
     if request.method == 'POST':
-        search_term = request.form.get('search_term', '').strip()
-        company = session.get('company', 'DCP')
-        year = session.get('year', 2025)
+        search_term = request.form.get('search_term', '')
+        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
+        return render_template('results/lipid_profile_search.html', title='Search Patient', patients=patients, search_term=search_term)
 
-        if not search_term:
-            flash('Please enter a Staff ID to search.', 'warning')
-            return redirect(url_for('results.lipid_profile'))
-
-        patients = Patient.query.filter_by(company=company, screening_year=year)\
-                                .filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/lipid_profile_search.html', title='Search Results', patients=patients, search_term=search_term)
-
-    return render_template('results/lipid_profile_search.html', title='Lipid Profile - Search')
+    return render_template('results/lipid_profile_search.html', title='Search Patient')
 
 @results.route('/lipid_profile/<int:patient_id>', methods=['GET', 'POST'])
 @login_required
@@ -156,19 +132,11 @@ def lipid_profile_form(patient_id):
 @login_required
 def liver_function_test():
     if request.method == 'POST':
-        search_term = request.form.get('search_term', '').strip()
-        company = session.get('company', 'DCP')
-        year = session.get('year', 2025)
+        search_term = request.form.get('search_term', '')
+        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
+        return render_template('results/liver_function_test_search.html', title='Search Patient', patients=patients, search_term=search_term)
 
-        if not search_term:
-            flash('Please enter a Staff ID to search.', 'warning')
-            return redirect(url_for('results.liver_function_test'))
-
-        patients = Patient.query.filter_by(company=company, screening_year=year)\
-                                .filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/liver_function_test_search.html', title='Search Results', patients=patients, search_term=search_term)
-
-    return render_template('results/liver_function_test_search.html', title='Liver Function Test - Search')
+    return render_template('results/liver_function_test_search.html', title='Search Patient')
 
 @results.route('/liver_function_test/<int:patient_id>', methods=['GET', 'POST'])
 @login_required
@@ -198,18 +166,10 @@ def liver_function_test_form(patient_id):
 @login_required
 def ecg():
     if request.method == 'POST':
-        search_term = request.form.get('search_term', '').strip()
-        company = session.get('company', 'DCP')
-        year = session.get('year', 2025)
-
-        if not search_term:
-            flash('Please enter a Staff ID to search.', 'warning')
-            return redirect(url_for('results.ecg'))
-
-        patients = Patient.query.filter_by(company=company, screening_year=year)\
-                                .filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/ecg_search.html', title='Search Results', patients=patients, search_term=search_term)
-    return render_template('results/ecg_search.html', title='ECG - Search')
+        search_term = request.form.get('search_term', '')
+        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
+        return render_template('results/ecg_search.html', title='Search Patient', patients=patients, search_term=search_term)
+    return render_template('results/ecg_search.html', title='Search Patient')
 
 @results.route('/ecg/<int:patient_id>', methods=['GET', 'POST'])
 @login_required
@@ -235,18 +195,10 @@ def ecg_form(patient_id):
 @login_required
 def spirometry():
     if request.method == 'POST':
-        search_term = request.form.get('search_term', '').strip()
-        company = session.get('company', 'DCP')
-        year = session.get('year', 2025)
-
-        if not search_term:
-            flash('Please enter a Staff ID to search.', 'warning')
-            return redirect(url_for('results.spirometry'))
-
-        patients = Patient.query.filter_by(company=company, screening_year=year)\
-                                .filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/spirometry_search.html', title='Search Results', patients=patients, search_term=search_term)
-    return render_template('results/spirometry_search.html', title='Spirometry - Search')
+        search_term = request.form.get('search_term', '')
+        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
+        return render_template('results/spirometry_search.html', title='Search Patient', patients=patients, search_term=search_term)
+    return render_template('results/spirometry_search.html', title='Search Patient')
 
 @results.route('/spirometry/<int:patient_id>', methods=['GET', 'POST'])
 @login_required
@@ -272,18 +224,10 @@ def spirometry_form(patient_id):
 @login_required
 def audiometry():
     if request.method == 'POST':
-        search_term = request.form.get('search_term', '').strip()
-        company = session.get('company', 'DCP')
-        year = session.get('year', 2025)
-
-        if not search_term:
-            flash('Please enter a Staff ID to search.', 'warning')
-            return redirect(url_for('results.audiometry'))
-
-        patients = Patient.query.filter_by(company=company, screening_year=year)\
-                                .filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/audiometry_search.html', title='Search Results', patients=patients, search_term=search_term)
-    return render_template('results/audiometry_search.html', title='Audiometry - Search')
+        search_term = request.form.get('search_term', '')
+        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
+        return render_template('results/audiometry_search.html', title='Search Patient', patients=patients, search_term=search_term)
+    return render_template('results/audiometry_search.html', title='Search Patient')
 
 @results.route('/audiometry/<int:patient_id>', methods=['GET', 'POST'])
 @login_required
