@@ -28,6 +28,12 @@ class User(db.Model, UserMixin):
                     return True
         return False
 
+    def has_role(self, role_name):
+        for role in self.roles:
+            if role.name == role_name:
+                return True
+        return False
+
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')

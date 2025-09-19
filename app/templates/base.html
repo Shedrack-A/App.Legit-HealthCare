@@ -17,7 +17,7 @@
 </head>
 <body data-user-id="{{ current_user.id if current_user.is_authenticated else '' }}">
     <div class="app-wrapper">
-        {% if current_user.is_authenticated %}
+        {% if current_user.is_authenticated and request.endpoint != 'main.dashboard' %}
             <nav class="sidebar">
                 {% block sidebar %}
                 <div class="nav-header">
@@ -47,7 +47,7 @@
                     <li><a href="{{ url_for('data_view.view_all_patients') }}" class="{{ 'active' if request.endpoint == 'data_view.view_all_patients' else '' }}"><i class="fas fa-users"></i> View Patients</a></li>
                     <li><a href="{{ url_for('data_view.view_yearly_records') }}" class="{{ 'active' if request.endpoint == 'data_view.view_yearly_records' else '' }}"><i class="fas fa-folder-open"></i> View Records</a></li>
                     <hr>
-                    {% if current_user.has_permission('manage_roles') %}
+                    {% if current_user.has_role('Admin') %}
                     <li><a href="{{ url_for('admin.index') }}" class="{{ 'active' if 'admin.' in request.endpoint else '' }}"><i class="fas fa-cogs"></i> Control Panel</a></li>
                     {% endif %}
                     <hr>
