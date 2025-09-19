@@ -53,6 +53,23 @@ document.addEventListener('DOMContentLoaded', () => {
         theme: "classic" // Using a theme that might blend better initially
     });
 
+    // --- Mobile Navigation Toggle ---
+    const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarOverlay = document.querySelector('.sidebar-overlay');
+
+    if (mobileNavToggle && sidebar && sidebarOverlay) {
+        mobileNavToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('is-open');
+            sidebarOverlay.classList.toggle('is-active');
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('is-open');
+            sidebarOverlay.classList.remove('is-active');
+        });
+    }
+
     // --- Patient Search ---
     const searchInput = document.getElementById('patient-search');
     if (searchInput) {

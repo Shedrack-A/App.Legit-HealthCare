@@ -12,28 +12,28 @@
     <div class="dashboard-section">
         <h3><i class="fas fa-rocket"></i> Quick Actions</h3>
         <div class="action-buttons">
-            <a href="{{ url_for('patient.register') }}" class="btn-action"><i class="fas fa-user-plus"></i> Register Patient</a>
-            <a href="{{ url_for('consultation.index') }}" class="btn-action"><i class="fas fa-stethoscope"></i> Start Consultation</a>
-            <a href="{{ url_for('results.index') }}" class="btn-action"><i class="fas fa-vial"></i> Enter Lab Results</a>
+            <a href="{{ url_for('patient.register') }}" class="btn btn-primary"><i class="fas fa-user-plus"></i> Register Patient</a>
+            <a href="{{ url_for('consultation.index') }}" class="btn btn-primary"><i class="fas fa-stethoscope"></i> Start Consultation</a>
+            <a href="{{ url_for('results.index') }}" class="btn btn-primary"><i class="fas fa-vial"></i> Enter Lab Results</a>
             {% if current_user.has_permission('access_director_page') %}
-            <a href="{{ url_for('director.index') }}" class="btn-action"><i class="fas fa-gavel"></i> Director Review</a>
+            <a href="{{ url_for('director.index') }}" class="btn btn-primary"><i class="fas fa-gavel"></i> Director Review</a>
             {% endif %}
             {% if current_user.has_permission('generate_patient_report') %}
-            <a href="{{ url_for('reports.index') }}" class="btn-action"><i class="fas fa-file-pdf"></i> Generate Report</a>
+            <a href="{{ url_for('reports.index') }}" class="btn btn-primary"><i class="fas fa-file-pdf"></i> Generate Report</a>
             {% endif %}
-            <a href="{{ url_for('data_view.view_all_patients') }}" class="btn-action"><i class="fas fa-users"></i> View All Patients</a>
-            <a href="{{ url_for('data_view.view_yearly_records') }}" class="btn-action"><i class="fas fa-folder-open"></i> View Yearly Records</a>
+            <a href="{{ url_for('data_view.view_all_patients') }}" class="btn btn-primary"><i class="fas fa-users"></i> View All Patients</a>
+            <a href="{{ url_for('data_view.view_yearly_records') }}" class="btn btn-primary"><i class="fas fa-folder-open"></i> View Yearly Records</a>
         </div>
     </div>
 
     <div class="dashboard-section">
         <h3><i class="fas fa-cogs"></i> Control Panel</h3>
         <div class="action-buttons">
-            <a href="{{ url_for('admin.list_users') }}" class="btn-action"><i class="fas fa-users-cog"></i> Manage Users</a>
-            <a href="{{ url_for('admin.list_roles') }}" class="btn-action"><i class="fas fa-shield-alt"></i> Manage Roles</a>
-            <a href="{{ url_for('admin.manage_temp_codes') }}" class="btn-action"><i class="fas fa-key"></i> Temp Access Codes</a>
-            <a href="#" class="btn-action"><i class="fas fa-history"></i> Audit Trails</a>
-            <a href="#" class="btn-action"><i class="fas fa-upload"></i> Upload Data</a>
+            <a href="{{ url_for('admin.list_users') }}" class="btn btn-primary"><i class="fas fa-users-cog"></i> Manage Users</a>
+            <a href="{{ url_for('admin.list_roles') }}" class="btn btn-primary"><i class="fas fa-shield-alt"></i> Manage Roles</a>
+            <a href="{{ url_for('admin.manage_temp_codes') }}" class="btn btn-primary"><i class="fas fa-key"></i> Temp Access Codes</a>
+            <a href="#" class="btn btn-primary"><i class="fas fa-history"></i> Audit Trails</a>
+            <a href="#" class="btn btn-primary"><i class="fas fa-upload"></i> Upload Data</a>
         </div>
     </div>
 </div>
