@@ -57,12 +57,13 @@
                 {% endblock %}
             </nav>
         {% endif %}
-
+        <div class="sidebar-overlay"></div>
         <div class="main-content-wrapper {% if not current_user.is_authenticated %}full-width{% endif %}">
             {% if current_user.is_authenticated %}
                 <header class="top-nav">
                     <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
                         <div class="header-left">
+                            <button class="mobile-nav-toggle"><i class="fas fa-bars"></i></button>
                             <h1>{{ title }}</h1>
                         </div>
                         <div class="header-right">

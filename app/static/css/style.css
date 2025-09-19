@@ -470,3 +470,57 @@ main.content-area {
 .alert-danger { color: #842029; background-color: #f8d7da; border-color: #f5c2c7; }
 .alert-info { color: #055160; background-color: #cff4fc; border-color: #b6effb; }
 .nav-links li a .fas { font-family: "Font Awesome 6 Free", "Font Awesome 6 Solid"; font-weight: 900; }
+
+/* --- RESPONSIVE STYLES --- */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 1001; /* Ensure it's above the content */
+    }
+
+    .sidebar.is-open {
+        transform: translateX(0);
+    }
+
+    .main-content-wrapper {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .top-nav {
+        padding: 0 var(--spacing-4);
+    }
+
+    .header-filters {
+        display: none; /* Hide complex filters on mobile */
+    }
+
+    .mobile-nav-toggle {
+        display: block; /* Show on mobile */
+    }
+}
+
+.mobile-nav-toggle {
+    display: none; /* Hide on desktop */
+    background: none;
+    border: none;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-2xl);
+    cursor: pointer;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.sidebar-overlay.is-active {
+    display: block;
+}
