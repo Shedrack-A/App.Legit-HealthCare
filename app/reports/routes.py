@@ -6,27 +6,13 @@ from app.models import Patient
 from app.decorators import permission_required
 from app.utils import generate_patient_pdf, generate_patient_pdf_bytes, send_email
 
-@reports.route('/', methods=['GET', 'POST'])
+@reports.route('/', methods=['GET'])
 @login_required
 @permission_required('generate_patient_report')
 def index():
     """
     Search page to find a patient to generate a report for.
     """
-    if request.method == 'POST':
-        search_term = request.form.get('search_term', '').strip()
-        company = request.form.get('company', 'DCP')
-        year = request.form.get('year', '2025')
-
-        if not search_term:
-            flash('Please enter a Staff ID to search.', 'warning')
-            return redirect(url_for('reports.index'))
-
-        patients = Patient.query.filter_by(company=company, screening_year=year)\
-                                .filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-
-        return render_template('reports/index.html', title='Search Results', patients=patients, search_term=search_term)
-
     return render_template('reports/index.html', title='Generate Patient Report')
 
 
@@ -51,16 +37,33 @@ def download_report(patient_id):
 
     return generate_patient_pdf(patient)
 
-from flask import jsonify
+from flask import jsonify, session
 from datetime import datetime
+
+@reports.route('/api/report/<int:patient_id>')
+@login_required
+@permission_required('generate_patient_report')
+def api_get_report(patient_id):
+    patient = Patient.query.options(
+        db.joinedload(Patient.consultation),
+        db.joinedload(Patient.full_blood_count),
+        db.joinedload(Patient.kidney_function_test),
+        db.joinedload(Patient.lipid_profile),
+        db.joinedload(Patient.liver_function_test),
+        db.joinedload(Patient.ecg),
+        db.joinedload(Patient.spirometry),
+        db.joinedload(Patient.audiometry),
+        db.joinedload(Patient.director_review)
+    ).get_or_404(patient_id)
+    return render_template('reports/a4_report_layout.html', patient=patient)
 
 @reports.route('/api/search')
 @login_required
 @permission_required('generate_patient_report')
 def api_search():
     search_term = request.args.get('q', '')
-    company = request.args.get('company', 'DCP')
-    year = request.args.get('year', datetime.now().year, type=int)
+    company = session.get('company', 'DCP')
+    year = session.get('year', datetime.now().year)
 
     if not search_term:
         return jsonify([])

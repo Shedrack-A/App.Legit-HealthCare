@@ -7,7 +7,7 @@ import pandas as pd
 from werkzeug.utils import secure_filename
 from app.decorators import permission_required
 from app.models import Role, Permission, User, TemporaryAccessCode, AuditLog, Patient, Setting
-from .forms import RoleForm, EditUserForm, ChangePasswordForm, GenerateTempCodeForm, UploadForm, BrandingForm, EmailSettingsForm
+from .forms import RoleForm, EditUserForm, ChangePasswordForm, GenerateTempCodeForm, UploadForm, HistoricalUploadForm, BrandingForm, EmailSettingsForm
 import secrets
 from datetime import datetime, timedelta, UTC
 from app.utils import log_audit
@@ -238,6 +238,82 @@ def upload_data():
         return redirect(url_for('admin.upload_data'))
 
     return render_template('admin/upload_data.html', title='Upload Patient Data', form=form, session=session)
+
+@admin.route('/upload_historical_data', methods=['GET', 'POST'])
+@login_required
+@permission_required('upload_data')
+def upload_historical_data():
+    form = HistoricalUploadForm()
+    if form.validate_on_submit():
+        f = form.excel_file.data
+        year = form.year.data
+        filename = secure_filename(f.filename)
+        filepath = os.path.join('uploads', filename)
+        f.save(filepath)
+
+        try:
+            df = pd.read_excel(filepath)
+
+            required_columns = ['staff_id', 'patient_id', 'first_name', 'last_name', 'department', 'gender', 'date_of_birth', 'contact_phone', 'email_address', 'race', 'nationality', 'company']
+            if not all(col in df.columns for col in required_columns):
+                flash('Excel file is missing one or more required columns (including company).', 'danger')
+                return redirect(url_for('admin.upload_historical_data'))
+
+            success_count = 0
+            error_rows = []
+
+            for index, row in df.iterrows():
+                if pd.isna(row['staff_id']) or pd.isna(row['first_name']) or pd.isna(row['date_of_birth']):
+                    error_rows.append(index + 2)
+                    continue
+
+                exists = Patient.query.filter_by(
+                    staff_id=str(row['staff_id']),
+                    company=row['company'],
+                    screening_year=year
+                ).first()
+
+                if exists:
+                    error_rows.append(index + 2)
+                    continue
+
+                age = calculate_age(row['date_of_birth'].to_pydatetime().date())
+
+                patient = Patient(
+                    staff_id=str(row['staff_id']),
+                    patient_id=str(row['patient_id']),
+                    first_name=row['first_name'],
+                    middle_name=row.get('middle_name', ''),
+                    last_name=row['last_name'],
+                    department=row['department'],
+                    gender=row['gender'],
+                    date_of_birth=row['date_of_birth'],
+                    age=age,
+                    contact_phone=str(row['contact_phone']),
+                    email_address=row['email_address'],
+                    race=row['race'],
+                    nationality=row['nationality'],
+                    company=row['company'],
+                    screening_year=year
+                )
+                db.session.add(patient)
+                success_count += 1
+
+            db.session.commit()
+            log_audit('UPLOAD_HISTORICAL_PATIENTS', f'Successfully uploaded {success_count} patients for year {year} from file: {filename}')
+            flash(f'Successfully imported {success_count} patient records for {year}.', 'success')
+            if error_rows:
+                flash(f'Skipped {len(error_rows)} rows due to missing data or duplicates: {", ".join(map(str, error_rows))}', 'warning')
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f'An error occurred during processing: {e}', 'danger')
+        finally:
+            os.remove(filepath)
+
+        return redirect(url_for('admin.upload_historical_data'))
+
+    return render_template('admin/upload_historical_data.html', title='Upload Historical Data', form=form)
 
 @admin.route('/audit_trails')
 @login_required

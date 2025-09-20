@@ -26,6 +26,7 @@
         </div>
     </div>
 
+    {% if current_user.has_permission('manage_roles') %}
     <div class="dashboard-section">
         <h3><i class="fas fa-cogs"></i> Control Panel</h3>
         <div class="action-buttons">
@@ -36,5 +37,6 @@
             <a href="{{ url_for('admin.upload_data') }}" class="btn btn-primary"><i class="fas fa-upload"></i> Upload Data</a>
         </div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}

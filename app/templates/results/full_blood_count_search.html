@@ -7,32 +7,78 @@
         <p class="text-secondary">Enter a patient's Staff ID to add or view their Full Blood Count results.</p>
     </div>
 
-    <form method="POST" class="d-flex gap-2 mb-4">
-        <input type="text" name="search_term" class="form-control" placeholder="Enter Staff ID..." value="{{ search_term or '' }}">
-        <button type="submit" class="btn btn-primary">Search</button>
+    <form id="search-form" class="mb-4">
+        <input id="search-term" name="search_term" class="form-control" placeholder="Enter Staff ID to search..." value="{{ search_term or '' }}">
     </form>
 
-    {% if patients is defined %}
-        <div class="search-results">
-            <h4>Search Results</h4>
-            {% if patients %}
-                <ul class="list-group">
-                    {% for patient in patients %}
-                        <li class="list-group-item">
-                            <a href="{{ url_for('results.full_blood_count_form', patient_id=patient.id) }}" class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>{{ patient.first_name }} {{ patient.last_name }}</strong>
-                                    <small class="d-block text-secondary">Dept: {{ patient.department }}</small>
-                                </div>
-                                <span class="badge badge-primary">Staff ID: {{ patient.staff_id }}</span>
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p class="text-center text-secondary mt-4">No patients found matching your search term.</p>
-            {% endif %}
-        </div>
-    {% endif %}
+    <div id="results-container" style="display:none;">
+        <h4>Search Results</h4>
+        <ul id="results-list" class="list-group">
+        </ul>
+        <p id="no-results-message" class="text-center text-secondary mt-4" style="display: none;">No patients found matching your search term.</p>
+    </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-term');
+    const resultsContainer = document.getElementById('results-container');
+    const resultsList = document.getElementById('results-list');
+    const noResultsMessage = document.getElementById('no-results-message');
+
+    function fetchResults() {
+        const searchTerm = searchInput.value;
+
+        if (searchTerm.length < 2) {
+            resultsContainer.style.display = 'none';
+            return;
+        }
+
+        const url = new URL("{{ url_for('results.api_search_patient') }}", window.location.origin);
+        url.searchParams.set('q', searchTerm);
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                resultsList.innerHTML = '';
+                resultsContainer.style.display = 'block';
+
+                if (data.length > 0) {
+                    noResultsMessage.style.display = 'none';
+                    data.forEach(patient => {
+                        const formUrl = `{{ url_for('results.full_blood_count_form', patient_id=0) }}`.replace('0', patient.id);
+                        const listItem = document.createElement('li');
+                        listItem.className = 'list-group-item';
+                        listItem.innerHTML = `
+                            <a href="${formUrl}" class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${patient.first_name} ${patient.last_name}</strong>
+                                    <small class="d-block text-secondary">Dept: ${patient.department}</small>
+                                </div>
+                                <span class="badge badge-primary">Staff ID: ${patient.staff_id}</span>
+                            </a>
+                        `;
+                        resultsList.appendChild(listItem);
+                    });
+                } else {
+                    noResultsMessage.style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Error fetching search results:', error));
+    }
+
+    let searchTimeout;
+    searchInput.addEventListener('keyup', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(fetchResults, 300);
+    });
+
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+    });
+});
+</script>
 {% endblock %}

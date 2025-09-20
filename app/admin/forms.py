@@ -50,7 +50,11 @@ class UploadForm(FlaskForm):
         FileRequired(),
         FileAllowed(['xlsx'], 'Excel files only!')
     ])
-    submit = SubmitField('Upload and Process', render_kw={'class': 'btn btn-primary'})
+    submit = SubmitField('Upload', render_kw={'class': 'btn btn-primary'})
+
+class HistoricalUploadForm(UploadForm):
+    year = IntegerField('Screening Year', validators=[DataRequired(), NumberRange(min=2000, max=2100)])
+    submit = SubmitField('Upload Historical Data', render_kw={'class': 'btn btn-primary'})
 
 class BrandingForm(FlaskForm):
     hospital_name = StringField('Hospital Name', validators=[Optional()])

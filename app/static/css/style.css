@@ -449,6 +449,55 @@ main.content-area {
     font-weight: 600;
 }
 
+/* --- REPORT DISPLAY --- */
+#report-display-container {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-6);
+    margin-top: var(--spacing-6);
+    background-color: var(--color-surface-primary);
+}
+
+#report-content {
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+}
+
+#report-actions {
+    margin-top: var(--spacing-6);
+    text-align: center;
+}
+
+
+/* --- PAGE-SPECIFIC STYLES --- */
+.patient-header-card {
+    background: var(--color-primary);
+    color: var(--color-white);
+    padding: var(--spacing-6);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-8);
+}
+
+.patient-header-card h3 {
+    color: var(--color-white);
+    margin-bottom: var(--spacing-3);
+}
+
+.patient-header-details {
+    display: flex;
+    gap: var(--spacing-6);
+    font-size: var(--font-size-sm);
+    opacity: 0.9;
+}
+
+.patient-header-details span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+
 /* --- LANDING/PORTAL PAGES --- */
 .landing-page, .portal-start-page {
     display: flex;
@@ -563,6 +612,16 @@ main.content-area {
 }
 
 .btn-danger:hover {
+    opacity: 0.9;
+}
+
+.btn-info {
+    color: var(--color-white);
+    background-color: #0ea5e9; /* sky-500 */
+    border-color: #0ea5e9;
+}
+
+.btn-info:hover {
     opacity: 0.9;
 }
 

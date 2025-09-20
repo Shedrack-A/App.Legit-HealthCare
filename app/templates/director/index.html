@@ -1,48 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid">
-    <h1 class="mt-4">{{ title }}</h1>
-    <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-search me-1"></i>
-            Search for a Patient by Staff ID
-        </div>
-        <div class="card-body">
-            <form id="search-form">
-                <div class="row">
-                    <div class="col-md-5">
-                        <div class="form-floating mb-3">
-                            <input class="form-control" id="search_term" name="search_term" type="text" placeholder="Enter Staff ID" value="{{ search_term or '' }}">
-                            <label for="search_term">Staff ID</label>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        {% include '_company_select.html' %}
-                    </div>
-                    <div class="col-md-3">
-                        {% include '_year_select.html' %}
-                    </div>
-                    <div class="col-md-1 d-flex align-items-center">
-                        <button class="btn btn-primary" type="submit">Search</button>
-                    </div>
-                </div>
-            </form>
-        </div>
+<div class="card">
+    <div class="card-header">
+        <h2>Director Review Search</h2>
+        <p class="text-secondary">Search for a patient by Staff ID to review their consultation and results.</p>
     </div>
 
-    <div class="card mb-4" id="results-container" style="display:none;">
-        <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            Search Results
-        </div>
-        <div class="card-body">
-            <table class="table table-bordered">
+    <form id="search-form" class="mb-4">
+        <input class="form-control" id="search_term" name="search_term" type="text" placeholder="Enter Staff ID to search..." value="{{ search_term or '' }}">
+    </form>
+
+    <div id="results-container" style="display:none;">
+        <h4>Search Results</h4>
+        <div class="table-container">
+            <table class="table">
                 <thead>
                     <tr>
                         <th>Staff ID</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
+                        <th>Name</th>
                         <th>Department</th>
                         <th>Action</th>
                     </tr>
@@ -60,21 +36,11 @@
 document.addEventListener('DOMContentLoaded', function () {
     const searchForm = document.getElementById('search-form');
     const searchInput = document.getElementById('search_term');
-    const companySelect = document.getElementById('company');
-    const yearSelect = document.getElementById('year');
     const resultsContainer = document.getElementById('results-container');
     const resultsTbody = document.getElementById('results-tbody');
 
-    // Prevent traditional form submission
-    searchForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        fetchResults();
-    });
-
     function fetchResults() {
         const searchTerm = searchInput.value;
-        const company = companySelect.value;
-        const year = yearSelect.value;
 
         if (searchTerm.length < 2) {
             resultsContainer.style.display = 'none';
@@ -83,13 +49,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const url = new URL("{{ url_for('director.api_search') }}", window.location.origin);
         url.searchParams.set('q', searchTerm);
-        url.searchParams.set('company', company);
-        url.searchParams.set('year', year);
 
         fetch(url)
             .then(response => response.json())
             .then(data => {
-                resultsTbody.innerHTML = ''; // Clear existing results
+                resultsTbody.innerHTML = '';
                 resultsContainer.style.display = 'block';
 
                 if (data.length > 0) {
@@ -98,8 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         const row = `
                             <tr>
                                 <td>${patient.staff_id}</td>
-                                <td>${patient.first_name}</td>
-                                <td>${patient.last_name}</td>
+                                <td>${patient.first_name} ${patient.last_name}</td>
                                 <td>${patient.department}</td>
                                 <td>
                                     <a href="${reviewUrl}" class="btn btn-sm btn-primary">Review</a>
@@ -109,15 +72,23 @@ document.addEventListener('DOMContentLoaded', function () {
                         resultsTbody.innerHTML += row;
                     });
                 } else {
-                    resultsTbody.innerHTML = '<tr><td colspan="5">No patients found.</td></tr>';
+                    resultsTbody.innerHTML = '<tr><td colspan="4" class="text-center">No patients found.</td></tr>';
                 }
             })
             .catch(error => console.error('Error fetching search results:', error));
     }
 
-    searchInput.addEventListener('keyup', fetchResults);
-    companySelect.addEventListener('change', fetchResults);
-    yearSelect.addEventListener('change', fetchResults);
+    // Use a timeout to avoid sending too many requests while typing
+    let searchTimeout;
+    searchInput.addEventListener('keyup', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(fetchResults, 300); // 300ms delay
+    });
+
+    // Prevent form submission on enter key
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+    });
 });
 </script>
 {% endblock %}

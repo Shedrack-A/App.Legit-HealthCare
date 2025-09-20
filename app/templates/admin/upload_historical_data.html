@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Upload Historical Patient Data</h2>
+        <p class="text-secondary">Bulk import patient records from previous screening years.</p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <div class="col-md-6 form-group">
+                {{ form.excel_file.label }}
+                <label for="excel_file" class="form-control-file">
+                    <span class="file-input-label">
+                        <i class="fas fa-file-excel"></i>
+                        Click to select an .xlsx file
+                    </span>
+                </label>
+                {{ form.excel_file(id="excel_file", style="display:none;") }}
+                {% for error in form.excel_file.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="col-md-6 form-group">
+                {{ form.year.label }}
+                {{ form.year(class="form-control") }}
+                {% for error in form.year.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="mt-4">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('excel_file').addEventListener('change', function(e) {
+    var fileName = e.target.files[0] ? e.target.files[0].name : 'Click to select an .xlsx file';
+    var label = document.querySelector('.file-input-label');
+    if (label) {
+        label.innerHTML = '<i class="fas fa-file-excel"></i> ' + fileName;
+    }
+});
+</script>
+{% endblock %}

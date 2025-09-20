@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, flash, abort
+from flask import render_template, request, redirect, url_for, flash, abort, jsonify, session
 from flask_login import login_required
 from app import db
 from app.results import results
@@ -20,14 +20,9 @@ def index():
     ]
     return render_template('results/index.html', title='Select Test', tests=tests)
 
-@results.route('/full_blood_count', methods=['GET', 'POST'])
+@results.route('/full_blood_count', methods=['GET'])
 @login_required
 def full_blood_count():
-    if request.method == 'POST':
-        search_term = request.form.get('search_term', '')
-        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/full_blood_count_search.html', title='Search Patient', patients=patients, search_term=search_term)
-
     return render_template('results/full_blood_count_search.html', title='Search Patient')
 
 @results.route('/full_blood_count/<int:patient_id>', methods=['GET', 'POST'])
@@ -53,14 +48,9 @@ def full_blood_count_form(patient_id):
 
     return render_template('results/full_blood_count_form.html', title='Full Blood Count', form=form, patient=patient)
 
-@results.route('/kidney_function_test', methods=['GET', 'POST'])
+@results.route('/kidney_function_test', methods=['GET'])
 @login_required
 def kidney_function_test():
-    if request.method == 'POST':
-        search_term = request.form.get('search_term', '')
-        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/kidney_function_test_search.html', title='Search Patient', patients=patients, search_term=search_term)
-
     return render_template('results/kidney_function_test_search.html', title='Search Patient')
 
 @results.route('/kidney_function_test/<int:patient_id>', methods=['GET', 'POST'])
@@ -88,14 +78,9 @@ def kidney_function_test_form(patient_id):
 
     return render_template('results/kidney_function_test_form.html', title='Kidney Function Test', form=form, patient=patient)
 
-@results.route('/lipid_profile', methods=['GET', 'POST'])
+@results.route('/lipid_profile', methods=['GET'])
 @login_required
 def lipid_profile():
-    if request.method == 'POST':
-        search_term = request.form.get('search_term', '')
-        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/lipid_profile_search.html', title='Search Patient', patients=patients, search_term=search_term)
-
     return render_template('results/lipid_profile_search.html', title='Search Patient')
 
 @results.route('/lipid_profile/<int:patient_id>', methods=['GET', 'POST'])
@@ -128,14 +113,9 @@ def lipid_profile_form(patient_id):
 
     return render_template('results/lipid_profile_form.html', title='Lipid Profile', form=form, patient=patient)
 
-@results.route('/liver_function_test', methods=['GET', 'POST'])
+@results.route('/liver_function_test', methods=['GET'])
 @login_required
 def liver_function_test():
-    if request.method == 'POST':
-        search_term = request.form.get('search_term', '')
-        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/liver_function_test_search.html', title='Search Patient', patients=patients, search_term=search_term)
-
     return render_template('results/liver_function_test_search.html', title='Search Patient')
 
 @results.route('/liver_function_test/<int:patient_id>', methods=['GET', 'POST'])
@@ -162,13 +142,9 @@ def liver_function_test_form(patient_id):
     return render_template('results/liver_function_test_form.html', title='Liver Function Test', form=form, patient=patient)
 
 # --- ECG Routes ---
-@results.route('/ecg', methods=['GET', 'POST'])
+@results.route('/ecg', methods=['GET'])
 @login_required
 def ecg():
-    if request.method == 'POST':
-        search_term = request.form.get('search_term', '')
-        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/ecg_search.html', title='Search Patient', patients=patients, search_term=search_term)
     return render_template('results/ecg_search.html', title='Search Patient')
 
 @results.route('/ecg/<int:patient_id>', methods=['GET', 'POST'])
@@ -191,13 +167,9 @@ def ecg_form(patient_id):
     return render_template('results/ecg_form.html', title='ECG', form=form, patient=patient)
 
 # --- Spirometry Routes ---
-@results.route('/spirometry', methods=['GET', 'POST'])
+@results.route('/spirometry', methods=['GET'])
 @login_required
 def spirometry():
-    if request.method == 'POST':
-        search_term = request.form.get('search_term', '')
-        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/spirometry_search.html', title='Search Patient', patients=patients, search_term=search_term)
     return render_template('results/spirometry_search.html', title='Search Patient')
 
 @results.route('/spirometry/<int:patient_id>', methods=['GET', 'POST'])
@@ -220,13 +192,9 @@ def spirometry_form(patient_id):
     return render_template('results/spirometry_form.html', title='Spirometry', form=form, patient=patient)
 
 # --- Audiometry Routes ---
-@results.route('/audiometry', methods=['GET', 'POST'])
+@results.route('/audiometry', methods=['GET'])
 @login_required
 def audiometry():
-    if request.method == 'POST':
-        search_term = request.form.get('search_term', '')
-        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('results/audiometry_search.html', title='Search Patient', patients=patients, search_term=search_term)
     return render_template('results/audiometry_search.html', title='Search Patient')
 
 @results.route('/audiometry/<int:patient_id>', methods=['GET', 'POST'])
@@ -247,3 +215,28 @@ def audiometry_form(patient_id):
         db.session.commit()
         return redirect(url_for('results.audiometry'))
     return render_template('results/audiometry_form.html', title='Audiometry', form=form, patient=patient)
+
+# --- API Routes ---
+@results.route('/api/search_patient')
+@login_required
+def api_search_patient():
+    search_term = request.args.get('q', '')
+    company = session.get('company', 'DCP')
+    year = session.get('year', 2024) # Default to a recent year
+
+    if not search_term:
+        return jsonify([])
+
+    patients = Patient.query.filter(
+        Patient.staff_id.ilike(f'%{search_term}%'),
+        Patient.company == company,
+        Patient.screening_year == year
+    ).limit(10).all()
+
+    return jsonify([{
+        'id': p.id,
+        'staff_id': p.staff_id,
+        'first_name': p.first_name,
+        'last_name': p.last_name,
+        'department': p.department
+    } for p in patients])

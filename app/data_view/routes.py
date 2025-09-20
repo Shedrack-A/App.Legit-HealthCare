@@ -1,5 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash, session
 from flask_login import login_required
+from sqlalchemy import or_
 from app.data_view import data_view
 from app.models import Patient
 from app import db
@@ -65,11 +66,21 @@ def edit_patient(patient_id):
 @login_required
 def view_yearly_records():
     page = request.args.get('page', 1, type=int)
+    search_query = request.args.get('search', '')
     company = session.get('company', 'DCP')
     year = session.get('year', date.today().year)
 
-    patients = Patient.query.filter_by(company=company, screening_year=year)\
-        .order_by(Patient.date_registered.desc())\
-        .paginate(page=page, per_page=20)
+    query = Patient.query.filter_by(company=company, screening_year=year)
+
+    if search_query:
+        query = query.filter(
+            or_(
+                Patient.staff_id.ilike(f'%{search_query}%'),
+                Patient.first_name.ilike(f'%{search_query}%'),
+                Patient.last_name.ilike(f'%{search_query}%')
+            )
+        )
+
+    patients = query.order_by(Patient.date_registered.desc()).paginate(page=page, per_page=20)
 
     return render_template('data_view/view_yearly.html', title=f'{year} Records ({company})', patients=patients)

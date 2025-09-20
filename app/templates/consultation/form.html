@@ -1,36 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="consultation-form-page">
-    <!-- Patient Info Header -->
-    <div class="patient-header">
-        <h3>Consultation for: {{ patient.first_name }} {{ patient.last_name }}</h3>
-        <div class="patient-details">
-            <span><strong>Staff ID:</strong> {{ patient.staff_id }}</span>
-            <span><strong>Age:</strong> {{ patient.age }}</span>
-            <span><strong>Department:</strong> {{ patient.department }}</span>
-        </div>
+<div class="patient-header-card">
+    <h3>Consultation for: {{ patient.first_name }} {{ patient.last_name }}</h3>
+    <div class="patient-header-details">
+        <span><i class="fas fa-id-card"></i> Staff ID: <strong>{{ patient.staff_id }}</strong></span>
+        <span><i class="fas fa-birthday-cake"></i> Age: <strong>{{ patient.age }}</strong></span>
+        <span><i class="fas fa-building"></i> Department: <strong>{{ patient.department }}</strong></span>
     </div>
+</div>
 
-    <!-- Consultation Form -->
-    <form method="POST" action="" class="consultation-form">
+<div class="card">
+    <div class="card-header">
+        <h2>Medical Assessment Form</h2>
+        <p class="text-secondary">Please fill out all relevant fields below.</p>
+    </div>
+    <form method="POST" action="">
         {{ form.hidden_tag() }}
-        <fieldset>
-            <legend>Medical Assessment</legend>
-            <div class="form-grid-consultation">
-                {% for field in form if field.widget.input_type != 'hidden' and field.widget.input_type != 'submit' %}
-                    <div class="form-group">
-                        {{ field.label }}
-                        {{ field(class="form-control") }}
-                        {% for error in field.errors %}
-                            <span class="error-text">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-            </div>
-        </fieldset>
-        <div class="form-actions">
-            {{ form.submit(class="btn-submit") }}
+        <div class="row">
+            {% for field in form if field.widget.input_type != 'hidden' and field.name != 'submit' %}
+                <div class="col-md-4 form-group">
+                    {{ field.label }}
+                    {{ field(class="form-control") }}
+                    {% for error in field.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="mt-4">
+            {{ form.submit(class="btn btn-primary") }}
         </div>
     </form>
 </div>

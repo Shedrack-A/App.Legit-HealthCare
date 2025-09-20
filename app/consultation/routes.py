@@ -1,19 +1,13 @@
-from flask import render_template, request, redirect, url_for, flash, abort
+from flask import render_template, request, redirect, url_for, flash, abort, jsonify, session
 from flask_login import login_required
 from app import db
 from app.consultation import consultation
 from app.models import Patient, Consultation
 from .forms import ConsultationForm
 
-@consultation.route('/', methods=['GET', 'POST'])
+@consultation.route('/')
 @login_required
 def index():
-    if request.method == 'POST':
-        search_term = request.form.get('search_term', '')
-        # For now, we search by Staff ID. This can be expanded later.
-        patients = Patient.query.filter(Patient.staff_id.ilike(f'%{search_term}%')).all()
-        return render_template('consultation/index.html', title='Search Patient', patients=patients, search_term=search_term)
-
     return render_template('consultation/index.html', title='Search Patient')
 
 @consultation.route('/form/<int:patient_id>', methods=['GET', 'POST'])
@@ -41,3 +35,27 @@ def consultation_form(patient_id):
         return redirect(url_for('consultation.index'))
 
     return render_template('consultation/form.html', title='Consultation', form=form, patient=patient)
+
+@consultation.route('/api/search_patient')
+@login_required
+def api_search_patient():
+    search_term = request.args.get('q', '')
+    company = session.get('company', 'DCP')
+    year = session.get('year', 2024)
+
+    if not search_term:
+        return jsonify([])
+
+    patients = Patient.query.filter(
+        Patient.staff_id.ilike(f'%{search_term}%'),
+        Patient.company == company,
+        Patient.screening_year == year
+    ).limit(10).all()
+
+    return jsonify([{
+        'id': p.id,
+        'staff_id': p.staff_id,
+        'first_name': p.first_name,
+        'last_name': p.last_name,
+        'department': p.department
+    } for p in patients])

@@ -1,56 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid">
-    <h1 class="mt-4">{{ title }}</h1>
-    <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-search me-1"></i>
-            Search for a Patient by Staff ID
-        </div>
-        <div class="card-body">
-            <form id="search-form">
-                <div class="row">
-                    <div class="col-md-5">
-                        <div class="form-floating mb-3">
-                            <input class="form-control" id="search_term" name="search_term" type="text" placeholder="Enter Staff ID">
-                            <label for="search_term">Staff ID</label>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        {% include '_company_select.html' %}
-                    </div>
-                    <div class="col-md-3">
-                        {% include '_year_select.html' %}
-                    </div>
-                    <div class="col-md-1 d-flex align-items-center">
-                        <button class="btn btn-primary" type="submit">Search</button>
-                    </div>
-                </div>
-            </form>
-        </div>
+<div class="card">
+    <div class="card-header">
+        <h2>Generate Patient Reports</h2>
+        <p class="text-secondary">Search for a patient by Staff ID to generate their annual health report.</p>
     </div>
 
-    <div class="card mb-4" id="results-container" style="display:none;">
-        <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            Search Results
-        </div>
-        <div class="card-body">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Staff ID</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Department</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="results-tbody">
-                </tbody>
-            </table>
-        </div>
+    <form id="search-form" class="mb-4">
+        <input class="form-control" id="search-term" name="search_term" type="text" placeholder="Enter Staff ID to search...">
+    </form>
+
+    <div id="results-container" style="display:none;">
+        <h4>Search Results</h4>
+        <ul id="results-list" class="list-group"></ul>
+        <p id="no-results-message" class="text-center text-secondary mt-4" style="display: none;">No patients found.</p>
+    </div>
+
+    <div id="report-display-container" style="display:none;">
+        <div id="report-content"></div>
+        <div id="report-actions"></div>
     </div>
 </div>
 {% endblock %}
@@ -59,21 +28,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const searchForm = document.getElementById('search-form');
-    const searchInput = document.getElementById('search_term');
-    const companySelect = document.getElementById('company');
-    const yearSelect = document.getElementById('year');
+    const searchInput = document.getElementById('search-term');
     const resultsContainer = document.getElementById('results-container');
-    const resultsTbody = document.getElementById('results-tbody');
-
-    searchForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        fetchResults();
-    });
+    const resultsList = document.getElementById('results-list');
+    const noResultsMessage = document.getElementById('no-results-message');
+    const reportDisplayContainer = document.getElementById('report-display-container');
+    const reportContent = document.getElementById('report-content');
+    const reportActions = document.getElementById('report-actions');
 
     function fetchResults() {
         const searchTerm = searchInput.value;
-        const company = companySelect.value;
-        const year = yearSelect.value;
+        reportDisplayContainer.style.display = 'none'; // Hide report when searching
 
         if (searchTerm.length < 2) {
             resultsContainer.style.display = 'none';
@@ -82,43 +47,80 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const url = new URL("{{ url_for('reports.api_search') }}", window.location.origin);
         url.searchParams.set('q', searchTerm);
-        url.searchParams.set('company', company);
-        url.searchParams.set('year', year);
 
         fetch(url)
             .then(response => response.json())
             .then(data => {
-                resultsTbody.innerHTML = '';
+                resultsList.innerHTML = '';
                 resultsContainer.style.display = 'block';
 
                 if (data.length > 0) {
+                    noResultsMessage.style.display = 'none';
                     data.forEach(patient => {
-                        const downloadUrl = `{{ url_for('reports.download_report', patient_id=0) }}`.replace('0', patient.id);
-                        const emailUrl = `{{ url_for('reports.email_report', patient_id=0) }}`.replace('0', patient.id);
-                        const row = `
-                            <tr>
-                                <td>${patient.staff_id}</td>
-                                <td>${patient.first_name}</td>
-                                <td>${patient.last_name}</td>
-                                <td>${patient.department}</td>
-                                <td>
-                                    <a href="${downloadUrl}" class="btn btn-sm btn-success">Download</a>
-                                    <a href="${emailUrl}" class="btn btn-sm btn-info">Email</a>
-                                </td>
-                            </tr>
-                        `;
-                        resultsTbody.innerHTML += row;
+                        const listItem = document.createElement('li');
+                        listItem.className = 'list-group-item';
+                        listItem.innerHTML = `
+                            <a href="#" data-patient-id="${patient.id}" class="d-flex justify-content-between align-items-center view-report-link">
+                                <div>
+                                    <strong>${patient.first_name} ${patient.last_name}</strong>
+                                    <small class="d-block text-secondary">Dept: ${patient.department}</small>
+                                </div>
+                                <span class="badge badge-primary">Staff ID: ${patient.staff_id}</span>
+                            </a>`;
+                        resultsList.appendChild(listItem);
                     });
                 } else {
-                    resultsTbody.innerHTML = '<tr><td colspan="5">No patients found.</td></tr>';
+                    noResultsMessage.style.display = 'block';
                 }
             })
             .catch(error => console.error('Error fetching search results:', error));
     }
 
-    searchInput.addEventListener('keyup', fetchResults);
-    companySelect.addEventListener('change', fetchResults);
-    yearSelect.addEventListener('change', fetchResults);
+    async function viewReport(patientId) {
+        resultsContainer.style.display = 'none';
+        reportContent.innerHTML = '<p class="text-center">Loading report...</p>';
+        reportActions.innerHTML = '';
+        reportDisplayContainer.style.display = 'block';
+
+        try {
+            const response = await fetch(`{{ url_for('reports.api_get_report', patient_id=0) }}`.replace('0', patientId));
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const reportHtml = await response.text();
+            reportContent.innerHTML = reportHtml;
+
+            const downloadUrl = `{{ url_for('reports.download_report', patient_id=0) }}`.replace('0', patientId);
+            const emailUrl = `{{ url_for('reports.email_report', patient_id=0) }}`.replace('0', patientId);
+
+            reportActions.innerHTML = `
+                <a href="${downloadUrl}" class="btn btn-success"><i class="fas fa-download"></i> Download PDF</a>
+                <a href="${emailUrl}" class="btn btn-info"><i class="fas fa-envelope"></i> Send Email</a>
+            `;
+
+        } catch (error) {
+            reportContent.innerHTML = '<p class="text-center text-danger">Failed to load report.</p>';
+            console.error('Error fetching report:', error);
+        }
+    }
+
+    resultsList.addEventListener('click', function(e) {
+        e.preventDefault();
+        const link = e.target.closest('.view-report-link');
+        if (link) {
+            const patientId = link.dataset.patientId;
+            viewReport(patientId);
+        }
+    });
+
+    let searchTimeout;
+    searchInput.addEventListener('keyup', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(fetchResults, 300);
+    });
+
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+    });
 });
 </script>
 {% endblock %}
