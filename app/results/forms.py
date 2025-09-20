@@ -21,7 +21,7 @@ class FullBloodCountForm(FlaskForm):
     hgb = StringField('HGB')
     fbc_remark = TextAreaField('FBC Remark', validators=[Optional()])
     other_remarks = TextAreaField('Other Remarks', validators=[Optional()])
-    submit = SubmitField('Submit FBC Results')
+    submit = SubmitField('Submit FBC Results', render_kw={'class': 'btn btn-primary'})
 
 class KidneyFunctionTestForm(FlaskForm):
     k = FloatField('K', validators=[DataRequired()])
@@ -32,14 +32,14 @@ class KidneyFunctionTestForm(FlaskForm):
     cre = FloatField('CRE', validators=[DataRequired()])
     kft_remark = TextAreaField('KFT Remark', validators=[Optional()])
     other_remarks = TextAreaField('Other Remarks', validators=[Optional()])
-    submit = SubmitField('Submit KFT Results')
+    submit = SubmitField('Submit KFT Results', render_kw={'class': 'btn btn-primary'})
 
 class LipidProfileForm(FlaskForm):
     tcho = FloatField('TCHO', validators=[DataRequired()])
     tg = FloatField('TG', validators=[DataRequired()])
     lp_remark = TextAreaField('LP Remark', validators=[Optional()])
     other_remarks = TextAreaField('Other Remarks', validators=[Optional()])
-    submit = SubmitField('Submit Lipid Profile Results')
+    submit = SubmitField('Submit Lipid Profile Results', render_kw={'class': 'btn btn-primary'})
 
 class LiverFunctionTestForm(FlaskForm):
     ast = StringField('AST')
@@ -49,19 +49,19 @@ class LiverFunctionTestForm(FlaskForm):
     cb = StringField('CB')
     lft_remark = TextAreaField('LFT Remark', validators=[Optional()])
     other_remarks = TextAreaField('Other Remarks', validators=[Optional()])
-    submit = SubmitField('Submit LFT Results')
+    submit = SubmitField('Submit LFT Results', render_kw={'class': 'btn btn-primary'})
 
 class ECGForm(FlaskForm):
     ecg_result = TextAreaField('ECG Result', validators=[DataRequired()])
     remark = TextAreaField('Remark', validators=[Optional()])
-    submit = SubmitField('Submit ECG Results')
+    submit = SubmitField('Submit ECG Results', render_kw={'class': 'btn btn-primary'})
 
 class SpirometryForm(FlaskForm):
     spirometry_result = TextAreaField('Spirometry Result', validators=[DataRequired()])
     remark = TextAreaField('Remark', validators=[Optional()])
-    submit = SubmitField('Submit Spirometry Results')
+    submit = SubmitField('Submit Spirometry Results', render_kw={'class': 'btn btn-primary'})
 
 class AudiometryForm(FlaskForm):
     audiometry_result = TextAreaField('Audiometry Result', validators=[DataRequired()])
     remark = TextAreaField('Remark', validators=[Optional()])
-    submit = SubmitField('Submit Audiometry Results')
+    submit = SubmitField('Submit Audiometry Results', render_kw={'class': 'btn btn-primary'})

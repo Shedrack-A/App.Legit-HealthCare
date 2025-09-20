@@ -32,4 +32,4 @@ class PatientRegistrationForm(FlaskForm):
     email_address = StringField('Email Address', validators=[Optional()])
     race = SelectField('Race/Continent', choices=[(r, r) for r in RACES], validators=[DataRequired()])
     nationality = SelectField('Nationality', choices=[(n, n) for n in NATIONALITIES], validators=[DataRequired()])
-    submit = SubmitField('Register Patient')
+    submit = SubmitField('Register Patient', render_kw={'class': 'btn btn-primary'})

@@ -13,7 +13,7 @@ class RegistrationForm(FlaskForm):
     email_address = StringField('Email Address', validators=[Optional(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Sign Up')
+    submit = SubmitField('Sign Up', render_kw={'class': 'btn btn-primary'})
 
     def validate_password(self, field):
         is_strong, message = is_password_strong(field.data)
@@ -34,16 +34,16 @@ class LoginForm(FlaskForm):
     phone_number = StringField('Phone Number', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
-    submit = SubmitField('Login')
+    submit = SubmitField('Login', render_kw={'class': 'btn btn-primary'})
 
 class ForgotPasswordForm(FlaskForm):
     email = StringField('Email Address', validators=[DataRequired(), Email()])
-    submit = SubmitField('Request Password Reset')
+    submit = SubmitField('Request Password Reset', render_kw={'class': 'btn btn-primary'})
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('New Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Reset Password')
+    submit = SubmitField('Reset Password', render_kw={'class': 'btn btn-primary'})
 
     def validate_password(self, field):
         is_strong, message = is_password_strong(field.data)

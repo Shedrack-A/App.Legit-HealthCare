@@ -12,7 +12,7 @@ class RoleForm(FlaskForm):
         widget=widgets.ListWidget(prefix_label=False),
         option_widget=widgets.CheckboxInput()
     )
-    submit = SubmitField('Save Role')
+    submit = SubmitField('Save Role', render_kw={'class': 'btn btn-primary'})
 
     def __init__(self, *args, **kwargs):
         super(RoleForm, self).__init__(*args, **kwargs)
@@ -22,7 +22,7 @@ class EditUserForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired()])
     last_name = StringField('Last Name', validators=[DataRequired()])
     roles = SelectMultipleField('Roles', coerce=int, render_kw={'class': 'select2-enable'})
-    submit = SubmitField('Update User')
+    submit = SubmitField('Update User', render_kw={'class': 'btn btn-primary'})
 
     def __init__(self, *args, **kwargs):
         super(EditUserForm, self).__init__(*args, **kwargs)
@@ -31,14 +31,14 @@ class EditUserForm(FlaskForm):
 class ChangePasswordForm(FlaskForm):
     password = PasswordField('New Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Change Password')
+    submit = SubmitField('Change Password', render_kw={'class': 'btn btn-primary'})
 
 class GenerateTempCodeForm(FlaskForm):
     user = SelectField('User', coerce=int, validators=[DataRequired()], render_kw={'class': 'select2-enable'})
     permission = SelectField('Permission', coerce=int, validators=[DataRequired()], render_kw={'class': 'select2-enable'})
     duration = IntegerField('Duration (minutes)', default=60, validators=[DataRequired(), NumberRange(min=1)])
     is_single_use = BooleanField('Single Use Only', default=True)
-    submit = SubmitField('Generate Code')
+    submit = SubmitField('Generate Code', render_kw={'class': 'btn btn-primary'})
 
     def __init__(self, *args, **kwargs):
         super(GenerateTempCodeForm, self).__init__(*args, **kwargs)
@@ -50,7 +50,7 @@ class UploadForm(FlaskForm):
         FileRequired(),
         FileAllowed(['xlsx'], 'Excel files only!')
     ])
-    submit = SubmitField('Upload and Process')
+    submit = SubmitField('Upload and Process', render_kw={'class': 'btn btn-primary'})
 
 class BrandingForm(FlaskForm):
     hospital_name = StringField('Hospital Name', validators=[Optional()])
@@ -58,10 +58,10 @@ class BrandingForm(FlaskForm):
     light_logo = FileField('Light Theme Logo', validators=[FileAllowed(['jpg', 'png', 'svg'], 'Images only!')])
     dark_logo = FileField('Dark Theme Logo', validators=[FileAllowed(['jpg', 'png', 'svg'], 'Images only!')])
     favicon = FileField('Favicon', validators=[FileAllowed(['ico', 'png'], 'ICO or PNG files only!')])
-    submit = SubmitField('Save Settings')
+    submit = SubmitField('Save Settings', render_kw={'class': 'btn btn-primary'})
 
 class EmailSettingsForm(FlaskForm):
     mail_username = StringField('Sender Email (Gmail Address)', validators=[Optional(), Email()])
     mail_password = PasswordField('Gmail App Password', validators=[Optional()])
     mail_sender_name = StringField('Sender Name (e.g., Legit HealthCare)', validators=[Optional()])
-    submit = SubmitField('Save Email Settings')
+    submit = SubmitField('Save Email Settings', render_kw={'class': 'btn btn-primary'})

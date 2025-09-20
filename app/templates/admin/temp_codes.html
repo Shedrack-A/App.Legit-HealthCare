@@ -1,80 +1,88 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="manage-temp-codes-page">
-    <h2>Manage Temporary Access Codes</h2>
-
-    <div class="page-section">
-        <h3>Generate New Code</h3>
-        <form method="POST" action="" class="patient-form">
-            {{ form.hidden_tag() }}
-            <div class="form-grid">
-                <div class="form-group">
-                    {{ form.user.label }}
-                    {{ form.user(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.permission.label }}
-                    {{ form.permission(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.duration.label }}
-                    {{ form.duration(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.is_single_use.label }}
-                    {{ form.is_single_use() }}
-                </div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h2>Generate New Access Code</h2>
             </div>
-            <div class="form-actions">
-                {{ form.submit(class="btn-submit") }}
-            </div>
-        </form>
+            <form method="POST" action="{{ url_for('admin.manage_temp_codes') }}">
+                {{ form.hidden_tag() }}
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        {{ form.user.label }}
+                        {{ form.user(class="form-control") }}
+                    </div>
+                    <div class="col-md-6 form-group">
+                        {{ form.permission.label }}
+                        {{ form.permission(class="form-control") }}
+                    </div>
+                    <div class="col-md-6 form-group">
+                        {{ form.duration.label }}
+                        {{ form.duration(class="form-control") }}
+                    </div>
+                    <div class="col-md-6 form-group form-check" style="padding-top: 2rem;">
+                        {{ form.is_single_use(class="form-check-input") }}
+                        {{ form.is_single_use.label(class="form-check-label") }}
+                    </div>
+                </div>
+                {{ form.submit(class="btn btn-primary") }}
+            </form>
+        </div>
     </div>
 
-    <div class="page-section">
-        <h3>Existing Codes</h3>
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Code</th>
-                        <th>User</th>
-                        <th>Permission</th>
-                        <th>Expires</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for code in codes %}
-                    <tr>
-                        <td><code>{{ code.code }}</code></td>
-                        <td>{{ code.user.first_name }} {{ code.user.last_name }}</td>
-                        <td>{{ code.permission.name }}</td>
-                        <td>{{ code.expiry_time.strftime('%Y-%m-%d %H:%M:%S') }} UTC</td>
-                        <td>
-                            {% if not code.is_active %}
-                                <span class="role-badge" style="background-color: #888;">Revoked</span>
-                            {% elif code.expiry_time < now() %}
-                                <span class="role-badge" style="background-color: #888;">Expired</span>
-                            {% elif code.is_single_use and code.times_used > 0 %}
-                                <span class="role-badge" style="background-color: #888;">Used</span>
-                            {% else %}
-                                <span class="role-badge" style="background-color: green;">Active</span>
-                            {% endif %}
-                        </td>
-                        <td class="actions-cell">
-                            {% if code.is_active and code.expiry_time > now() %}
-                            <form action="{{ url_for('admin.revoke_temp_code', code_id=code.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to revoke this code?');">
-                                <button type="submit" class="btn-action btn-delete">Revoke</button>
-                            </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="col-12 mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h2>Existing Codes</h2>
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>User</th>
+                            <th>Permission</th>
+                            <th>Expires</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for code in codes %}
+                        <tr>
+                            <td><code>{{ code.code }}</code></td>
+                            <td>{{ code.user.first_name }} {{ code.user.last_name }}</td>
+                            <td>{{ code.permission.name }}</td>
+                            <td>{{ code.expiry_time.strftime('%Y-%m-%d %H:%M') }} UTC</td>
+                            <td>
+                                {% if not code.is_active %}
+                                    <span class="badge badge-inactive">Revoked</span>
+                                {% elif code.expiry_time < now() %}
+                                    <span class="badge badge-inactive">Expired</span>
+                                {% elif code.is_single_use and code.times_used > 0 %}
+                                    <span class="badge badge-warning">Used</span>
+                                {% else %}
+                                    <span class="badge badge-success">Active</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if code.is_active and code.expiry_time > now() and not (code.is_single_use and code.times_used > 0) %}
+                                <form action="{{ url_for('admin.revoke_temp_code', code_id=code.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to revoke this code?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Revoke</button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center">No temporary codes found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

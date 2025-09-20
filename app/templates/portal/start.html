@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="portal-start-page" style="text-align: center; padding: 50px;">
+<div class="portal-start-page">
     <h2>Welcome to the Patient Portal</h2>
     <p style="max-width: 500px; margin: 20px auto;">To continue, please select an option below. If this is your first time accessing the portal, you will need to sign up to create your account.</p>
 
@@ -13,12 +13,12 @@
         <div class="login-box">
             <h3><i class="fas fa-user-plus"></i> First Time User?</h3>
             <p>Create your secure portal account to view your results.</p>
-            <a href="{{ url_for('portal.signup') }}" class="btn-action">Sign Up</a>
+            <a href="{{ url_for('portal.signup') }}" class="btn btn-primary w-100">Sign Up</a>
         </div>
         <div class="login-box">
             <h3><i class="fas fa-sign-in-alt"></i> Returning User?</h3>
             <p>Login to your existing portal account.</p>
-            <a href="{{ url_for('portal.login') }}" class="btn-action">Login</a>
+            <a href="{{ url_for('portal.login') }}" class="btn btn-secondary w-100">Login</a>
         </div>
     </div>
 </div>

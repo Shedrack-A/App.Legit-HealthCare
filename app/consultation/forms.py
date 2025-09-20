@@ -58,4 +58,4 @@ class ConsultationForm(FlaskForm):
     overall_lab_remark = TextAreaField('Overall Lab Remark', validators=[Optional()])
     other_remarks = TextAreaField('Other Remarks', validators=[Optional()])
     overall_assessment = TextAreaField('Overall Assessment(s)', validators=[Optional()])
-    submit = SubmitField('Submit Consultation')
+    submit = SubmitField('Submit Consultation', render_kw={'class': 'btn btn-primary'})

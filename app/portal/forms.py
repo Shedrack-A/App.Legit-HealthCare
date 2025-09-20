@@ -7,7 +7,7 @@ from app.models import PatientAccount
 class PatientLoginForm(FlaskForm):
     staff_id = StringField('Staff ID', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
+    submit = SubmitField('Login', render_kw={'class': 'btn btn-primary'})
 
 class PatientSignUpForm(FlaskForm):
     staff_id = StringField('Staff ID', validators=[DataRequired()])
@@ -21,7 +21,7 @@ class PatientSignUpForm(FlaskForm):
     phone_number = StringField('Phone Number', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Create Account')
+    submit = SubmitField('Create Account', render_kw={'class': 'btn btn-primary'})
 
     def validate_password(self, field):
         is_strong, message = is_password_strong(field.data)
@@ -39,7 +39,7 @@ class PatientSignUpForm(FlaskForm):
 class PatientChangePasswordForm(FlaskForm):
     password = PasswordField('New Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Change Password')
+    submit = SubmitField('Change Password', render_kw={'class': 'btn btn-primary'})
 
     def validate_password(self, field):
         is_strong, message = is_password_strong(field.data)

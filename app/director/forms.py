@@ -14,4 +14,4 @@ class DirectorReviewForm(FlaskForm):
     comment_three = TextAreaField('Comment Three', validators=[Optional()])
     comment_four = TextAreaField('Comment Four', validators=[Optional()])
 
-    submit = SubmitField('Save Review')
+    submit = SubmitField('Save Review', render_kw={'class': 'btn btn-primary'})

@@ -1,32 +1,36 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="results-search-page">
-    <h2>Kidney Function Test - Search Patient</h2>
-    <p>Enter a patient's Staff ID to add or view their Kidney Function Test results.</p>
+<div class="card">
+    <div class="card-header">
+        <h2>Kidney Function Test - Search Patient</h2>
+        <p class="text-secondary">Enter a patient's Staff ID to add or view their Kidney Function Test results.</p>
+    </div>
 
-    <form method="POST" class="search-form">
-        <input type="text" name="search_term" placeholder="Enter Staff ID..." value="{{ search_term or '' }}">
-        <button type="submit" class="btn-submit">Search</button>
+    <form method="POST" class="d-flex gap-2 mb-4">
+        <input type="text" name="search_term" class="form-control" placeholder="Enter Staff ID..." value="{{ search_term or '' }}">
+        <button type="submit" class="btn btn-primary">Search</button>
     </form>
 
     {% if patients is defined %}
         <div class="search-results">
-            <h3>Search Results</h3>
+            <h4>Search Results</h4>
             {% if patients %}
-                <ul class="patient-list">
+                <ul class="list-group">
                     {% for patient in patients %}
-                        <li>
-                            <a href="{{ url_for('results.kidney_function_test_form', patient_id=patient.id) }}">
-                                <span>{{ patient.first_name }} {{ patient.last_name }}</span>
-                                <small>Staff ID: {{ patient.staff_id }}</small>
-                                <small>Dept: {{ patient.department }}</small>
+                        <li class="list-group-item">
+                            <a href="{{ url_for('results.kidney_function_test_form', patient_id=patient.id) }}" class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ patient.first_name }} {{ patient.last_name }}</strong>
+                                    <small class="d-block text-secondary">Dept: {{ patient.department }}</small>
+                                </div>
+                                <span class="badge badge-primary">Staff ID: {{ patient.staff_id }}</span>
                             </a>
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <p>No patients found matching your search term.</p>
+                <p class="text-center text-secondary mt-4">No patients found matching your search term.</p>
             {% endif %}
         </div>
     {% endif %}

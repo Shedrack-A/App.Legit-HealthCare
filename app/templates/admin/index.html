@@ -8,26 +8,26 @@
     <div class="dashboard-section">
         <h3><i class="fas fa-users-cog"></i> User & Role Management</h3>
         <div class="action-buttons">
-            <a href="{{ url_for('admin.list_users') }}" class="btn-action">Manage Users</a>
-            <a href="{{ url_for('admin.list_roles') }}" class="btn-action">Manage Roles</a>
-            <a href="{{ url_for('admin.branding') }}" class="btn-action">Branding</a>
-            <a href="{{ url_for('admin.email_settings') }}" class="btn-action">Email Settings</a>
+            <a href="{{ url_for('admin.list_users') }}" class="btn btn-primary">Manage Users</a>
+            <a href="{{ url_for('admin.list_roles') }}" class="btn btn-primary">Manage Roles</a>
+            <a href="{{ url_for('admin.branding') }}" class="btn btn-primary">Branding</a>
+            <a href="{{ url_for('admin.email_settings') }}" class="btn btn-primary">Email Settings</a>
         </div>
     </div>
 
     <div class="dashboard-section">
         <h3><i class="fas fa-shield-alt"></i> Security & Access</h3>
         <div class="action-buttons">
-            <a href="{{ url_for('admin.manage_temp_codes') }}" class="btn-action">Temp Access Codes</a>
-            <a href="{{ url_for('admin.audit_trails') }}" class="btn-action">Audit Trails</a>
+            <a href="{{ url_for('admin.manage_temp_codes') }}" class="btn btn-primary">Temp Access Codes</a>
+            <a href="{{ url_for('admin.audit_trails') }}" class="btn btn-primary">Audit Trails</a>
         </div>
     </div>
 
     <div class="dashboard-section">
         <h3><i class="fas fa-database"></i> Data Management</h3>
         <div class="action-buttons">
-            <a href="{{ url_for('admin.upload_data') }}" class="btn-action"><i class="fas fa-upload"></i> Upload Patient Bio-Data</a>
-            <a href="#" class="btn-action">Upload Historical Data</a>
+            <a href="{{ url_for('admin.upload_data') }}" class="btn btn-primary"><i class="fas fa-upload"></i> Upload Patient Bio-Data</a>
+            <a href="#" class="btn btn-primary">Upload Historical Data</a>
         </div>
     </div>
 </div>

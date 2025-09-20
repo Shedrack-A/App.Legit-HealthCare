@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="audit-trails-page">
-    <h2>Audit Trails</h2>
-    <p>A log of all significant actions performed within the application.</p>
+<div class="card">
+    <div class="card-header">
+        <h2>Audit Trails</h2>
+        <p class="text-secondary">A log of all significant actions performed within the application.</p>
+    </div>
 
     <div class="table-container">
-        <table class="data-table">
+        <table class="table">
             <thead>
                 <tr>
                     <th>Timestamp</th>
@@ -21,28 +23,39 @@
                     <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }} UTC</td>
                     <td>
                         {% if log.user %}
-                            {{ log.user.first_name }} {{ log.user.last_name }} (ID: {{ log.user.id }})
+                            {{ log.user.first_name }} {{ log.user.last_name }} <span class="text-secondary">(ID: {{ log.user.id }})</span>
                         {% else %}
-                            System
+                            <span class="badge badge-secondary">System</span>
                         {% endif %}
                     </td>
-                    <td><span class="role-badge" style="background-color: #555;">{{ log.action }}</span></td>
+                    <td><span class="badge badge-primary">{{ log.action }}</span></td>
                     <td>{{ log.details }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">No audit logs found.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <!-- Pagination Links -->
+    {% if logs.pages > 1 %}
     <div class="pagination">
-        {% if logs.has_prev %}
-            <a href="{{ url_for('admin.audit_trails', page=logs.prev_num) }}">&laquo; Previous</a>
-        {% endif %}
-        <span>Page {{ logs.page }} of {{ logs.pages }}.</span>
-        {% if logs.has_next %}
-            <a href="{{ url_for('admin.audit_trails', page=logs.next_num) }}">Next &raquo;</a>
-        {% endif %}
+        <a href="{{ url_for('admin.audit_trails', page=1) }}" class="{{ 'disabled' if not logs.has_prev else '' }}">&laquo;&laquo;</a>
+        <a href="{{ url_for('admin.audit_trails', page=logs.prev_num) }}" class="{{ 'disabled' if not logs.has_prev else '' }}">&laquo;</a>
+
+        {% for page_num in logs.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+                <a href="{{ url_for('admin.audit_trails', page=page_num) }}" class="{{ 'current-page' if page_num == logs.page else '' }}">{{ page_num }}</a>
+            {% else %}
+                <span>...</span>
+            {% endif %}
+        {% endfor %}
+
+        <a href="{{ url_for('admin.audit_trails', page=logs.next_num) }}" class="{{ 'disabled' if not logs.has_next else '' }}">&raquo;</a>
+        <a href="{{ url_for('admin.audit_trails', page=logs.pages) }}" class="{{ 'disabled' if not logs.has_next else '' }}">&raquo;&raquo;</a>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
