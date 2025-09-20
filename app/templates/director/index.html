@@ -5,7 +5,7 @@
     <h1 class="mt-4">{{ title }}</h1>
     <div class="card mb-4">
         <div class="card-header">
-            <i class="fas fa-search me-1"></i>
+            <i class="bi bi-search me-1"></i>
             Search for a Patient by Staff ID
         </div>
         <div class="card-body">
@@ -17,12 +17,6 @@
                             <label for="search_term">Staff ID</label>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        {% include '_company_select.html' %}
-                    </div>
-                    <div class="col-md-3">
-                        {% include '_year_select.html' %}
-                    </div>
                     <div class="col-md-1 d-flex align-items-center">
                         <button class="btn btn-primary" type="submit">Search</button>
                     </div>
@@ -33,7 +27,7 @@
 
     <div class="card mb-4" id="results-container" style="display:none;">
         <div class="card-header">
-            <i class="fas fa-table me-1"></i>
+            <i class="bi bi-table me-1"></i>
             Search Results
         </div>
         <div class="card-body">
@@ -60,8 +54,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const searchForm = document.getElementById('search-form');
     const searchInput = document.getElementById('search_term');
-    const companySelect = document.getElementById('company');
-    const yearSelect = document.getElementById('year');
     const resultsContainer = document.getElementById('results-container');
     const resultsTbody = document.getElementById('results-tbody');
 
@@ -73,8 +65,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function fetchResults() {
         const searchTerm = searchInput.value;
-        const company = companySelect.value;
-        const year = yearSelect.value;
 
         if (searchTerm.length < 2) {
             resultsContainer.style.display = 'none';
@@ -83,8 +73,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const url = new URL("{{ url_for('director.api_search') }}", window.location.origin);
         url.searchParams.set('q', searchTerm);
-        url.searchParams.set('company', company);
-        url.searchParams.set('year', year);
 
         fetch(url)
             .then(response => response.json())
@@ -116,8 +104,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     searchInput.addEventListener('keyup', fetchResults);
-    companySelect.addEventListener('change', fetchResults);
-    yearSelect.addEventListener('change', fetchResults);
 });
 </script>
 {% endblock %}

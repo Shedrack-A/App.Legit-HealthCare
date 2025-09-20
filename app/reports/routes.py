@@ -107,3 +107,24 @@ def email_report(patient_id):
 
     flash(f'Report has been successfully emailed to {patient.email_address}.', 'success')
     return redirect(url_for('reports.index'))
+
+@reports.route('/view/<int:patient_id>')
+@login_required
+@permission_required('generate_patient_report')
+def view_report(patient_id):
+    """
+    Renders an HTML view of the patient report.
+    """
+    patient = Patient.query.options(
+        db.joinedload(Patient.consultation),
+        db.joinedload(Patient.full_blood_count),
+        db.joinedload(Patient.kidney_function_test),
+        db.joinedload(Patient.lipid_profile),
+        db.joinedload(Patient.liver_function_test),
+        db.joinedload(Patient.ecg),
+        db.joinedload(Patient.spirometry),
+        db.joinedload(Patient.audiometry),
+        db.joinedload(Patient.director_review)
+    ).get_or_404(patient_id)
+
+    return render_template('reports/view_report.html', patient=patient)

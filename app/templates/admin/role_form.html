@@ -1,35 +1,36 @@
 {% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
 
 {% block content %}
 <div class="role-form-page">
     <h2>{{ title }}</h2>
 
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}
-        <div class="form-group">
-            {{ form.name.label }}
-            {{ form.name(class="form-control") }}
-            {% for error in form.name.errors %}
-                <span class="error-text">{{ error }}</span>
-            {% endfor %}
-        </div>
-        <div class="form-group">
-            {{ form.permissions.label }}
-            <div class="permission-checkbox-grid">
-                {% for subfield in form.permissions %}
-                    <div class="checkbox-item">
-                        {{ subfield() }}
-                        {{ subfield.label }}
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="" novalidate>
+                {{ form.hidden_tag() }}
+                {{ render_field(form.name) }}
+
+                <div class="form-group">
+                    {{ form.permissions.label }}
+                    <div class="permission-checkbox-grid">
+                        {% for subfield in form.permissions %}
+                            <div class="form-check">
+                                {{ subfield(class="form-check-input") }}
+                                {{ subfield.label(class="form-check-label") }}
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
-            </div>
-             {% for error in form.permissions.errors %}
-                <span class="error-text">{{ error }}</span>
-            {% endfor %}
+                     {% for error in form.permissions.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-actions mt-4">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
         </div>
-        <div class="form-actions">
-            {{ form.submit(class="btn-submit") }}
-        </div>
-    </form>
+    </div>
 </div>
 {% endblock %}

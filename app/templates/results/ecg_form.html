@@ -1,37 +1,40 @@
 {% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
 
 {% block content %}
 <div class="results-form-page">
-    <!-- Patient Info Header -->
-    <div class="patient-header">
-        <h3>ECG for: {{ patient.first_name }} {{ patient.last_name }}</h3>
-        <div class="patient-details">
-            <span><strong>Staff ID:</strong> {{ patient.staff_id }}</span>
-            <span><strong>Age:</strong> {{ patient.age }}</span>
-            <span><strong>Department:</strong> {{ patient.department }}</span>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>ECG for: {{ patient.first_name }} {{ patient.last_name }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="patient-details">
+                <span><strong>Staff ID:</strong> {{ patient.staff_id }}</span>
+                <span><strong>Age:</strong> {{ patient.age }}</span>
+                <span><strong>Department:</strong> {{ patient.department }}</span>
+            </div>
         </div>
     </div>
 
-    <!-- ECG Form -->
-    <form method="POST" action="" class="results-form">
-        {{ form.hidden_tag() }}
-        <fieldset>
-            <legend>Enter ECG Results</legend>
-            <div class="form-grid-results">
-                {% for field in form if field.widget.input_type != 'hidden' and field.widget.input_type != 'submit' %}
-                    <div class="form-group">
-                        {{ field.label }}
-                        {{ field(class="form-control") }}
-                        {% for error in field.errors %}
-                            <span class="error-text">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-            </div>
-        </fieldset>
-        <div class="form-actions">
-            {{ form.submit(class="btn-submit") }}
+    <div class="card">
+        <div class="card-header">
+            <h3>Enter ECG Results</h3>
         </div>
-    </form>
+        <div class="card-body">
+            <form method="POST" action="" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="row">
+                    {% for field in form if field.widget.input_type != 'hidden' and field.widget.input_type != 'submit' %}
+                        <div class="col-md-3">
+                            {{ render_field(field) }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="form-actions mt-4">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

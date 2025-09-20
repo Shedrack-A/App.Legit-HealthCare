@@ -281,3 +281,212 @@ main.content-area {
 .alert-danger { color: #842029; background-color: #f8d7da; border-color: #f5c2c7; }
 .alert-info { color: #055160; background-color: #cff4fc; border-color: #b6effb; }
 .nav-links li a .fas { font-family: "Font Awesome 6 Free", "Font Awesome 6 Solid"; font-weight: 900; }
+
+/* Profile Dropdown */
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-btn {
+    background-color: var(--color-surface-primary);
+    color: var(--color-text-primary);
+    padding: var(--spacing-2) var(--spacing-3);
+    font-size: var(--font-size-sm);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    border-radius: var(--radius-md);
+}
+
+.profile-btn:hover {
+    background-color: var(--color-surface-secondary);
+}
+
+.profile-btn i {
+    font-size: var(--font-size-xl);
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--color-surface-primary);
+    min-width: 160px;
+    box-shadow: var(--shadow-lg);
+    z-index: 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.dropdown-content a {
+    color: var(--color-text-primary);
+    padding: var(--spacing-3) var(--spacing-4);
+    text-decoration: none;
+    display: block;
+    font-size: var(--font-size-sm);
+}
+
+.dropdown-content a:hover {
+    background-color: var(--color-surface-secondary);
+}
+
+.profile-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Auth Pages */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--color-surface-secondary);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 450px;
+    background-color: var(--color-surface-primary);
+    padding: var(--spacing-10);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: var(--spacing-8);
+}
+
+.auth-header h2 {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--spacing-2);
+}
+
+/* Patient Registration Page */
+.page-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-8);
+}
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-4);
+    flex-grow: 1;
+}
+
+.stat-card {
+    background-color: var(--color-surface-primary);
+    padding: var(--spacing-5);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    text-align: center;
+}
+
+.stat-card span {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-2);
+}
+
+.stat-card div {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+}
+
+.search-container {
+    width: 300px;
+    margin-left: var(--spacing-8);
+}
+
+.patient-form .form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-5);
+}
+
+.patient-form .span-2 {
+    grid-column: span 2;
+}
+
+.auth-header p {
+    color: var(--color-text-secondary);
+}
+
+.form-group {
+    margin-bottom: var(--spacing-5);
+}
+
+.btn-block {
+    width: 100%;
+    padding: var(--spacing-4) 0;
+    font-size: var(--font-size-base);
+}
+
+.auth-link {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: var(--spacing-6);
+    font-size: var(--font-size-sm);
+}
+
+/* Dashboard */
+.dashboard-section {
+    background-color: var(--color-surface-primary);
+    padding: var(--spacing-6);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-8);
+    box-shadow: var(--shadow-md);
+}
+
+.dashboard-section h3 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-5);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-4);
+}
+
+.btn-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-5);
+    background-color: var(--color-surface-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    transition: var(--transition-fast);
+}
+
+.btn-action:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-primary);
+}
+
+.btn-action i {
+    font-size: var(--font-size-3xl);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-2);
+}

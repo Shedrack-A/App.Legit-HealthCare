@@ -61,15 +61,28 @@ def edit_patient(patient_id):
 
     return render_template('data_view/edit_patient.html', title='Edit Patient', form=form)
 
+from sqlalchemy import or_
+
 @data_view.route('/yearly')
 @login_required
 def view_yearly_records():
     page = request.args.get('page', 1, type=int)
     company = session.get('company', 'DCP')
     year = session.get('year', date.today().year)
+    query = request.args.get('q', '')
 
-    patients = Patient.query.filter_by(company=company, screening_year=year)\
-        .order_by(Patient.date_registered.desc())\
-        .paginate(page=page, per_page=20)
+    patients_query = Patient.query.filter_by(company=company, screening_year=year)
+
+    if query:
+        patients_query = patients_query.filter(
+            or_(
+                Patient.staff_id.ilike(f'%{query}%'),
+                Patient.patient_id.ilike(f'%{query}%'),
+                Patient.first_name.ilike(f'%{query}%'),
+                Patient.last_name.ilike(f'%{query}%')
+            )
+        )
+
+    patients = patients_query.order_by(Patient.date_registered.desc()).paginate(page=page, per_page=20)
 
     return render_template('data_view/view_yearly.html', title=f'{year} Records ({company})', patients=patients)

@@ -13,40 +13,38 @@
         <div class="row">
             <!-- Left Column: Test Results -->
             <div class="col-md-6">
-                <h4>Test Results</h4>
                 <div class="card mb-3">
-                    <div class="card-header">Spirometry Result (Editable)</div>
+                    <div class="card-header"><h4>Test Results</h4></div>
                     <div class="card-body">
-                        <textarea name="spirometry_result" class="form-control" rows="4">{{ patient.spirometry.spirometry_result if patient.spirometry else '' }}</textarea>
-                    </div>
-                </div>
-                <div class="card mb-3">
-                    <div class="card-header">Audiometry Result (Editable)</div>
-                    <div class="card-body">
-                        <textarea name="audiometry_result" class="form-control" rows="4">{{ patient.audiometry.audiometry_result if patient.audiometry else '' }}</textarea>
-                    </div>
-                </div>
-                <div class="card mb-3">
-                    <div class="card-header">ECG Result (Editable)</div>
-                    <div class="card-body">
-                        <textarea name="ecg_result" class="form-control" rows="4">{{ patient.ecg.ecg_result if patient.ecg else '' }}</textarea>
+                        <div class="mb-3">
+                            <label class="form-label">Spirometry Result (Editable)</label>
+                            <input type="text" name="spirometry_result" class="form-control" value="{{ patient.spirometry.spirometry_result if patient.spirometry else '' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Audiometry Result (Editable)</label>
+                            <input type="text" name="audiometry_result" class="form-control" value="{{ patient.audiometry.audiometry_result if patient.audiometry else '' }}">
+                        </div>
+                        <div>
+                            <label class="form-label">ECG Result (Editable)</label>
+                            <input type="text" name="ecg_result" class="form-control" value="{{ patient.ecg.ecg_result if patient.ecg else '' }}">
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Right Column: Director's Remarks -->
             <div class="col-md-6">
-                <h4>Director's Assessment</h4>
                 <div class="card">
+                    <div class="card-header"><h4>Director's Assessment</h4></div>
                     <div class="card-body">
-                        {{ render_field(form.director_remarks, class="form-control", rows=5) }}
-                        {{ render_field(form.overall_assessment, class="form-control", rows=5) }}
+                        {{ render_field(form.director_remarks, class="form-control") }}
+                        {{ render_field(form.overall_assessment, class="form-control") }}
                         <hr>
                         <h4>Additional Comments</h4>
-                        {{ render_field(form.comment_one, class="form-control", rows=2) }}
-                        {{ render_field(form.comment_two, class="form-control", rows=2) }}
-                        {{ render_field(form.comment_three, class="form-control", rows=2) }}
-                        {{ render_field(form.comment_four, class="form-control", rows=2) }}
+                        {{ render_field(form.comment_one, class="form-control") }}
+                        {{ render_field(form.comment_two, class="form-control") }}
+                        {{ render_field(form.comment_three, class="form-control") }}
+                        {{ render_field(form.comment_four, class="form-control") }}
                     </div>
                 </div>
             </div>

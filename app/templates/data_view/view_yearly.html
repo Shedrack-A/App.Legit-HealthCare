@@ -5,46 +5,63 @@
     <h2>Yearly Patient Records</h2>
     <p>This page shows patients registered for the selected company and screening year.</p>
 
-    <div class="table-container">
-        <table class="patient-table">
-            <thead>
-                <tr>
-                    <th>Staff ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Screening Year</th>
-                    <th>Company</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for patient in patients.items %}
-                <tr>
-                    <td>{{ patient.staff_id }}</td>
-                    <td>{{ patient.first_name }}</td>
-                    <td>{{ patient.last_name }}</td>
-                    <td>{{ patient.screening_year }}</td>
-                    <td>{{ patient.company }}</td>
-                    <td class="actions-cell">
-                        <a href="{{ url_for('data_view.edit_patient', patient_id=patient.id) }}" class="btn-action btn-edit"><i class="fas fa-edit"></i> Edit</a>
-                        <form action="{{ url_for('data_view.delete_patient', patient_id=patient.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this patient?');">
-                            <button type="submit" class="btn-action btn-delete"><i class="fas fa-trash-alt"></i> Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('data_view.view_yearly_records') }}">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search by Staff ID, Patient ID, or Name..." value="{{ request.args.get('q', '') }}">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Staff ID</th>
+                            <th>Patient ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Screening Year</th>
+                            <th>Company</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients.items %}
+                        <tr>
+                            <td>{{ patient.staff_id }}</td>
+                            <td>{{ patient.patient_id }}</td>
+                            <td>{{ patient.first_name }}</td>
+                            <td>{{ patient.last_name }}</td>
+                            <td>{{ patient.screening_year }}</td>
+                            <td>{{ patient.company }}</td>
+                            <td class="actions-cell">
+                                <a href="{{ url_for('data_view.edit_patient', patient_id=patient.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                <form action="{{ url_for('data_view.delete_patient', patient_id=patient.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this patient?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <!-- Pagination Links -->
-    <div class="pagination">
+    <div class="pagination mt-4">
         {% if patients.has_prev %}
-            <a href="{{ url_for('data_view.view_yearly_records', page=patients.prev_num) }}">&laquo; Previous</a>
+            <a href="{{ url_for('data_view.view_yearly_records', page=patients.prev_num, q=request.args.get('q', '')) }}" class="btn btn-outline-secondary">&laquo; Previous</a>
         {% endif %}
-        <span>Page {{ patients.page }} of {{ patients.pages }}.</span>
+        <span class="page-info">Page {{ patients.page }} of {{ patients.pages }}.</span>
         {% if patients.has_next %}
-            <a href="{{ url_for('data_view.view_yearly_records', page=patients.next_num) }}">Next &raquo;</a>
+            <a href="{{ url_for('data_view.view_yearly_records', page=patients.next_num, q=request.args.get('q', '')) }}" class="btn btn-outline-secondary">Next &raquo;</a>
         {% endif %}
     </div>
 </div>

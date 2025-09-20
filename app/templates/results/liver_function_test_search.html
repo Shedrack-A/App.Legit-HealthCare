@@ -1,34 +1,90 @@
 {% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
 
 {% block content %}
 <div class="results-search-page">
     <h2>Liver Function Test - Search Patient</h2>
     <p>Enter a patient's Staff ID to add or view their Liver Function Test results.</p>
 
-    <form method="POST" class="search-form">
-        <input type="text" name="search_term" placeholder="Enter Staff ID..." value="{{ search_term or '' }}">
-        <button type="submit" class="btn-submit">Search</button>
-    </form>
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="POST" class="search-form">
+                <div class="input-group">
+                    <input type="text" name="search_term" class="form-control" placeholder="Enter Staff ID..." value="{{ search_term or '' }}">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     {% if patients is defined %}
-        <div class="search-results">
-            <h3>Search Results</h3>
-            {% if patients %}
-                <ul class="patient-list">
-                    {% for patient in patients %}
-                        <li>
-                            <a href="{{ url_for('results.liver_function_test_form', patient_id=patient.id) }}">
-                                <span>{{ patient.first_name }} {{ patient.last_name }}</span>
-                                <small>Staff ID: {{ patient.staff_id }}</small>
-                                <small>Dept: {{ patient.department }}</small>
+        <div class="card">
+            <div class="card-header">
+                <h3>Search Results</h3>
+            </div>
+            <div class="card-body">
+                {% if patients %}
+                    <div class="list-group">
+                        {% for patient in patients %}
+                            <a href="{{ url_for('results.liver_function_test_form', patient_id=patient.id) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ patient.first_name }} {{ patient.last_name }}</h5>
+                                    <small>Staff ID: {{ patient.staff_id }}</small>
+                                </div>
+                                <p class="mb-1">Dept: {{ patient.department }}</p>
                             </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No patients found matching your search term.</p>
-            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No patients found matching your search term.</p>
+                {% endif %}
+            </div>
         </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.querySelector('[name="search_term"]');
+    const resultsContainer = document.querySelector('.list-group');
+
+    searchInput.addEventListener('keyup', function() {
+        const searchTerm = this.value;
+        if (searchTerm.length < 2) {
+            if (resultsContainer) {
+                resultsContainer.innerHTML = '';
+            }
+            return;
+        }
+
+        fetch(`/results/api/search?q=${searchTerm}`)
+            .then(response => response.json())
+            .then(data => {
+                if (resultsContainer) {
+                    resultsContainer.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(patient => {
+                            const link = document.createElement('a');
+                            link.href = `/results/liver_function_test/form/${patient.id}`;
+                            link.className = 'list-group-item list-group-item-action';
+                            link.innerHTML = `
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">${patient.first_name} ${patient.last_name}</h5>
+                                    <small>Staff ID: ${patient.staff_id}</small>
+                                </div>
+                                <p class="mb-1">Dept: ${patient.department}</p>
+                            `;
+                            resultsContainer.appendChild(link);
+                        });
+                    } else {
+                        resultsContainer.innerHTML = '<p>No patients found matching your search term.</p>';
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
+});
+</script>
 {% endblock %}

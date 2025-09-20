@@ -247,3 +247,27 @@ def audiometry_form(patient_id):
         db.session.commit()
         return redirect(url_for('results.audiometry'))
     return render_template('results/audiometry_form.html', title='Audiometry', form=form, patient=patient)
+
+from flask import jsonify
+from datetime import datetime
+
+@results.route('/api/search')
+@login_required
+def api_search():
+    search_term = request.args.get('q', '')
+    company = request.args.get('company', 'DCP')
+    year = request.args.get('year', datetime.now().year, type=int)
+
+    if not search_term:
+        return jsonify([])
+
+    patients = Patient.query.filter_by(company=company, screening_year=year)\
+                            .filter(Patient.staff_id.ilike(f'%{search_term}%')).limit(10).all()
+
+    return jsonify([{
+        'id': p.id,
+        'staff_id': p.staff_id,
+        'first_name': p.first_name,
+        'last_name': p.last_name,
+        'department': p.department
+    } for p in patients])

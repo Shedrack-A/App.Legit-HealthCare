@@ -14,6 +14,7 @@ def register():
         user = User(
             first_name=form.first_name.data,
             last_name=form.last_name.data,
+            username=form.username.data,
             phone_number=form.phone_number.data,
             email_address=form.email_address.data,
             password=form.password.data
@@ -30,7 +31,7 @@ def register():
         # The user object has the new ID after the commit
         if user.email_address:
             send_email(user.email_address, 'Welcome to Legit HealthCare Services', 'email/welcome', user=user)
-        log_audit('USER_REGISTER', f'New user registered: {user.phone_number} (ID: {user.id})')
+        log_audit('USER_REGISTER', f'New user registered: {user.username} (ID: {user.id})')
         flash('Congratulations, you are now a registered user!', 'success')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Register', form=form)
@@ -39,7 +40,7 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(phone_number=form.phone_number.data).first()
+        user = User.query.filter_by(username=form.username.data).first()
         if user is not None and user.verify_password(form.password.data):
             # Check if 2FA is enabled
             if user.otp_enabled:
@@ -48,17 +49,17 @@ def login():
 
             # If 2FA is not enabled, log in directly
             login_user(user, remember=form.remember.data)
-            log_audit('USER_LOGIN', f'User logged in: {user.phone_number}')
+            log_audit('USER_LOGIN', f'User logged in: {user.username}')
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('main.dashboard'))
         else:
-            flash('Invalid phone number or password.', 'danger')
+            flash('Invalid username or password.', 'danger')
     return render_template('auth/login.html', title='Sign In', form=form)
 
 @auth.route('/logout')
 @login_required
 def logout():
-    log_audit('USER_LOGOUT', f'User logged out: {current_user.phone_number}')
+    log_audit('USER_LOGOUT', f'User logged out: {current_user.username}')
     logout_user()
     flash('You have been logged out.', 'info')
     return redirect(url_for('main.index'))

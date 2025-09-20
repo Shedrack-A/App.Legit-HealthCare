@@ -1,0 +1,83 @@
+<div class="card">
+    <div class="card-header">
+        <h3>Medical Report for {{ patient.first_name }} {{ patient.last_name }}</h3>
+    </div>
+    <div class="card-body">
+        <h4>Patient Information</h4>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <th>Staff ID</th>
+                    <td>{{ patient.staff_id }}</td>
+                    <th>Patient ID</th>
+                    <td>{{ patient.patient_id }}</td>
+                </tr>
+                <tr>
+                    <th>Name</th>
+                    <td>{{ patient.first_name }} {{ patient.middle_name }} {{ patient.last_name }}</td>
+                    <th>Department</th>
+                    <td>{{ patient.department }}</td>
+                </tr>
+                <tr>
+                    <th>Gender</th>
+                    <td>{{ patient.gender }}</td>
+                    <th>Date of Birth</th>
+                    <td>{{ patient.date_of_birth.strftime('%Y-%m-%d') }} ({{ patient.age }} years)</td>
+                </tr>
+                <tr>
+                    <th>Contact Phone</th>
+                    <td>{{ patient.contact_phone }}</td>
+                    <th>Email Address</th>
+                    <td>{{ patient.email_address }}</td>
+                </tr>
+                <tr>
+                    <th>Race</th>
+                    <td>{{ patient.race }}</td>
+                    <th>Nationality</th>
+                    <td>{{ patient.nationality }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        {% if patient.consultation %}
+        <h4>Consultation</h4>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <th>LUTS</th>
+                    <td>{{ patient.consultation.luts }}</td>
+                    <th>Chronic Cough</th>
+                    <td>{{ patient.consultation.chronic_cough }}</td>
+                </tr>
+                <tr>
+                    <th>Chronic Chest Pain</th>
+                    <td>{{ patient.consultation.chronic_chest_pain }}</td>
+                    <th>Chest Infection</th>
+                    <td>{{ patient.consultation.chest_infection }}</td>
+                </tr>
+                <!-- Add all other consultation fields here -->
+            </tbody>
+        </table>
+        {% endif %}
+
+        {% if patient.full_blood_count %}
+        <h4>Full Blood Count</h4>
+        <table class="table table-sm table-bordered">
+            <!-- Display FBC results -->
+        </table>
+        {% endif %}
+
+        <!-- Add sections for all other tests here -->
+
+        {% if patient.director_review %}
+        <h4>Director's Review</h4>
+        <p><strong>Director Remarks:</strong> {{ patient.director_review.director_remarks }}</p>
+        <p><strong>Overall Assessment:</strong> {{ patient.director_review.overall_assessment }}</p>
+        {% endif %}
+
+    </div>
+    <div class="card-footer text-end">
+        <a href="{{ url_for('reports.download_report', patient_id=patient.id) }}" class="btn btn-success">Download PDF</a>
+        <a href="{{ url_for('reports.email_report', patient_id=patient.id) }}" class="btn btn-info">Send Email</a>
+    </div>
+</div>

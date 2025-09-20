@@ -1,34 +1,27 @@
 {% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
 
 {% block content %}
 <div class="email-settings-page">
     <h2>Email Service Configuration</h2>
     <p>Configure the credentials for the Gmail account that will be used to send emails from the application.</p>
-    <p class="alert alert-info"><strong>Note:</strong> For production environments, it is strongly recommended to set these values as environment variables for better security. Values set here will be used as a fallback if environment variables are not found.</p>
+    <div class="alert alert-info"><strong>Note:</strong> For production environments, it is strongly recommended to set these values as environment variables for better security. Values set here will be used as a fallback if environment variables are not found.</div>
 
-    <div class="page-section">
-        <h3>Gmail Credentials</h3>
-        <form method="POST" action="">
-            {{ form.hidden_tag() }}
-            <div class="form-group">
-                {{ form.mail_username.label }}
-                {{ form.mail_username(class="form-control", placeholder="e.g., your-email@gmail.com") }}
-                 {% for error in form.mail_username.errors %}
-                    <span class="error-text">{{ error }}</span>
-                {% endfor %}
-            </div>
-            <div class="form-group">
-                {{ form.mail_password.label }}
-                {{ form.mail_password(class="form-control", placeholder="Enter new App Password if you want to change it") }}
-                <small>For security, the current password is not displayed. Enter a new password only if you need to change it. You must use a <a href="https://support.google.com/accounts/answer/185833" target="_blank">Google App Password</a>, not your regular Gmail password.</small>
-                 {% for error in form.mail_password.errors %}
-                    <span class="error-text">{{ error }}</span>
-                {% endfor %}
-            </div>
-            <div class="form-actions">
-                {{ form.submit(class="btn-submit") }}
-            </div>
-        </form>
+    <div class="card">
+        <div class="card-header">
+            <h3>Gmail Credentials</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="" novalidate>
+                {{ form.hidden_tag() }}
+                {{ render_field(form.mail_username, placeholder="e.g., your-email@gmail.com") }}
+                {{ render_field(form.mail_password, placeholder="Enter new App Password if you want to change it") }}
+                <small class="form-text text-muted">For security, the current password is not displayed. Enter a new password only if you need to change it. You must use a <a href="https://support.google.com/accounts/answer/185833" target="_blank">Google App Password</a>, not your regular Gmail password.</small>
+                <div class="form-actions mt-4">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

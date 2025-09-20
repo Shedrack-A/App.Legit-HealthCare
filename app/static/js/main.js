@@ -1,6 +1,10 @@
 const themeSwitcher = document.getElementById('theme-switcher');
 const html = document.documentElement;
 
+function goBack() {
+    window.history.back();
+}
+
 // Function to set the theme
 const setTheme = (theme) => {
     html.setAttribute('data-theme', theme);

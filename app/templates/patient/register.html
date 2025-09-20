@@ -1,81 +1,109 @@
 {% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
 
 {% block content %}
 <div class="register-patient-page">
-    <!-- Top Section: Stats and Search -->
     <div class="page-header-section">
         <div class="stats-container">
-            <div class="stat-card"><span>Total Registered:</span> {{ stats.total }}</div>
-            <div class="stat-card"><span>Registered Today:</span> {{ stats.today }}</div>
-            <div class="stat-card"><span>Males:</span> {{ stats.male }}</div>
-            <div class="stat-card"><span>Females:</span> {{ stats.female }}</div>
-            <div class="stat-card"><span>Age &ge; 40:</span> {{ stats.over_40 }}</div>
-            <div class="stat-card"><span>Age &lt; 40:</span> {{ stats.under_40 }}</div>
+            <div class="stat-card"><span>Total Registered</span> <div>{{ stats.total }}</div></div>
+            <div class="stat-card"><span>Registered Today</span> <div>{{ stats.today }}</div></div>
+            <div class="stat-card"><span>Males</span> <div>{{ stats.male }}</div></div>
+            <div class="stat-card"><span>Females</span> <div>{{ stats.female }}</div></div>
+            <div class="stat-card"><span>Age &ge; 40</span> <div>{{ stats.over_40 }}</div></div>
+            <div class="stat-card"><span>Age &lt; 40</span> <div>{{ stats.under_40 }}</div></div>
         </div>
         <div class="search-container">
-            <input type="search" id="patient-search" placeholder="Search by Staff ID...">
+            <input type="search" id="patient-search" class="form-control" placeholder="Search by Staff ID...">
         </div>
     </div>
 
-    <!-- Registration Form -->
-    <form method="POST" action="" class="patient-form">
-        {{ form.hidden_tag() }}
-        <fieldset>
-            <legend>Patient Bio-Data</legend>
-            <div class="form-grid">
-                <div class="form-group span-2">
-                    {{ form.staff_id.label }}
-                    {{ form.staff_id(class="form-control") }}
-                </div>
-                <div class="form-group span-2">
-                    {{ form.patient_id.label }}
-                    {{ form.patient_id(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.first_name.label }}
-                    {{ form.first_name(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.middle_name.label }}
-                    {{ form.middle_name(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.last_name.label }}
-                    {{ form.last_name(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.department.label }}
-                    {{ form.department(class="form-control") }}
-                </div>
-                 <div class="form-group">
-                    {{ form.gender.label }}
-                    {{ form.gender(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.date_of_birth.label }}
-                    {{ form.date_of_birth(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.contact_phone.label }}
-                    {{ form.contact_phone(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.email_address.label }}
-                    {{ form.email_address(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.race.label }}
-                    {{ form.race(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.nationality.label }}
-                    {{ form.nationality(class="form-control") }}
-                </div>
-            </div>
-        </fieldset>
-        <div class="form-actions">
-            {{ form.submit(class="btn-submit") }}
+    <div class="card">
+        <div class="card-header">
+            <h3>Patient Bio-Data</h3>
         </div>
-    </form>
+        <div class="card-body">
+            <form method="POST" action="" class="patient-form" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="form-grid">
+                    <div class="form-group span-2">
+                        {{ render_field(form.staff_id) }}
+                    </div>
+                    <div class="form-group span-2">
+                        {{ render_field(form.patient_id) }}
+                    </div>
+                    <div class="form-group">
+                        {{ render_field(form.first_name) }}
+                    </div>
+                    <div class="form-group">
+                        {{ render_field(form.middle_name) }}
+                    </div>
+                    <div class="form-group">
+                        {{ render_field(form.last_name) }}
+                    </div>
+                    <div class="form-group">
+                        {{ render_field(form.department) }}
+                    </div>
+                    <div class="form-group">
+                        {{ render_field(form.gender) }}
+                    </div>
+                    <div class="form-group">
+                        {{ render_field(form.date_of_birth) }}
+                    </div>
+                    <div class="form-group">
+                        {{ render_field(form.contact_phone) }}
+                    </div>
+                    <div class="form-group">
+                        {{ render_field(form.email_address) }}
+                    </div>
+                    <div class="form-group">
+                        {{ render_field(form.race) }}
+                    </div>
+                    <div class="form-group">
+                        {{ render_field(form.nationality) }}
+                    </div>
+                </div>
+                <div class="form-actions mt-4">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('patient-search');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const staffId = this.value;
+            if (staffId.length > 2) { // Start searching after a few characters
+                fetch(`/patient/api/search?staff_id=${staffId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            // Optionally clear form or show 'not found' message
+                        } else {
+                            // Populate the form
+                            document.querySelector('[name="staff_id"]').value = data.staff_id;
+                            document.querySelector('[name="patient_id"]').value = data.patient_id;
+                            document.querySelector('[name="first_name"]').value = data.first_name;
+                            document.querySelector('[name="middle_name"]').value = data.middle_name || '';
+                            document.querySelector('[name="last_name"]').value = data.last_name;
+                            document.querySelector('[name="department"]').value = data.department;
+                            document.querySelector('[name="gender"]').value = data.gender;
+                            document.querySelector('[name="date_of_birth"]').value = data.date_of_birth;
+                            document.querySelector('[name="contact_phone"]').value = data.contact_phone;
+                            document.querySelector('[name="email_address"]').value = data.email_address || '';
+                            document.querySelector('[name="race"]').value = data.race;
+                            document.querySelector('[name="nationality"]').value = data.nationality;
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

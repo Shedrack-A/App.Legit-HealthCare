@@ -73,7 +73,7 @@ def register():
 
 @patient.route('/api/search')
 @login_required
-def search_patient():
+def api_search():
     staff_id = request.args.get('staff_id', '', type=str)
     if not staff_id:
         return jsonify({'error': 'Staff ID is required'}), 400

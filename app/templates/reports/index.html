@@ -5,7 +5,7 @@
     <h1 class="mt-4">{{ title }}</h1>
     <div class="card mb-4">
         <div class="card-header">
-            <i class="fas fa-search me-1"></i>
+            <i class="bi bi-search me-1"></i>
             Search for a Patient by Staff ID
         </div>
         <div class="card-body">
@@ -17,12 +17,6 @@
                             <label for="search_term">Staff ID</label>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        {% include '_company_select.html' %}
-                    </div>
-                    <div class="col-md-3">
-                        {% include '_year_select.html' %}
-                    </div>
                     <div class="col-md-1 d-flex align-items-center">
                         <button class="btn btn-primary" type="submit">Search</button>
                     </div>
@@ -33,7 +27,7 @@
 
     <div class="card mb-4" id="results-container" style="display:none;">
         <div class="card-header">
-            <i class="fas fa-table me-1"></i>
+            <i class="bi bi-table me-1"></i>
             Search Results
         </div>
         <div class="card-body">
@@ -52,6 +46,8 @@
             </table>
         </div>
     </div>
+
+    <div id="report-display-container"></div>
 </div>
 {% endblock %}
 
@@ -60,8 +56,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const searchForm = document.getElementById('search-form');
     const searchInput = document.getElementById('search_term');
-    const companySelect = document.getElementById('company');
-    const yearSelect = document.getElementById('year');
     const resultsContainer = document.getElementById('results-container');
     const resultsTbody = document.getElementById('results-tbody');
 
@@ -72,8 +66,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function fetchResults() {
         const searchTerm = searchInput.value;
-        const company = companySelect.value;
-        const year = yearSelect.value;
 
         if (searchTerm.length < 2) {
             resultsContainer.style.display = 'none';
@@ -82,8 +74,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const url = new URL("{{ url_for('reports.api_search') }}", window.location.origin);
         url.searchParams.set('q', searchTerm);
-        url.searchParams.set('company', company);
-        url.searchParams.set('year', year);
 
         fetch(url)
             .then(response => response.json())
@@ -93,8 +83,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (data.length > 0) {
                     data.forEach(patient => {
-                        const downloadUrl = `{{ url_for('reports.download_report', patient_id=0) }}`.replace('0', patient.id);
-                        const emailUrl = `{{ url_for('reports.email_report', patient_id=0) }}`.replace('0', patient.id);
                         const row = `
                             <tr>
                                 <td>${patient.staff_id}</td>
@@ -102,8 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <td>${patient.last_name}</td>
                                 <td>${patient.department}</td>
                                 <td>
-                                    <a href="${downloadUrl}" class="btn btn-sm btn-success">Download</a>
-                                    <a href="${emailUrl}" class="btn btn-sm btn-info">Email</a>
+                                    <button class="btn btn-sm btn-primary view-report-btn" data-patient-id="${patient.id}">View Report</button>
                                 </td>
                             </tr>
                         `;
@@ -116,9 +103,29 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => console.error('Error fetching search results:', error));
     }
 
-    searchInput.addEventListener('keyup', fetchResults);
-    companySelect.addEventListener('change', fetchResults);
-    yearSelect.addEventListener('change', fetchResults);
+    searchInput.addEventListener('keyup', fetchresults);
+
+    resultsTbody.addEventListener('click', function(e) {
+        if (e.target.classList.contains('view-report-btn')) {
+            const patientId = e.target.dataset.patientId;
+            fetchReport(patientId);
+        }
+    });
+
+    function fetchReport(patientId) {
+        const reportContainer = document.getElementById('report-display-container');
+        reportContainer.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+        fetch(`/reports/view/${patientId}`)
+            .then(response => response.text())
+            .then(html => {
+                reportContainer.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error fetching report:', error);
+                reportContainer.innerHTML = '<div class="alert alert-danger">Could not load report.</div>';
+            });
+    }
 });
 </script>
 {% endblock %}

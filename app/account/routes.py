@@ -30,10 +30,33 @@ def generate_recovery_codes(user):
     db.session.commit()
     return recovery_codes
 
-@account.route('/settings', methods=['GET', 'POST'])
+@account.route('/settings')
 @login_required
 def settings():
-    password_form = ChangePasswordForm()
+    return render_template('account/settings.html', title='Manage Account')
+
+@account.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if current_user.verify_password(form.current_password.data):
+            is_strong, message = is_password_strong(form.new_password.data)
+            if is_strong:
+                current_user.password = form.new_password.data
+                db.session.commit()
+                log_audit('USER_CHANGE_PASSWORD', f'User {current_user.id} changed their own password.')
+                flash('Your password has been updated.', 'success')
+            else:
+                flash(message, 'danger')
+        else:
+            flash('Incorrect current password.', 'danger')
+        return redirect(url_for('account.change_password'))
+    return render_template('account/change_password.html', title='Change Password', form=form)
+
+@account.route('/two_factor', methods=['GET', 'POST'])
+@login_required
+def two_factor():
     enable_2fa_form = Enable2FAForm()
     disable_2fa_form = Disable2FAForm()
 
@@ -53,22 +76,7 @@ def settings():
         qr_code_svg = Markup(stream.getvalue().decode())
         stream.close()
 
-    if password_form.submit_password.data and password_form.validate_on_submit():
-        if current_user.verify_password(password_form.current_password.data):
-            is_strong, message = is_password_strong(password_form.new_password.data)
-            if is_strong:
-                current_user.password = password_form.new_password.data
-                db.session.commit()
-                log_audit('USER_CHANGE_PASSWORD', f'User {current_user.id} changed their own password.')
-                flash('Your password has been updated.', 'success')
-            else:
-                flash(message, 'danger')
-        else:
-            flash('Incorrect current password.', 'danger')
-        return redirect(url_for('account.settings'))
-
-    return render_template('account/settings.html', title='Account Settings',
-                           password_form=password_form,
+    return render_template('account/two_factor.html', title='Two-Factor Authentication',
                            enable_2fa_form=enable_2fa_form,
                            disable_2fa_form=disable_2fa_form,
                            qr_code_svg=qr_code_svg)
@@ -91,7 +99,7 @@ def enable_2fa():
             return render_template('account/recovery_codes.html', title='Your Recovery Codes', recovery_codes=recovery_codes)
         else:
             flash('Invalid authenticator code.', 'danger')
-    return redirect(url_for('account.settings'))
+    return redirect(url_for('account.two_factor'))
 
 @account.route('/disable_2fa', methods=['POST'])
 @login_required
@@ -104,7 +112,7 @@ def disable_2fa():
         db.session.commit()
         log_audit('USER_DISABLE_2FA', f'User {current_user.id} disabled 2FA.')
         flash('2FA has been disabled.', 'success')
-    return redirect(url_for('account.settings'))
+    return redirect(url_for('account.two_factor'))
 
 @account.route('/verify_2fa', methods=['GET', 'POST'])
 def verify_2fa():

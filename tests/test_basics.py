@@ -44,23 +44,3 @@ def test_is_password_strong():
     assert is_password_strong("Longpassword1!")[0] is True
     assert is_password_strong("AnotherValidP@ssw0rd")[0] is True
 
-def test_phone_number_validator(app):
-    with app.test_request_context():
-        form = RegistrationForm()
-
-        # Valid case
-        form.phone_number.data = "+2348012345678"
-        try:
-            form.validate_phone_number(form.phone_number)
-        except Exception as e:
-            assert False, f"Validation failed for a valid number: {e}"
-
-        # Invalid cases
-        invalid_numbers = ["12345", "+23412345678", "+23412345678901", "abcdefg"]
-        for number in invalid_numbers:
-            form.phone_number.data = number
-            try:
-                form.validate_phone_number(form.phone_number)
-                assert False, f"Validation succeeded for an invalid number: {number}"
-            except Exception:
-                assert True

@@ -10,7 +10,8 @@
     {% if favicon_url %}
     <link rel="icon" href="{{ favicon_url }}">
     {% endif %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -34,25 +35,24 @@
                     </a>
                 </div>
                 <ul class="nav-links">
-                    <li><a href="{{ url_for('main.dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                    <li><a href="{{ url_for('patient.register') }}"><i class="fas fa-user-plus"></i> Register Patient</a></li>
-                    <li><a href="{{ url_for('consultation.index') }}"><i class="fas fa-stethoscope"></i> Consultation</a></li>
-                    <li><a href="{{ url_for('results.index') }}"><i class="fas fa-vial"></i> Results</a></li>
+                    <li><a href="{{ url_for('main.dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                    <li><a href="{{ url_for('patient.register') }}"><i class="bi bi-person-plus"></i> Register Patient</a></li>
+                    <li><a href="{{ url_for('consultation.index') }}"><i class="bi bi-heart-pulse"></i> Consultation</a></li>
+                    <li><a href="{{ url_for('results.index') }}"><i class="bi bi-eyedropper"></i> Results</a></li>
                     {% if current_user.has_permission('access_director_page') %}
-                    <li><a href="{{ url_for('director.index') }}"><i class="fas fa-gavel"></i> Director Review</a></li>
+                    <li><a href="{{ url_for('director.index') }}"><i class="bi bi-gavel"></i> Director Review</a></li>
                     {% endif %}
                     {% if current_user.has_permission('generate_patient_report') %}
-                    <li><a href="{{ url_for('reports.index') }}"><i class="fas fa-file-pdf"></i> Patient Report</a></li>
+                    <li><a href="{{ url_for('reports.index') }}"><i class="bi bi-file-earmark-pdf"></i> Patient Report</a></li>
                     {% endif %}
-                    <li><a href="{{ url_for('data_view.view_all_patients') }}"><i class="fas fa-users"></i> View Patients</a></li>
-                    <li><a href="{{ url_for('data_view.view_yearly_records') }}"><i class="fas fa-folder-open"></i> View Records</a></li>
+                    <li><a href="{{ url_for('data_view.view_all_patients') }}"><i class="bi bi-people"></i> View Patients</a></li>
+                    <li><a href="{{ url_for('data_view.view_yearly_records') }}"><i class="bi bi-folder2-open"></i> View Records</a></li>
                     <hr>
                     {% if current_user.has_permission('manage_roles') %}
-                    <li><a href="{{ url_for('admin.index') }}"><i class="fas fa-cogs"></i> Control Panel</a></li>
+                    <li><a href="{{ url_for('admin.index') }}"><i class="bi bi-gear"></i> Control Panel</a></li>
                     {% endif %}
                     <hr>
-                    <li><a href="{{ url_for('account.settings') }}"><i class="fas fa-user-cog"></i> Manage Account</a></li>
-                    <li><a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    <li><a href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                 </ul>
                 {% endblock %}
             </nav>
@@ -62,7 +62,8 @@
             {% if current_user.is_authenticated %}
                 <header class="top-nav">
                     <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
-                        <div class="header-left">
+                        <div class="header-left d-flex align-items-center">
+                            <button onclick="goBack()" class="btn btn-sm btn-outline-secondary mr-3"><i class="bi bi-arrow-left"></i> Back</button>
                             <h1>{{ title }}</h1>
                         </div>
                         <div class="header-right d-flex align-items-center">
@@ -79,10 +80,20 @@
                             </form>
                             <div class="header-actions">
                                 <div class="notification-bell" id="notification-bell">
-                                    <i class="fas fa-bell"></i>
+                                    <i class="bi bi-bell"></i>
                                     <span class="notification-dot" style="display: none;"></span>
                                 </div>
                                 <button id="theme-switcher" class="btn">Toggle Theme</button>
+                                <div class="profile-dropdown">
+                                    <button class="profile-btn">
+                                        <i class="bi bi-person-circle"></i>
+                                        <span>{{ current_user.first_name }}</span>
+                                    </button>
+                                    <div class="dropdown-content">
+                                        <a href="{{ url_for('account.settings') }}">Manage Account</a>
+                                        <a href="{{ url_for('auth.logout') }}">Logout</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
