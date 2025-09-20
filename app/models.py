@@ -75,10 +75,26 @@ class TemporaryAccessCode(db.Model):
     is_active = db.Column(db.Boolean, default=True)
 
     permission = db.relationship('Permission')
-    user = db.relationship('User', backref=db.backref('audit_logs', lazy='dynamic'))
+    user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('temporary_access_codes', lazy='dynamic'))
 
     def __repr__(self):
         return f"<TempCode {self.code}>"
+
+class AccessRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    permission_id = db.Column(db.Integer, db.ForeignKey('permission.id'), nullable=False)
+    status = db.Column(db.String(20), default='pending', nullable=False) # pending, approved, denied
+    request_timestamp = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    approved_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    approved_timestamp = db.Column(db.DateTime, nullable=True)
+
+    user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('access_requests', lazy='dynamic'))
+    permission = db.relationship('Permission')
+    approved_by = db.relationship('User', foreign_keys=[approved_by_id])
+
+    def __repr__(self):
+        return f"<AccessRequest {self.id} by User {self.user_id} for Permission {self.permission_id}>"
 
 class AuditLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)

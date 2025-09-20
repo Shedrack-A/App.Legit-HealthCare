@@ -1,20 +1,61 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="error-page">
-    <h2>403 - Access Forbidden</h2>
-    <p>You do not have the necessary permissions to access this page.</p>
-
-    <div class="page-section">
-        <h3>Use a Temporary Access Code</h3>
-        <p>If you have been given a temporary access code by an administrator, please enter it below to gain access.</p>
-        <form action="{{ url_for('main.activate_code') }}" method="POST" class="activate-code-form">
-            <input type="text" name="temp_code" placeholder="Enter code..." required>
-            <input type="hidden" name="next_url" value="{{ request.path }}">
-            <button type="submit" class="btn-submit">Activate Code</button>
-        </form>
+<div class="error-page text-center">
+    <div class="icon-container">
+        <i class="bi bi-lock-fill" style="font-size: 5rem; color: var(--bs-danger);"></i>
     </div>
-
-    <p><a href="{{ url_for('main.index') }}">Go back to the Dashboard</a></p>
+    <h2 class="mt-4">Access Denied</h2>
+    {% if permission %}
+        <p>You do not have the necessary permission (<strong>{{ permission }}</strong>) to access this page.</p>
+        <button id="request-access-btn" class="btn btn-primary" data-permission="{{ permission }}">Request Access</button>
+    {% else %}
+        <p>You do not have the necessary permissions to access this page.</p>
+    {% endif %}
+    <p class="mt-4"><a href="{{ url_for('main.index') }}">Go back to the Dashboard</a></p>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const requestBtn = document.getElementById('request-access-btn');
+    if (requestBtn) {
+        requestBtn.addEventListener('click', function() {
+            const permission = this.dataset.permission;
+            fetch('/requests/request_access', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ permission: permission })
+            })
+            .then(response => response.json())
+            .then(data => {
+                Toastify({
+                    text: data.message || data.error,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: data.error ? "linear-gradient(to right, #ff5f6d, #ffc371)" : "linear-gradient(to right, #00b09b, #96c93d)",
+                }).showToast();
+                requestBtn.disabled = true;
+                requestBtn.innerText = 'Request Sent';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Toastify({
+                    text: 'An error occurred while sending your request.',
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                }).showToast();
+            });
+        });
+    }
+});
+</script>
 {% endblock %}

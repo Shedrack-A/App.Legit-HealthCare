@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Manage Access Requests</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Permission</th>
+                <th>Requested On</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in requests %}
+            <tr>
+                <td>{{ req.user.username }}</td>
+                <td>{{ req.permission.name }}</td>
+                <td>{{ req.request_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td>
+                    <form action="{{ url_for('requests.action_request', request_id=req.id, action='approve') }}" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-success">Approve</button>
+                    </form>
+                    <form action="{{ url_for('requests.action_request', request_id=req.id, action='deny') }}" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Deny</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

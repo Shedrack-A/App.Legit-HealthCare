@@ -15,6 +15,7 @@
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 <body data-user-id="{{ current_user.id if current_user.is_authenticated else '' }}">
     <div class="app-wrapper">
@@ -101,15 +102,15 @@
             {% endif %}
 
             <main class="content-area">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+                <div id="flash-messages" style="display: none;">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div data-category="{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
                 {% block content %}{% endblock %}
             </main>
         </div>
@@ -119,10 +120,112 @@
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% if current_user.is_authenticated %}
     <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
     {% endif %}
-    {% block scripts %}{% endblock %}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    {% block scripts %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+
+                socket.on('connect', function() {
+                    console.log('Websocket connected!');
+                });
+
+                // For admins/approvers
+                socket.on('new_access_request', function(data) {
+                    Toastify({
+                        text: `New access request from ${data.requester} for permission "${data.permission}"`,
+                        duration: 5000,
+                        destination: '/requests/manage', // Link to the management page
+                        newWindow: true,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+                    }).showToast();
+                });
+
+                // For the user who requested access
+                socket.on('access_request_status_changed', function(data) {
+                    let message = `Your request for permission "${data.permission}" has been ${data.status}.`;
+                    if (data.status === 'approved') {
+                        message += ` Approved by ${data.approver}.`;
+                    }
+                    Toastify({
+                        text: message,
+                        duration: 5000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: data.status === 'approved' ? "linear-gradient(to right, #00b09b, #96c93d)" : "linear-gradient(to right, #ff5f6d, #ffc371)",
+                    }).showToast();
+                });
+            });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const flashMessages = document.querySelectorAll('#flash-messages div');
+                flashMessages.forEach(function (flash) {
+                    const category = flash.dataset.category;
+                    const message = flash.textContent;
+                    Toastify({
+                        text: message,
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: category === 'success' ? "linear-gradient(to right, #00b09b, #96c93d)" : "linear-gradient(to right, #ff5f6d, #ffc371)",
+                    }).showToast();
+                });
+            });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const tempPermissions = {{ session.get('temp_permissions', {}) | tojson }};
+                const container = document.getElementById('sticky-notification-container');
+
+                if (Object.keys(tempPermissions).length > 0) {
+                    for (const [permission, expiry] of Object.entries(tempPermissions)) {
+                        const expiryTime = new Date(expiry).getTime();
+
+                        // Create notification element
+                        const notification = document.createElement('div');
+                        notification.classList.add('sticky-notification');
+                        notification.innerHTML = `
+                            <p><strong>Active Temporary Access:</strong> ${permission}</p>
+                            <p>Expires in: <span class="countdown" data-expiry="${expiryTime}"></span></p>
+                        `;
+                        container.appendChild(notification);
+                    }
+
+                    // Update countdowns every second
+                    setInterval(function() {
+                        const countdowns = document.querySelectorAll('.countdown');
+                        countdowns.forEach(countdown => {
+                            const expiryTime = parseInt(countdown.dataset.expiry, 10);
+                            const now = new Date().getTime();
+                            const distance = expiryTime - now;
+
+                            if (distance < 0) {
+                                countdown.parentElement.parentElement.style.display = 'none';
+                                return;
+                            }
+
+                            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                            countdown.textContent = `${hours}h ${minutes}m ${seconds}s`;
+                        });
+                    }, 1000);
+                }
+            });
+        </script>
+    {% endblock %}
+    <div id="sticky-notification-container"></div>
 </body>
 </html>

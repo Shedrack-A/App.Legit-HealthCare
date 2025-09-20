@@ -23,6 +23,7 @@ def permission_required(permission_name):
 
             # If no valid temporary permission, check permanent permissions
             if not current_user.has_permission(permission_name):
+                session['denied_permission'] = permission_name
                 abort(403) # Forbidden
 
             return f(*args, **kwargs)

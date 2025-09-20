@@ -490,3 +490,30 @@ main.content-area {
     color: var(--color-primary);
     margin-bottom: var(--spacing-2);
 }
+
+/* Sticky Notification */
+#sticky-notification-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+.sticky-notification {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    padding: 15px;
+    border-radius: var(--radius-md);
+    margin-top: 10px;
+    box-shadow: var(--shadow-lg);
+    min-width: 300px;
+}
+
+.sticky-notification p {
+    margin: 0;
+    font-size: var(--font-size-sm);
+}
+
+.sticky-notification p:first-child {
+    margin-bottom: var(--spacing-2);
+}

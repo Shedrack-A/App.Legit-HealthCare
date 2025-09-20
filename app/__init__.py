@@ -69,6 +69,9 @@ def create_app(config_name='default'):
     from app.messaging import messaging as messaging_blueprint
     app.register_blueprint(messaging_blueprint, url_prefix='/messaging')
 
+    from app.requests import requests_bp as requests_blueprint
+    app.register_blueprint(requests_blueprint, url_prefix='/requests')
+
     # Set default session filters for company and year
     @app.before_request
     def before_request_hook():
@@ -102,7 +105,8 @@ def create_app(config_name='default'):
     # Error Handlers
     @app.errorhandler(403)
     def forbidden(error):
-        return render_template('errors/403.html'), 403
+        permission = session.pop('denied_permission', None)
+        return render_template('errors/403.html', permission=permission), 403
 
     @app.errorhandler(404)
     def page_not_found(error):
