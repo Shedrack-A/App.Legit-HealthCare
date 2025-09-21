@@ -470,6 +470,40 @@ main.content-area {
 }
 
 
+/* --- HEADER PROFILE DROPDOWN --- */
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--color-surface-primary);
+    min-width: 160px;
+    box-shadow: var(--shadow-lg);
+    z-index: 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.profile-dropdown-content a {
+    color: var(--color-text-primary);
+    padding: var(--spacing-3) var(--spacing-4);
+    text-decoration: none;
+    display: block;
+}
+
+.profile-dropdown-content a:hover {
+    background-color: var(--color-surface-secondary);
+}
+
+.profile-dropdown:hover .profile-dropdown-content {
+    display: block;
+}
+
+
 /* --- PAGE-SPECIFIC STYLES --- */
 .patient-header-card {
     background: var(--color-primary);
@@ -624,6 +658,54 @@ main.content-area {
 .btn-info:hover {
     opacity: 0.9;
 }
+
+.btn-outline-primary {
+    border-color: var(--color-border);
+    background-color: transparent;
+    color: var(--color-text-primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--color-surface-secondary);
+    border-color: var(--color-primary);
+}
+
+.btn-lg {
+    padding: var(--spacing-5) var(--spacing-6);
+    font-size: var(--font-size-lg);
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+.text-left {
+    text-align: left !important;
+}
+
+/* --- SPINNER --- */
+@keyframes spinner-border {
+  to { transform: rotate(360deg); }
+}
+
+.spinner-border {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    vertical-align: text-bottom;
+    border: .25em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border .75s linear infinite;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: .2em;
+}
+
 
 /* --- CUSTOM FORM STYLES --- */
 .form-control-file {

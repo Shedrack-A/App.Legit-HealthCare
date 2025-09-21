@@ -1,6 +1,15 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, EqualTo, Length
+from wtforms.validators import DataRequired, EqualTo, Length, Email, Optional
+
+class ChangePersonalInfoForm(FlaskForm):
+    first_name = StringField('First Name', validators=[DataRequired(), Length(min=2, max=50)])
+    last_name = StringField('Last Name', validators=[DataRequired(), Length(min=2, max=50)])
+    email = StringField('Email Address', validators=[DataRequired(), Email()])
+    phone_number = StringField('Phone Number', validators=[DataRequired()])
+    password = PasswordField('Confirm with Password', validators=[Optional()])
+    token = StringField('2FA Authenticator Code', validators=[Optional(), Length(min=6, max=6)])
+    submit = SubmitField('Save Changes', render_kw={'class': 'btn btn-primary'})
 
 class ChangePasswordForm(FlaskForm):
     """Form for users to change their own password."""

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: auto;">
+    <div class="card-header">
+        <h2>Two-Factor Authentication (2FA)</h2>
+        <p class="text-secondary">Add an extra layer of security to your account.</p>
+    </div>
+
+    {% if current_user.otp_enabled %}
+        <p>2FA is currently <strong>enabled</strong> on your account.</p>
+        <form method="POST" action="{{ url_for('account.disable_2fa') }}" onsubmit="return confirm('Are you sure you want to disable 2FA?');">
+            {{ disable_form.hidden_tag() }}
+            {{ disable_form.submit_disable(class="btn btn-danger") }}
+        </form>
+    {% else %}
+        <p>2FA is currently <strong>disabled</strong>. Scan the QR code with your authenticator app and enter the code to enable it.</p>
+
+        <div class="text-center my-3">
+            {{ qr_code_svg|safe }}
+        </div>
+
+        <form method="POST" action="{{ url_for('account.enable_2fa') }}">
+            {{ enable_form.hidden_tag() }}
+            <div class="form-group">
+                {{ enable_form.token.label }}
+                {{ enable_form.token(class="form-control") }}
+            </div>
+            <div class="mt-4">
+                {{ enable_form.submit_enable() }}
+            </div>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

@@ -21,6 +21,25 @@ if (themeSwitcher) {
 
 // Apply the saved theme on page load
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Profile Dropdown ---
+    const profileDropdown = document.querySelector('.profile-dropdown');
+    if(profileDropdown) {
+        const dropdownToggle = profileDropdown.querySelector('a');
+        const dropdownContent = profileDropdown.querySelector('.profile-dropdown-content');
+
+        dropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Close dropdown if clicking outside
+        document.addEventListener('click', function(e) {
+            if (!profileDropdown.contains(e.target)) {
+                dropdownContent.style.display = 'none';
+            }
+        });
+    }
+
     // --- Theme Management ---
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;

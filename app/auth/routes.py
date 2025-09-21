@@ -12,6 +12,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(
+            username=form.username.data,
             first_name=form.first_name.data,
             last_name=form.last_name.data,
             phone_number=form.phone_number.data,
@@ -39,20 +40,30 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(phone_number=form.phone_number.data).first()
-        if user is not None and user.verify_password(form.password.data):
-            # Check if 2FA is enabled
+        login_identifier = form.login.data
+        user = None
+
+        # Check if the identifier is a phone number (for admins) or username
+        if login_identifier.startswith('+'):
+            user = User.query.filter_by(phone_number=login_identifier).first()
+            if user and not user.has_permission('manage_roles'): # A non-admin trying to use phone number
+                flash('Login with phone number is for admins only.', 'danger')
+                return redirect(url_for('auth.login'))
+        else:
+            user = User.query.filter_by(username=login_identifier).first()
+
+        if user and user.verify_password(form.password.data):
             if user.otp_enabled:
                 session['user_id_for_2fa'] = user.id
                 return redirect(url_for('account.verify_2fa'))
 
-            # If 2FA is not enabled, log in directly
             login_user(user, remember=form.remember.data)
-            log_audit('USER_LOGIN', f'User logged in: {user.phone_number}')
+            log_audit('USER_LOGIN', f'User logged in: {user.username}')
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('main.dashboard'))
-        else:
-            flash('Invalid phone number or password.', 'danger')
+
+        flash('Invalid credentials. Please check your username/phone and password.', 'danger')
+
     return render_template('auth/login.html', title='Sign In', form=form)
 
 @auth.route('/logout')

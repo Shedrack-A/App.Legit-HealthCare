@@ -9,20 +9,22 @@ def test_registration_and_login(client):
     response = client.post('/auth/register', data={
         'first_name': 'test',
         'last_name': 'user',
+        'username': 'testuser',
+        'email_address': 'test@example.com',
         'phone_number': '+2348011122233',
         'password': 'Password123!',
         'confirm_password': 'Password123!'
     }, follow_redirects=True)
     assert response.status_code == 200
-    assert b'Sign In' in response.data # Should be on the login page
+    assert b'Sign In' in response.data
 
-    # Test login
+    # Test login with username
     response = client.post('/auth/login', data={
-        'phone_number': '+2348011122233',
+        'login': 'testuser',
         'password': 'Password123!'
     }, follow_redirects=True)
     assert response.status_code == 200
-    assert b'Dashboard' in response.data # Should be on the dashboard after login
+    assert b'Dashboard' in response.data
 
     # Test logout
     response = client.get('/auth/logout', follow_redirects=True)
@@ -32,7 +34,7 @@ def test_registration_and_login(client):
 def test_route_protection(client, app):
     # 1. Test accessing without being logged in
     response = client.get('/admin/roles', follow_redirects=True)
-    assert b'Sign In' in response.data # Should be redirected to login
+    assert b'Sign In' in response.data
 
     # 2. Setup users and roles for permission test
     with app.app_context():
@@ -43,23 +45,23 @@ def test_route_protection(client, app):
         db.session.add_all([perm, admin_role])
 
         # Create an admin user
-        admin_user = User(first_name='test_admin', last_name='user', phone_number='admin123', password='password')
+        admin_user = User(username='test_admin', email_address='admin@test.com', first_name='test_admin', last_name='user', phone_number='+2348011111111', password='password')
         admin_user.roles.append(admin_role)
 
         # Create a regular user
-        regular_user = User(first_name='test_regular', last_name='user', phone_number='regular123', password='password')
+        regular_user = User(username='test_regular', email_address='regular@test.com', first_name='test_regular', last_name='user', phone_number='+2348022222222', password='password')
 
         db.session.add_all([admin_user, regular_user])
         db.session.commit()
 
     # 3. Test as regular user (should get 403)
-    client.post('/auth/login', data={'phone_number': 'regular123', 'password': 'password'})
+    client.post('/auth/login', data={'login': 'test_regular', 'password': 'password'})
     response = client.get('/admin/roles')
-    assert response.status_code == 403 # Forbidden
+    assert response.status_code == 403
     client.get('/auth/logout')
 
-    # 4. Test as admin user (should get 200)
-    client.post('/auth/login', data={'phone_number': 'admin123', 'password': 'password'})
+    # 4. Test as admin user (should get 200, logging in with phone number)
+    client.post('/auth/login', data={'login': '+2348011111111', 'password': 'password'})
     response = client.get('/admin/roles')
     assert response.status_code == 200
     assert b'Manage Roles' in response.data
@@ -125,27 +127,33 @@ def test_temp_code_workflow(client, app):
             p_admin = Permission(name='manage_temp_codes')
             db.session.add(p_admin)
 
+        p_manage_roles = Permission.query.filter_by(name='manage_roles').first()
+        if not p_manage_roles:
+            p_manage_roles = Permission(name='manage_roles')
+            db.session.add(p_manage_roles)
+
         admin_role = Role(name='TempCodeAdmin')
         admin_role.permissions.append(p_admin)
+        admin_role.permissions.append(p_manage_roles)
         db.session.add(admin_role)
 
-        admin = User(first_name='temp_admin', last_name='user', phone_number='tempadmin123', password='password')
+        admin = User(username='temp_admin', email_address='tempadmin@test.com', first_name='temp_admin', last_name='user', phone_number='+2348033333333', password='password')
         admin.roles.append(admin_role)
 
-        user = User(first_name='temp_user', last_name='user', phone_number='tempuser123', password='password')
+        user = User(username='temp_user', email_address='tempuser@test.com', first_name='temp_user', last_name='user', phone_number='+2348044444444', password='password')
         db.session.add_all([admin, user])
         db.session.commit()
         user_id = user.id
         perm_id = p_sensitive.id
 
     # 2. User fails to access sensitive data
-    client.post('/auth/login', data={'phone_number': 'tempuser123', 'password': 'password'})
+    client.post('/auth/login', data={'login': 'temp_user', 'password': 'password'})
     response = client.get('/sensitive_data')
     assert response.status_code == 403
     client.get('/auth/logout')
 
     # 3. Admin generates a code for the user
-    client.post('/auth/login', data={'phone_number': 'tempadmin123', 'password': 'password'})
+    client.post('/auth/login', data={'login': '+2348033333333', 'password': 'password'})
     response = client.post('/admin/temp_codes', data={
         'user': user_id,
         'permission': perm_id,
@@ -163,7 +171,7 @@ def test_temp_code_workflow(client, app):
         code_str = temp_code.code
 
     # 5. User activates the code and accesses the page
-    client.post('/auth/login', data={'phone_number': 'tempuser123', 'password': 'password'})
+    client.post('/auth/login', data={'login': 'temp_user', 'password': 'password'})
     response = client.post('/activate_code', data={
         'temp_code': code_str,
         'next_url': '/sensitive_data'
@@ -175,12 +183,12 @@ def test_temp_code_workflow(client, app):
 def test_messaging_page_loads(client, app):
     # Setup a user to login
     with app.app_context():
-        user = User(first_name='chat', last_name='user', phone_number='chat123', password='password')
+        user = User(username='chatuser', email_address='chat@test.com', first_name='chat', last_name='user', phone_number='+2348055555555', password='password')
         db.session.add(user)
         db.session.commit()
 
     # Login and access the page
-    client.post('/auth/login', data={'phone_number': 'chat123', 'password': 'password'})
+    client.post('/auth/login', data={'login': 'chatuser', 'password': 'password'})
     response = client.get('/messaging/')
     assert response.status_code == 200
     assert b'Contacts' in response.data
@@ -200,7 +208,7 @@ def test_director_and_reports_flow(client, app):
         db.session.add(review_role)
 
         # User
-        reviewer = User(first_name='rev', last_name='user', phone_number='reviewer123', password='password')
+        reviewer = User(username='reviewer', email_address='reviewer@test.com', first_name='rev', last_name='user', phone_number='+2348066666666', password='password')
         reviewer.roles.append(review_role)
         db.session.add(reviewer)
 
@@ -218,7 +226,7 @@ def test_director_and_reports_flow(client, app):
         patient_id = patient.id
 
     # 2. Login as the reviewer
-    client.post('/auth/login', data={'phone_number': 'reviewer123', 'password': 'password'})
+    client.post('/auth/login', data={'login': 'reviewer', 'password': 'password'})
 
     # 3. Access Director page, search, and submit a review
     response = client.get('/director/')
@@ -271,18 +279,22 @@ def test_director_and_reports_flow(client, app):
 def test_2fa_flow(client, app):
     # 1. Setup a user
     with app.app_context():
-        user = User(first_name='two_factor', last_name='user', phone_number='2fa_user', password='password')
+        user = User(username='2fa_user', email_address='2fa@test.com', first_name='two_factor', last_name='user', phone_number='+2348077777777', password='password')
         db.session.add(user)
         db.session.commit()
         user_id = user.id
 
     # 2. Login and go to settings
-    client.post('/auth/login', data={'phone_number': '2fa_user', 'password': 'password'})
+    client.post('/auth/login', data={'login': '2fa_user', 'password': 'password'})
     response = client.get('/account/settings')
+    assert response.status_code == 200
+
+    # 3. Navigate to the 2FA page
+    response = client.get('/account/2fa')
     assert response.status_code == 200
     assert b'Two-Factor Authentication (2FA)' in response.data
 
-    # 3. Enable 2FA
+    # 4. Enable 2FA
     # Get the secret from the session to generate a valid token
     with client.session_transaction() as sess:
         secret = sess['otp_secret_in_session']
@@ -299,7 +311,7 @@ def test_2fa_flow(client, app):
     client.get('/auth/logout')
 
     # 5. Login again - should be stopped for 2FA
-    response = client.post('/auth/login', data={'phone_number': '2fa_user', 'password': 'password'}, follow_redirects=True)
+    response = client.post('/auth/login', data={'login': '2fa_user', 'password': 'password'}, follow_redirects=True)
     assert response.status_code == 200
     assert b'Verify 2FA' in response.data
 
@@ -316,7 +328,7 @@ def test_2fa_flow(client, app):
     client.get('/auth/logout')
 
     # 7. Login again, this time with a recovery code
-    client.post('/auth/login', data={'phone_number': '2fa_user', 'password': 'password'}, follow_redirects=True)
+    client.post('/auth/login', data={'login': '2fa_user', 'password': 'password'}, follow_redirects=True)
 
     with app.app_context():
         # This is tricky in a test. We need to get one of the recovery codes generated.

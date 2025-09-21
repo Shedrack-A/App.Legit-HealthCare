@@ -222,7 +222,7 @@ def audiometry_form(patient_id):
 def api_search_patient():
     search_term = request.args.get('q', '')
     company = session.get('company', 'DCP')
-    year = session.get('year', 2024) # Default to a recent year
+    year = session.get('year', datetime.now().year)
 
     if not search_term:
         return jsonify([])

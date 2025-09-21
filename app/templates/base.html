@@ -51,7 +51,6 @@
                     <li><a href="{{ url_for('admin.index') }}"><i class="fas fa-cogs"></i> Control Panel</a></li>
                     {% endif %}
                     <hr>
-                    <li><a href="{{ url_for('account.settings') }}"><i class="fas fa-user-cog"></i> Manage Account</a></li>
                     <li><a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
                 {% endblock %}
@@ -77,12 +76,22 @@
                                     {% endfor %}
                                 </select>
                             </form>
-                            <div class="header-actions">
-                                <div class="notification-bell" id="notification-bell">
+                            <div class="header-actions d-flex align-items-center">
+                                <div class="notification-bell" id="notification-bell" style="margin-right: 1rem;">
                                     <i class="fas fa-bell"></i>
                                     <span class="notification-dot" style="display: none;"></span>
                                 </div>
-                                <button id="theme-switcher" class="btn">Toggle Theme</button>
+                                <button id="theme-switcher" class="btn" style="margin-right: 1rem;">Toggle Theme</button>
+                                <div class="profile-dropdown">
+                                    <a href="#" class="d-flex align-items-center">
+                                        <i class="fas fa-user-circle" style="font-size: 1.5rem; margin-right: 0.5rem;"></i>
+                                        <span>{{ current_user.first_name }}</span>
+                                    </a>
+                                    <div class="profile-dropdown-content">
+                                        <a href="{{ url_for('account.settings') }}">Manage Account</a>
+                                        <a href="{{ url_for('auth.logout') }}">Logout</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
