@@ -131,6 +131,12 @@ def change_user_password(user_id):
 @permission_required('manage_temp_codes')
 def manage_temp_codes():
     form = GenerateTempCodeForm()
+
+    # Pre-fill user from query parameter if present
+    user_id_to_prefill = request.args.get('user_id', type=int)
+    if user_id_to_prefill and not form.is_submitted():
+        form.user.data = user_id_to_prefill
+
     if form.validate_on_submit():
         expiry = datetime.now(UTC) + timedelta(minutes=form.duration.data)
         code_str = f"LHCSL-{secrets.token_hex(4).upper()}{secrets.token_hex(4).upper()}"

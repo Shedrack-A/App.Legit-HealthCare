@@ -19,8 +19,72 @@ if (themeSwitcher) {
     themeSwitcher.addEventListener('click', toggleTheme);
 }
 
+function showToast(message, category = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${category}`;
+    toast.textContent = message;
+
+    container.appendChild(toast);
+
+    // Animate in
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 100);
+
+    // Animate out and remove after 5 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        toast.addEventListener('transitionend', () => toast.remove());
+    }, 5000);
+}
+
 // Apply the saved theme on page load
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Profile Dropdown ---
+    const profileDropdown = document.querySelector('.profile-dropdown');
+    if(profileDropdown) {
+        const dropdownToggle = profileDropdown.querySelector('a');
+        const dropdownContent = profileDropdown.querySelector('.profile-dropdown-content');
+
+        dropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Close dropdown if clicking outside
+        document.addEventListener('click', function(e) {
+            if (!profileDropdown.contains(e.target)) {
+                dropdownContent.style.display = 'none';
+            }
+        });
+    }
+
+    // --- Countdown Timer for Temp Code ---
+    const countdownTimer = document.getElementById('countdown-timer');
+    if (countdownTimer) {
+        const expiryTime = new Date(countdownTimer.dataset.expiry).getTime();
+
+        const interval = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = expiryTime - now;
+
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            countdownTimer.innerHTML = `${minutes}m ${seconds}s`;
+
+            if (distance < 0) {
+                clearInterval(interval);
+                countdownTimer.innerHTML = "EXPIRED";
+                // Optionally hide or remove the notification bar
+                countdownTimer.closest('.sticky-notification').style.display = 'none';
+            }
+        }, 1000);
+    }
+
     // --- Profile Dropdown ---
     const profileDropdown = document.querySelector('.profile-dropdown');
     if(profileDropdown) {

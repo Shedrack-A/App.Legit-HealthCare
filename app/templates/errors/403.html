@@ -1,20 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="error-page">
-    <h2>403 - Access Forbidden</h2>
-    <p>You do not have the necessary permissions to access this page.</p>
+<div class="error-page-container">
+    <div class="error-page-icon">
+        <i class="fas fa-lock"></i>
+    </div>
+    <h2>Access Denied</h2>
+    <p class="text-secondary" style="max-width: 450px;">You do not have the necessary permissions to view this page. You can request temporary access from an administrator.</p>
 
-    <div class="page-section">
-        <h3>Use a Temporary Access Code</h3>
-        <p>If you have been given a temporary access code by an administrator, please enter it below to gain access.</p>
-        <form action="{{ url_for('main.activate_code') }}" method="POST" class="activate-code-form">
-            <input type="text" name="temp_code" placeholder="Enter code..." required>
-            <input type="hidden" name="next_url" value="{{ request.path }}">
-            <button type="submit" class="btn-submit">Activate Code</button>
-        </form>
+    <div class="card mt-4" style="max-width: 400px;">
+        <div class="card-body">
+            <h5 class="card-title">Have a Temporary Code?</h5>
+             <form action="{{ url_for('main.activate_code') }}" method="POST" class="d-flex gap-2">
+                <input type="text" name="temp_code" class="form-control" placeholder="Enter code..." required>
+                <input type="hidden" name="next_url" value="{{ request.path }}">
+                <button type="submit" class="btn btn-primary">Activate</button>
+            </form>
+        </div>
     </div>
 
-    <p><a href="{{ url_for('main.index') }}">Go back to the Dashboard</a></p>
+    <div class="error-page-actions">
+        <a href="{{ url_for('main.request_access', next_url=request.path) }}" class="btn btn-secondary">Request Access</a>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Return to Dashboard</a>
+    </div>
 </div>
 {% endblock %}

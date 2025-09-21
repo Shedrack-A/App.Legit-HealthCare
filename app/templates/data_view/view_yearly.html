@@ -7,11 +7,8 @@
         <p class="text-secondary">This page shows patients registered for the selected company and screening year.</p>
     </div>
 
-    <form method="GET" action="{{ url_for('data_view.view_yearly_records') }}" class="mb-4">
-        <div class="d-flex gap-2">
-            <input type="text" name="search" class="form-control" placeholder="Search by Staff ID or Name..." value="{{ request.args.get('search', '') }}">
-            <button type="submit" class="btn btn-primary">Search</button>
-        </div>
+    <form id="search-form" class="mb-4">
+        <input id="search-input" type="text" name="search" class="form-control" placeholder="Search by Staff ID or Name...">
     </form>
 
     <div class="table-container">
@@ -26,44 +23,103 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for patient in patients.items %}
-                <tr>
-                    <td>{{ patient.patient_id }}</td>
-                    <td>{{ patient.staff_id }}</td>
-                    <td>{{ patient.first_name }} {{ patient.last_name }}</td>
-                    <td>{{ patient.screening_year }}</td>
-                    <td>{{ patient.company }}</td>
-                    <td>
-                        <a href="{{ url_for('data_view.edit_patient', patient_id=patient.id) }}" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i> Edit</a>
-                        <form action="{{ url_for('data_view.delete_patient', patient_id=patient.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this patient?');">
-                            <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i> Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="6" class="text-center">No records found for this year.</td>
-                </tr>
-                {% endfor %}
+            <tbody id="records-tbody">
+                <!-- Records will be injected by JS -->
             </tbody>
         </table>
     </div>
-
-    {% if patients.pages > 1 %}
-    <div class="pagination">
-        <a href="{{ url_for('data_view.view_yearly_records', page=1, search=request.args.get('search', '')) }}" class="{{ 'disabled' if not patients.has_prev else '' }}">&laquo;&laquo;</a>
-        <a href="{{ url_for('data_view.view_yearly_records', page=patients.prev_num, search=request.args.get('search', '')) }}" class="{{ 'disabled' if not patients.has_prev else '' }}">&laquo;</a>
-        {% for page_num in patients.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-            {% if page_num %}
-                <a href="{{ url_for('data_view.view_yearly_records', page=page_num, search=request.args.get('search', '')) }}" class="{{ 'current-page' if page_num == patients.page else '' }}">{{ page_num }}</a>
-            {% else %}
-                <span>...</span>
-            {% endif %}
-        {% endfor %}
-        <a href="{{ url_for('data_view.view_yearly_records', page=patients.next_num, search=request.args.get('search', '')) }}" class="{{ 'disabled' if not patients.has_next else '' }}">&raquo;</a>
-        <a href="{{ url_for('data_view.view_yearly_records', page=patients.pages, search=request.args.get('search', '')) }}" class="{{ 'disabled' if not patients.has_next else '' }}">&raquo;&raquo;</a>
+    <div id="pagination-container" class="pagination">
+        <!-- Pagination links will be injected by JS -->
     </div>
-    {% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('search-input');
+    const recordsTbody = document.getElementById('records-tbody');
+    const paginationContainer = document.getElementById('pagination-container');
+    let currentPage = 1;
+    let currentSearch = '';
+
+    function fetchRecords() {
+        const url = new URL("{{ url_for('data_view.api_search_yearly_records') }}", window.location.origin);
+        url.searchParams.set('page', currentPage);
+        url.searchParams.set('search', currentSearch);
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                updateTable(data.patients);
+                updatePagination(data);
+            })
+            .catch(error => console.error('Error fetching records:', error));
+    }
+
+    function updateTable(patients) {
+        recordsTbody.innerHTML = '';
+        if (patients.length > 0) {
+            patients.forEach(p => {
+                const editUrl = `{{ url_for('data_view.edit_patient', patient_id=0) }}`.replace('0', p.id);
+                const deleteUrl = `{{ url_for('data_view.delete_patient', patient_id=0) }}`.replace('0', p.id);
+                const row = `
+                    <tr>
+                        <td>${p.patient_id}</td>
+                        <td>${p.staff_id}</td>
+                        <td>${p.first_name} ${p.last_name}</td>
+                        <td>${p.screening_year}</td>
+                        <td>${p.company}</td>
+                        <td>
+                            <a href="${editUrl}" class="btn btn-sm btn-secondary"><i class="fas fa-edit"></i> Edit</a>
+                            <form action="${deleteUrl}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                                <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i> Delete</button>
+                            </form>
+                        </td>
+                    </tr>`;
+                recordsTbody.innerHTML += row;
+            });
+        } else {
+            recordsTbody.innerHTML = '<tr><td colspan="6" class="text-center">No records found.</td></tr>';
+        }
+    }
+
+    function updatePagination(data) {
+        paginationContainer.innerHTML = '';
+        if (data.pages <= 1) return;
+
+        let links = '';
+        // Previous link
+        links += `<a href="#" data-page="${data.prev_num}" class="${data.has_prev ? '' : 'disabled'}">&laquo;</a>`;
+        // Page links
+        for (let i = 1; i <= data.pages; i++) {
+            links += `<a href="#" data-page="${i}" class="${i === data.page ? 'current-page' : ''}">${i}</a>`;
+        }
+        // Next link
+        links += `<a href="#" data-page="${data.next_num}" class="${data.has_next ? '' : 'disabled'}">&raquo;</a>`;
+        paginationContainer.innerHTML = links;
+    }
+
+    let searchTimeout;
+    searchInput.addEventListener('keyup', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            currentPage = 1;
+            currentSearch = searchInput.value;
+            fetchRecords();
+        }, 300);
+    });
+
+    paginationContainer.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (e.target.tagName === 'A' && !e.target.classList.contains('disabled')) {
+            currentPage = e.target.dataset.page;
+            fetchRecords();
+        }
+    });
+
+    // Initial load
+    fetchRecords();
+});
+</script>
 {% endblock %}

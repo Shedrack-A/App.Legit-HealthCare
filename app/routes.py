@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from flask_login import current_user, login_required
-from app import db
+from app import db, socketio
 from app.decorators import permission_required
 from app.models import TemporaryAccessCode
 from datetime import datetime, date
@@ -66,3 +66,20 @@ def activate_code():
 
     flash(f"Permission '{code.permission.name}' has been temporarily granted.", 'success')
     return redirect(next_url)
+
+@main.route('/request_access')
+@login_required
+def request_access():
+    next_url = request.args.get('next_url')
+    user_name = f"{current_user.first_name} {current_user.last_name}"
+
+    # Emit a socket event to a room where admins are listening
+    # We'll need to define how admins join this room upon login
+    socketio.emit('access_request', {
+        'user_id': current_user.id,
+        'user_name': user_name,
+        'requested_url': next_url
+    }, room='admins')
+
+    flash('Your request for access has been sent to the administrators.', 'info')
+    return redirect(url_for('main.dashboard'))

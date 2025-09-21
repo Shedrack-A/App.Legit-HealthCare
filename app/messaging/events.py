@@ -8,6 +8,12 @@ def connect():
     if current_user.is_authenticated:
         join_room(current_user.id)
         print(f"Client connected: {current_user.first_name}, joined room: {current_user.id}")
+
+        # If the user is an admin, also add them to the 'admins' room for notifications
+        if current_user.has_permission('manage_roles'):
+            join_room('admins')
+            print(f"Admin user {current_user.first_name} joined 'admins' room.")
+
         emit('status', {'msg': f'Connected and joined room {current_user.id}'})
     else:
         # For guest users or patient portal users not handled by Flask-Login

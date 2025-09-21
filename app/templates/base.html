@@ -16,6 +16,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body data-user-id="{{ current_user.id if current_user.is_authenticated else '' }}">
+    {% if active_temp_code %}
+    <div class="sticky-notification">
+        You have temporary access using code <strong>{{ active_temp_code.code }}</strong>.
+        Permission '{{ active_temp_code.permission.name }}' expires in <span id="countdown-timer" data-expiry="{{ active_temp_code.expiry_time.isoformat() }}"></span>.
+    </div>
+    {% endif %}
     <div class="app-wrapper">
         {% if current_user.is_authenticated %}
             <nav class="sidebar">
@@ -77,9 +83,14 @@
                                 </select>
                             </form>
                             <div class="header-actions d-flex align-items-center">
-                                <div class="notification-bell" id="notification-bell" style="margin-right: 1rem;">
-                                    <i class="fas fa-bell"></i>
-                                    <span class="notification-dot" style="display: none;"></span>
+                                <div class="notification-container">
+                                    <div class="notification-bell" id="notification-bell">
+                                        <i class="fas fa-bell"></i>
+                                        <span class="notification-dot" style="display: none;"></span>
+                                    </div>
+                                    <div class="notification-panel" id="notification-panel">
+                                        <!-- Notifications will be injected here -->
+                                    </div>
                                 </div>
                                 <button id="theme-switcher" class="btn" style="margin-right: 1rem;">Toggle Theme</button>
                                 <div class="profile-dropdown">
@@ -99,15 +110,7 @@
             {% endif %}
 
             <main class="content-area">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+                <div id="toast-container"></div>
                 {% block content %}{% endblock %}
             </main>
         </div>
@@ -121,6 +124,17 @@
     {% if current_user.is_authenticated %}
     <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
     {% endif %}
+
+    <script>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    showToast("{{ message }}", "{{ category }}");
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </script>
+
     {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -1,5 +1,4 @@
 from flask import render_template, redirect, url_for, flash, session, request
-from markupsafe import Markup
 from flask_login import login_required, current_user, login_user
 from app import db, bcrypt
 from app.account import account
@@ -11,6 +10,7 @@ import qrcode
 import qrcode.image.svg
 from io import BytesIO
 import secrets
+from markupsafe import Markup
 
 def generate_recovery_codes(user):
     """Generate and store new recovery codes for a user."""

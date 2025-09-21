@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, flash, session
+from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_required
 from sqlalchemy import or_
 from app.data_view import data_view
@@ -65,6 +65,13 @@ def edit_patient(patient_id):
 @data_view.route('/yearly')
 @login_required
 def view_yearly_records():
+    company = session.get('company', 'DCP')
+    year = session.get('year', date.today().year)
+    return render_template('data_view/view_yearly.html', title=f'{year} Records ({company})')
+
+@data_view.route('/api/yearly_search')
+@login_required
+def api_search_yearly_records():
     page = request.args.get('page', 1, type=int)
     search_query = request.args.get('search', '')
     company = session.get('company', 'DCP')
@@ -83,4 +90,20 @@ def view_yearly_records():
 
     patients = query.order_by(Patient.date_registered.desc()).paginate(page=page, per_page=20)
 
-    return render_template('data_view/view_yearly.html', title=f'{year} Records ({company})', patients=patients)
+    return jsonify({
+        'patients': [{
+            'id': p.id,
+            'patient_id': p.patient_id,
+            'staff_id': p.staff_id,
+            'first_name': p.first_name,
+            'last_name': p.last_name,
+            'company': p.company,
+            'screening_year': p.screening_year
+        } for p in patients.items],
+        'has_next': patients.has_next,
+        'has_prev': patients.has_prev,
+        'next_num': patients.next_num,
+        'prev_num': patients.prev_num,
+        'page': patients.page,
+        'pages': patients.pages
+    })

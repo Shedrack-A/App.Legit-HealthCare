@@ -63,6 +63,9 @@ def create_app(config_name='default'):
     from app.reports import reports as reports_blueprint
     app.register_blueprint(reports_blueprint, url_prefix='/reports')
 
+    from app.context_processors import inject_temp_code
+    app.context_processor(inject_temp_code)
+
     from app.account import account as account_blueprint
     app.register_blueprint(account_blueprint, url_prefix='/account')
 
