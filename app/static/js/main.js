@@ -43,6 +43,24 @@ function showToast(message, category = 'info') {
 
 // Apply the saved theme on page load
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Back Button ---
+    const backButton = document.getElementById('back-button');
+    if(backButton) {
+        backButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.history.back();
+        });
+    }
+
+    // --- Sidebar Active Link ---
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-links a');
+    navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
+        }
+    });
+
     // --- Profile Dropdown ---
     const profileDropdown = document.querySelector('.profile-dropdown');
     if(profileDropdown) {
