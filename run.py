@@ -11,24 +11,26 @@ def make_shell_context():
 
 @app.cli.command("create-admin")
 def create_admin():
-    """Creates the admin user."""
-    admin_role = Role.query.filter_by(name='Admin').first()
-    if admin_role is None:
-        admin_role = Role(name='Admin')
-        db.session.add(admin_role)
+    """Creates the default admin user."""
+    # Ensure the Admin role exists and has all permissions
+    init_permissions()
 
-    admin_user = User.query.filter_by(phone_number='admin').first()
+    admin_role = Role.query.filter_by(name='Admin').first()
+    admin_user = User.query.filter_by(username='admin').first()
+
     if admin_user is None:
         admin_user = User(
+            username='admin',
+            email_address='admin@local.host',
             first_name='Admin',
             last_name='User',
-            phone_number='admin',
+            phone_number='+2340000000000', # Placeholder phone
             password='adminpass'
         )
         admin_user.roles.append(admin_role)
         db.session.add(admin_user)
         db.session.commit()
-        print('Admin user created successfully.')
+        print('Admin user created successfully. Credentials: admin / adminpass')
     else:
         print('Admin user already exists.')
 

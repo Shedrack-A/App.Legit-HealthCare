@@ -42,7 +42,7 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('That phone number is already registered. Please choose a different one.')
 
 class LoginForm(FlaskForm):
-    login = StringField('Username or Phone Number', validators=[DataRequired()])
+    login = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login', render_kw={'class': 'btn btn-primary'})

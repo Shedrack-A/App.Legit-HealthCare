@@ -40,17 +40,7 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        login_identifier = form.login.data
-        user = None
-
-        # Check if the identifier is a phone number (for admins) or username
-        if login_identifier.startswith('+'):
-            user = User.query.filter_by(phone_number=login_identifier).first()
-            if user and not user.has_permission('manage_roles'): # A non-admin trying to use phone number
-                flash('Login with phone number is for admins only.', 'danger')
-                return redirect(url_for('auth.login'))
-        else:
-            user = User.query.filter_by(username=login_identifier).first()
+        user = User.query.filter_by(username=form.login.data).first()
 
         if user and user.verify_password(form.password.data):
             if user.otp_enabled:
@@ -62,7 +52,7 @@ def login():
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('main.dashboard'))
 
-        flash('Invalid credentials. Please check your username/phone and password.', 'danger')
+        flash('Invalid username or password.', 'danger')
 
     return render_template('auth/login.html', title='Sign In', form=form)
 
